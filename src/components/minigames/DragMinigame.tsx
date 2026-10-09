@@ -245,7 +245,7 @@ export function DragMinigame({ level, memory, dark, onComplete }: MinigameProps)
             } ${stolen ? "border-dashed border-neutral-400" : "border-white/60"} ${
               selected === o.id ? "ring-4 ring-amber-300" : ""
             } ${shake === o.id ? "game-shake" : ""} ${wobble === o.id ? "game-wobble" : ""} ${
-              isPlaced || done ? "cursor-default" : "cursor-grab"
+              isPlaced ? "pointer-events-none" : done ? "cursor-default" : "cursor-grab"
             }`}
             style={{
               left: `${x}%`,
