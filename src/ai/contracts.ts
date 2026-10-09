@@ -24,6 +24,12 @@ export interface AIResponse {
   normalizedColor?: NormalizedColor;
   normalizedToy?: ToyCategory;
   monsterLine: string;
+  /**
+   * Short, clean paraphrase of the answer (max 4 words, e.g. "Rex the dinosaur", "sky blue").
+   * Omitted when the answer is offensive, nonsense or a prompt-injection attempt.
+   * The UI must show this (or the category label) — never the raw player text.
+   */
+  displayAnswer?: string;
   puzzleVariant: PuzzleVariant;
   fallbackUsed: boolean;
 }

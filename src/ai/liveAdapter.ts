@@ -3,7 +3,7 @@ import { z } from "zod";
 import type { AIAdapter, AIRequest, AIResponse } from "./contracts";
 import { interpretAnswerAI } from "./interpret.functions";
 
-export const LIVE_TIMEOUT_MS = 4000;
+export const LIVE_TIMEOUT_MS = 5000;
 
 const responseSchema = z.object({
   questionType: z.enum(["favorite_color", "favorite_toy"]),
@@ -11,7 +11,8 @@ const responseSchema = z.object({
     .enum(["red", "blue", "yellow", "green", "purple", "pink", "orange", "other"])
     .optional(),
   normalizedToy: z.enum(["doll", "teddy", "dinosaur", "car", "robot", "ball", "other"]).optional(),
-  monsterLine: z.string().min(1),
+  monsterLine: z.string().trim().min(1).max(140),
+  displayAnswer: z.string().trim().min(1).max(40).optional(),
   puzzleVariant: z.enum(["color_removed", "toy_shadow"]),
   fallbackUsed: z.boolean(),
 });
