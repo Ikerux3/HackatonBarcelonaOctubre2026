@@ -1,15 +1,15 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { sfx } from "@/game/audio";
 import { ASSETS, COLOR_HEX, type AssetId } from "@/game/levels/assets";
-import type { Point, SceneObject, TidyOptions } from "@/game/levels/types";
+import { zoneCovers, type Point, type SceneObject, type TidyOptions } from "@/game/levels/types";
 import type { MinigameProps } from "./types";
 import { SceneBackdrop } from "./SceneBackdrop";
 
 const HIT_MARGIN = 5;
 
 /** Small deterministic PRNG so a fixed seed always gives the same toys. */
-function mulberry32(seed: number) {
+export function mulberry32(seed: number) {
   let a = seed >>> 0;
   return () => {
     a = (a + 0x6d2b79f5) >>> 0;
@@ -29,6 +29,23 @@ export function pickToys(pool: AssetId[], count: number, seed: number): AssetId[
   }
   return a.slice(0, count);
 }
+
+const nearestSlot = (slots: Point[], p: Point) =>
+  slots.reduce(
+    (best, s, i) =>
+      Math.hypot(s.x - p.x, s.y - p.y) < Math.hypot(slots[best]!.x - p.x, slots[best]!.y - p.y)
+        ? i
+        : best,
+    0,
+  );
+
+/** Which of the 3 spots hides the last toy — deterministic per seed. */
+export function hideSpotIndex(seed: number, count: number): number {
+  return Math.floor(mulberry32(seed ^ 0x5eed)() * count);
+}
+
+type Poss = { toyId: string; slot: number };
+type Hide = { toyId: string; spot: number; revealed: boolean };
 
 type Cover = { toyId: string; role: "cushion" | "drawer"; open: boolean };
 
@@ -71,14 +88,66 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
   const [shake, setShake] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
+  // ── possessed (role 4) ──
+  const P = tidy?.possessed;
+  const [poss, setPoss] = useState<Poss | null>(null);
+  const [lights, setLights] = useState({ main: true, lamp: false });
+  const [eyes, setEyes] = useState(false);
+  const [possHint, setPossHint] = useState(false);
+  const blackoutsRef = useRef(0);
+  const lastBlackoutRef = useRef(0);
+  const lastDropRef = useRef(0);
+  const lastProgressRef = useRef(0);
+  const dragRef = useRef<Drag | null>(null);
+  dragRef.current = drag;
+  const lightsRef = useRef(lights);
+  lightsRef.current = lights;
+  const possRef = useRef(poss);
+  possRef.current = poss;
+
+  // ── hide and seek (role 5) ──
+  const H = tidy?.hideSeek;
+  const [hide, setHide] = useState<Hide | null>(null);
+  const [hideHint, setHideHint] = useState(false);
+
+  const [whisper, setWhisper] = useState<string | null>(null);
+  const whisperT = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const say = useCallback((line: string, ms = 3200) => {
+    if (!line) return;
+    if (whisperT.current) clearTimeout(whisperT.current);
+    setWhisper(line);
+    whisperT.current = setTimeout(() => setWhisper(null), ms);
+  }, []);
+  useEffect(() => () => {
+    if (whisperT.current) clearTimeout(whisperT.current);
+  }, []);
+  const maskId = useId().replace(/:/g, "");
+
+  const litAt = (p: Point, l = lights) =>
+    !!P &&
+    ((l.main && P.mainZones.some((z) => zoneCovers(z, p))) ||
+      (l.lamp && P.lampZones.some((z) => zoneCovers(z, p))));
+  const possActive = !!poss && !placed.includes(poss.toyId);
+
   const total = level.objects.length;
   const step = tidy?.steps[placed.length];
 
   // start the role for the next toy
   useEffect(() => {
     if (!tidy || !step || placed.length >= total) return;
-    if (step.role === "plain") {
+    if (step.role === "plain" || step.role === "possessed") {
       setCover(null);
+      return;
+    }
+    if (step.role === "hide_seek") {
+      setCover(null);
+      if (!H || H.spots.length === 0) return;
+      const toy = level.objects.find((o) => !placed.includes(o.id));
+      if (!toy) return;
+      const spot = hideSpotIndex(seed, H.spots.length);
+      setSelected(null);
+      setPos((p) => ({ ...p, [toy.id]: { x: H.spots[spot]!.x, y: H.spots[spot]!.y } }));
+      setHide({ toyId: toy.id, spot, revealed: false });
       return;
     }
     const spot = step.role === "cushion" ? tidy.cushion : tidy.drawer;
@@ -104,7 +173,120 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
   }, [placed.length, total, done, onComplete]);
 
   const locked = (id: string) =>
-    done || placed.includes(id) || (!!cover && (cover.toyId !== id || !cover.open));
+    done ||
+    placed.includes(id) ||
+    (!!cover && (cover.toyId !== id || !cover.open)) ||
+    (possActive && (poss!.toyId !== id || !litAt(P!.slots[poss!.slot]!))) ||
+    (!!hide && !placed.includes(hide.toyId) && (hide.toyId !== id || !hide.revealed));
+
+  // ── possessed logic ──
+  const blackout = useCallback(
+    (first: boolean) => {
+      if (!P) return;
+      blackoutsRef.current += 1;
+      lastBlackoutRef.current = Date.now();
+      lastProgressRef.current = Date.now();
+      setLights({ main: false, lamp: false });
+      setPossHint(false);
+      if (first) sfx.possessed();
+      else sfx.blackout();
+      setEyes(true);
+      setTimeout(() => setEyes(false), 2600);
+      // light out mid-drag: the toy slips back to the nearest valid slot
+      const d = dragRef.current;
+      const cur = possRef.current;
+      if (cur && d?.id === cur.toyId) {
+        setDrag(null);
+        setPoss({ ...cur, slot: nearestSlot(P.slots, d) });
+      }
+    },
+    [P],
+  );
+
+  const possess = (o: SceneObject) => {
+    if (!P) return;
+    const from = pos[o.id] ?? { x: o.x, y: o.y };
+    setSelected(null);
+    setPoss({ toyId: o.id, slot: nearestSlot(P.slots, from) });
+    blackout(true);
+    say(P.possessLine, 3600);
+  };
+
+  // hop between dark slots while unlit
+  useEffect(() => {
+    if (!possActive || !P) return;
+    const t = setInterval(() => {
+      const cur = possRef.current;
+      if (!cur || dragRef.current?.id === cur.toyId) return;
+      const l = lightsRef.current;
+      if (litAt(P.slots[cur.slot]!, l)) return; // frozen
+      const n = P.slots.length;
+      for (let k = 1; k < n; k++) {
+        const i = (cur.slot + k) % n;
+        if (!litAt(P.slots[i]!, l)) {
+          setPoss({ ...cur, slot: i });
+          return;
+        }
+      }
+    }, P.moveMs);
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [possActive, P]);
+
+  // automatic blackouts (capped, with a safe window) + stuck hint
+  useEffect(() => {
+    if (!possActive || !P) return;
+    const t = setInterval(() => {
+      const now = Date.now();
+      const l = lightsRef.current;
+      if (
+        blackoutsRef.current < P.maxBlackouts &&
+        (l.main || l.lamp) &&
+        now - lastBlackoutRef.current >= P.safeWindowMs &&
+        now - lastDropRef.current >= P.safeWindowMs
+      ) {
+        blackout(false);
+        return;
+      }
+      if (now - lastProgressRef.current >= P.hintAfterMs) setPossHint(true);
+    }, 500);
+    return () => clearInterval(t);
+  }, [possActive, P, blackout]);
+
+  const toggleLight = (k: "main" | "lamp") => {
+    sfx.lightSwitch();
+    setLights((l) => ({ ...l, [k]: !l[k] }));
+  };
+
+  // ── hide and seek logic ──
+  const hideActive = !!hide && !placed.includes(hide.toyId);
+  useEffect(() => {
+    if (!hideActive || hide!.revealed || !H) return;
+    const spot = H.spots[hide!.spot]!;
+    sfx.squeak(spot.x);
+    const sq = setInterval(() => sfx.squeak(spot.x), 5000);
+    const hint = setTimeout(() => {
+      setHideHint(true);
+      say(H.hintLine, 4000);
+    }, H.hintAfterMs);
+    return () => {
+      clearInterval(sq);
+      clearTimeout(hint);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hideActive, hide?.revealed]);
+
+  const tapSpot = (i: number) => {
+    if (!hide || hide.revealed || !H) return;
+    if (i === hide.spot) {
+      sfx.snap();
+      setHide({ ...hide, revealed: true });
+      setHideHint(false);
+    } else {
+      sfx.wrong();
+      say(H.wrongLine, 1600);
+    }
+  };
 
   const openCover = () => {
     if (!cover || cover.open) return;
@@ -122,9 +304,16 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
 
   const place = (id: string) => {
     sfx.snap();
+    lastDropRef.current = Date.now();
+    lastProgressRef.current = Date.now();
     setPlaced((p) => (p.includes(id) ? p : [...p, id]));
     setSelected(null);
     if (cover?.toyId === id) setCover(null);
+    if (poss?.toyId === id && P) {
+      setPossHint(false);
+      setLights({ main: true, lamp: false });
+      say(P.freezeLine, 3200);
+    }
   };
   const reject = (id: string, wrongSpot: boolean) => {
     if (wrongSpot) sfx.wrong();
@@ -135,10 +324,16 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
   const posOf = (o: SceneObject) => {
     if (drag?.id === o.id) return { x: drag.x, y: drag.y };
     if (placed.includes(o.id)) return { x: box.x, y: box.y };
+    if (poss?.toyId === o.id && P) return P.slots[poss.slot]!;
     return pos[o.id] ?? { x: o.x, y: o.y };
   };
 
   const onDown = (e: React.PointerEvent, o: SceneObject) => {
+    if (step?.role === "possessed" && P && !poss && !done && !cover && !placed.includes(o.id)) {
+      e.preventDefault();
+      possess(o);
+      return;
+    }
     if (locked(o.id)) {
       if (!placed.includes(o.id)) reject(o.id, false);
       return;
@@ -174,7 +369,10 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
       return;
     }
     if (inBox(d.x, d.y)) place(o.id);
-    else {
+    else if (poss?.toyId === o.id && P) {
+      setPoss({ ...poss, slot: nearestSlot(P.slots, d) });
+      reject(o.id, false);
+    } else {
       // dropped elsewhere: toy stays where it was released (inside the scene)
       setPos((p) => ({
         ...p,
