@@ -138,10 +138,7 @@ export interface TidyRolesLevel extends LevelBase {
 }
 
 export type LevelConfig =
-  | DragToTargetLevel
-  | PlaceItemsLevel
-  | FlashlightFindLevel
-  | TidyRolesLevel;
+  DragToTargetLevel | PlaceItemsLevel | FlashlightFindLevel | TidyRolesLevel;
 export type MinigameType = LevelConfig["type"];
 export const MINIGAME_TYPES: MinigameType[] = [
   "drag_to_target",

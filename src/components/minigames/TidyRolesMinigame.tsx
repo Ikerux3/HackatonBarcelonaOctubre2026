@@ -148,7 +148,16 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
     const p = toPct(e.clientX, e.clientY);
     const cur = posOf(o);
     sfx.click();
-    setDrag({ id: o.id, x: cur.x, y: cur.y, dx: p.x - cur.x, dy: p.y - cur.y, sx: p.x, sy: p.y, moved: false });
+    setDrag({
+      id: o.id,
+      x: cur.x,
+      y: cur.y,
+      dx: p.x - cur.x,
+      dy: p.y - cur.y,
+      sx: p.x,
+      sy: p.y,
+      moved: false,
+    });
   };
   const onMove = (e: React.PointerEvent) => {
     if (!drag) return;
@@ -228,7 +237,9 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
           height: `${box.h}%`,
         }}
       >
-        <span className={`text-[10px] font-bold uppercase ${dark ? "text-neutral-400" : "text-amber-950"}`}>
+        <span
+          className={`text-[10px] font-bold uppercase ${dark ? "text-neutral-400" : "text-amber-950"}`}
+        >
           {box.label}
         </span>
         {/* lid closes when everything is put away */}

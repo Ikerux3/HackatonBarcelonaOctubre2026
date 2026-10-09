@@ -26,9 +26,22 @@ import { MinigameHost } from "@/components/minigames/MinigameHost";
 import { SceneBackdrop } from "@/components/minigames/SceneBackdrop";
 import type { GameMemory } from "@/game/GameState";
 import { ASSETS, ASSET_IDS, COLORS, COLOR_HEX, type AssetId } from "@/game/levels/assets";
-import { BEDTIME, BUILT_IN_LEVELS, SET_TABLE, TIDY_TOYS } from "@/game/levels/defaultLevels";
-import type { FlashlightOptions, LevelConfig, SceneObject, TargetZone } from "@/game/levels/types";
-import { MINIGAME_TYPES, SCENE_THEMES } from "@/game/levels/types";
+import {
+  BEDTIME,
+  BUILT_IN_LEVELS,
+  SET_TABLE,
+  TIDY_TOYS,
+  TIDY_TOYS_DRAG,
+} from "@/game/levels/defaultLevels";
+import type {
+  FlashlightOptions,
+  TidyOptions,
+  TidyRole,
+  LevelConfig,
+  SceneObject,
+  TargetZone,
+} from "@/game/levels/types";
+import { MINIGAME_TYPES, SCENE_THEMES, TIDY_ROLES } from "@/game/levels/types";
 import { parseLevelJson, validateLevel } from "@/game/levels/validate";
 
 const STORAGE_KEY = "mwbb.editor.levels.v1";
@@ -372,6 +385,11 @@ export function LevelEditor() {
 
   const isFlash = level.type === "flashlight_find";
   const flash = level.type === "flashlight_find" ? level.flashlight : null;
+  const tidy = level.type === "tidy_roles" ? level.tidy : null;
+  const setTidy = (fn: (t: TidyOptions) => void) =>
+    update((l) => {
+      if (l.type === "tidy_roles") fn(l.tidy);
+    });
   const setFlash = (fn: (f: FlashlightOptions) => void) =>
     update((l) => {
       if (l.type === "flashlight_find") fn(l.flashlight);
@@ -525,11 +543,14 @@ export function LevelEditor() {
             </button>
           ))}
           <p className="mt-2 text-xs uppercase text-neutral-500">New from template</p>
-          <button type="button" className={btn} onClick={() => newFrom(TIDY_TOYS)}>
+          <button type="button" className={btn} onClick={() => newFrom(TIDY_TOYS_DRAG)}>
             + Drag to box
           </button>
           <button type="button" className={btn} onClick={() => newFrom(SET_TABLE)}>
             + Place items
+          </button>
+          <button type="button" className={btn} onClick={() => newFrom(TIDY_TOYS)}>
+            + Tidy roles
           </button>
           <button type="button" className={btn} onClick={() => newFrom(BEDTIME)}>
             + Flashlight find
@@ -610,6 +631,17 @@ export function LevelEditor() {
                       l.objects.forEach((o) => (o.targetId = ""));
                     } else {
                       delete (l as { flashlight?: unknown }).flashlight;
+                    }
+                    if (l.type === "tidy_roles") {
+                      if (!l.tidy) {
+                        const base = clone((TIDY_TOYS as { tidy: TidyOptions }).tidy);
+                        base.steps = l.objects.map(
+                          (_, i) => base.steps[i] ?? { role: "plain", hint: "" },
+                        );
+                        l.tidy = base;
+                      }
+                    } else {
+                      delete (l as { tidy?: unknown }).tidy;
                     }
                   })
                 }
@@ -740,6 +772,143 @@ export function LevelEditor() {
               <input className={input} value={level.personalization.transform} readOnly />
             </label>
           </fieldset>
+
+          {tidy && (
+            <fieldset
+              disabled={readOnly}
+              className="grid grid-cols-2 gap-3 rounded border border-neutral-800 p-3"
+            >
+              <legend className="px-1 text-xs uppercase text-neutral-500">Tidy roles</legend>
+              <label className={label}>
+                Seed (empty = random every run)
+                <input
+                  type="number"
+                  className={input}
+                  value={tidy.seed ?? ""}
+                  placeholder="random"
+                  onChange={(e) =>
+                    setTidy((t) => {
+                      t.seed =
+                        e.target.value === ""
+                          ? null
+                          : Math.max(0, Math.floor(Number(e.target.value)));
+                    })
+                  }
+                />
+              </label>
+              <label className={label}>
+                Monster line after the last toy
+                <input
+                  className={input}
+                  maxLength={140}
+                  value={tidy.completeLine}
+                  onChange={(e) =>
+                    setTidy((t) => {
+                      t.completeLine = e.target.value;
+                    })
+                  }
+                />
+              </label>
+              <div className="col-span-2 flex flex-col gap-1">
+                <p className="text-xs text-neutral-400">
+                  Toy pool (needs at least {level.objects.length})
+                </p>
+                <div className="flex flex-wrap gap-1">
+                  {ASSET_IDS.map((a) => {
+                    const on = tidy.pool.includes(a);
+                    return (
+                      <button
+                        key={a}
+                        type="button"
+                        aria-pressed={on}
+                        className={`rounded px-2 py-1 text-xs ${on ? "bg-amber-700" : "bg-neutral-800"}`}
+                        onClick={() =>
+                          setTidy((t) => {
+                            t.pool = on ? t.pool.filter((x) => x !== a) : [...t.pool, a];
+                          })
+                        }
+                      >
+                        {ASSETS[a].emoji} {a}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="col-span-2 flex flex-col gap-1">
+                <p className="text-xs text-neutral-400">
+                  Steps — role of the 1st, 2nd, 3rd… toy put away (order, not which toy)
+                </p>
+                {tidy.steps.map((st, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="w-6 text-xs text-neutral-500">#{i + 1}</span>
+                    <select
+                      aria-label={`Step ${i + 1} role`}
+                      className={`${input} w-28`}
+                      value={st.role}
+                      onChange={(e) =>
+                        setTidy((t) => {
+                          t.steps[i]!.role = e.target.value as TidyRole;
+                        })
+                      }
+                    >
+                      {TIDY_ROLES.map((r) => (
+                        <option key={r}>{r}</option>
+                      ))}
+                    </select>
+                    <input
+                      aria-label={`Step ${i + 1} hint`}
+                      className={input}
+                      maxLength={80}
+                      value={st.hint}
+                      onChange={(e) =>
+                        setTidy((t) => {
+                          t.steps[i]!.hint = e.target.value;
+                        })
+                      }
+                    />
+                  </div>
+                ))}
+                {tidy.steps.length !== level.objects.length && (
+                  <button
+                    type="button"
+                    className={`${btn} self-start`}
+                    onClick={() =>
+                      setTidy((t) => {
+                        t.steps = level.objects.map(
+                          (_, i) => t.steps[i] ?? { role: "plain", hint: "" },
+                        );
+                      })
+                    }
+                  >
+                    Match steps to {level.objects.length} objects
+                  </button>
+                )}
+              </div>
+              {(["cushion", "drawer"] as const).map((k) => (
+                <div key={k} className="flex items-center gap-2 text-xs text-neutral-400">
+                  <span className="w-14">{k}</span>
+                  {(["x", "y"] as const).map((c) => (
+                    <input
+                      key={c}
+                      type="number"
+                      aria-label={`${k} ${c}`}
+                      className={`${input} w-20`}
+                      value={tidy[k][c]}
+                      onChange={(e) =>
+                        setTidy((t) => {
+                          t[k][c] = Number(e.target.value);
+                        })
+                      }
+                    />
+                  ))}
+                </div>
+              ))}
+              <p className="col-span-2 text-xs text-neutral-500">
+                Objects are toy slots (position + color); sprites come from the pool. All go into
+                the box target.
+              </p>
+            </fieldset>
+          )}
 
           {flash && (
             <fieldset
@@ -1257,6 +1426,16 @@ export function LevelEditor() {
                     {t.label}
                   </div>
                 ))}
+                {tidy &&
+                  (["cushion", "drawer"] as const).map((k) => (
+                    <div
+                      key={k}
+                      className="pointer-events-none absolute flex h-8 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded border-2 border-dashed border-rose-300 text-[9px] font-bold text-rose-200"
+                      style={{ left: `${tidy[k].x}%`, top: `${tidy[k].y}%` }}
+                    >
+                      {k}
+                    </div>
+                  ))}
                 {flash?.evasive?.positions.map((p, i) => (
                   <div
                     key={`spot-${i}`}

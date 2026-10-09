@@ -1,10 +1,39 @@
 // Local-only name validation. Anything doubtful becomes "sweetie".
 // Substring matches (unambiguous) vs whole-word matches (short words that hide inside real names).
 const SUBSTRINGS = [
-  "fuck", "shit", "bitch", "cunt", "pussy", "nigg", "whore", "slut", "mierda", "joder",
-  "gilipollas", "maricon", "maricón", "cabron", "cabrón", "hitler", "porn", "collons",
+  "fuck",
+  "shit",
+  "bitch",
+  "cunt",
+  "pussy",
+  "nigg",
+  "whore",
+  "slut",
+  "mierda",
+  "joder",
+  "gilipollas",
+  "maricon",
+  "maricón",
+  "cabron",
+  "cabrón",
+  "hitler",
+  "porn",
+  "collons",
 ];
-const WORDS = ["ass", "dick", "cock", "fag", "sex", "puta", "puto", "polla", "coño", "merda", "nazi", "kill"];
+const WORDS = [
+  "ass",
+  "dick",
+  "cock",
+  "fag",
+  "sex",
+  "puta",
+  "puto",
+  "polla",
+  "coño",
+  "merda",
+  "nazi",
+  "kill",
+];
 export const DEFAULT_NAME = "sweetie";
 
 export function sanitizeName(input: string): string {
