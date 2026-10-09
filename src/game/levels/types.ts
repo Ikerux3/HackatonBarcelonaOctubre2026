@@ -105,8 +105,55 @@ export interface FlashlightFindLevel extends LevelBase {
 }
 
 /** Role of the Nth toy put away — depends on ORDER of interaction, not on the toy. */
-export type TidyRole = "plain" | "cushion" | "drawer";
-export const TIDY_ROLES: TidyRole[] = ["plain", "cushion", "drawer"];
+export type TidyRole = "plain" | "cushion" | "drawer" | "possessed" | "hide_seek";
+export const TIDY_ROLES: TidyRole[] = ["plain", "cushion", "drawer", "possessed", "hide_seek"];
+
+/** Circle in scene %: x/y like everything else, r = % of scene WIDTH. */
+export interface LightZone {
+  x: number;
+  y: number;
+  r: number;
+}
+
+/** Role "possessed": the toy flees between dark slots and freezes when lit. */
+export interface PossessedOptions {
+  /** 3–4 dark slots, visited in order (keep neighbours free of furniture between them) */
+  slots: Point[];
+  /** wall switch hotspot + the zones the main light covers */
+  mainSwitch: Point;
+  mainZones: LightZone[];
+  /** small lamp hotspot + the zones it covers */
+  lamp: Point;
+  lampZones: LightZone[];
+  /** total blackouts including the scripted first one (1–3) */
+  maxBlackouts: number;
+  /** minimum ms between blackouts (and after any drop) — the safe window */
+  safeWindowMs: number;
+  /** ms between hops while the toy is in the dark */
+  moveMs: number;
+  /** ms without progress before the right light hotspot pulses */
+  hintAfterMs: number;
+  /** whisper on the scripted blackout */
+  possessLine: string;
+  /** whisper when it is put away */
+  freezeLine: string;
+}
+
+export type HideSpotKind = "sofa" | "drawer" | "curtain";
+export const HIDE_SPOT_KINDS: HideSpotKind[] = ["sofa", "drawer", "curtain"];
+
+export interface HideSpot extends Point {
+  label: string;
+  kind: HideSpotKind;
+}
+
+/** Role "hide_seek": the monster hides the last toy in one seeded spot. */
+export interface HideSeekOptions {
+  spots: HideSpot[];
+  hintAfterMs: number;
+  hintLine: string;
+  wrongLine: string;
+}
 
 export interface TidyStep {
   role: TidyRole;
@@ -124,6 +171,10 @@ export interface TidyOptions {
   /** where the cushion / drawer sit (% of scene) */
   cushion: Point;
   drawer: Point;
+  /** required when a step uses role "possessed" */
+  possessed?: PossessedOptions;
+  /** required when a step uses role "hide_seek" */
+  hideSeek?: HideSeekOptions;
   /** monster line after the last toy (shown during the following blackout) */
   completeLine: string;
 }
