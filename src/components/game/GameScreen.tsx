@@ -2,6 +2,7 @@ import { useGameController } from "@/game/GameController";
 import { STORY_LEVELS } from "@/game/levels/defaultLevels";
 import { MinigameHost } from "@/components/minigames/MinigameHost";
 import { EndingScreen } from "./EndingScreen";
+import { MotherSequence } from "./MotherSequence";
 import { MonsterOverlay } from "./MonsterOverlay";
 import { QuestionInput } from "./QuestionInput";
 
@@ -22,8 +23,8 @@ export function GameScreen() {
           WILL BE BACK
         </h1>
         <p className="max-w-xs font-serif text-base italic text-amber-900">
-          “Sweetie, I'm just running to the store for dinner. Be a good kid, tidy your toys, and set
-          the table. I'll be back before you know it.”
+          “Sweetie, I'm just running to the store for dinner. Be a good kid: tidy your toys, set the
+          table, and get ready for bed. I'll be back before you know it.”
         </p>
         <button
           type="button"
@@ -47,19 +48,32 @@ export function GameScreen() {
     );
   }
 
-  const dark =
-    state.stage === "blackout_one" ||
-    state.stage === "question_one" ||
-    state.stage === "blackout_two" ||
-    state.stage === "question_two" ||
-    state.stage === "task_two";
+  if (
+    state.stage === "knock" ||
+    state.stage === "mother_voice" ||
+    state.stage === "final_dark"
+  ) {
+    return (
+      <MotherSequence
+        stage={state.stage}
+        rawColorAnswer={state.rawColorAnswer}
+        rawToyAnswer={state.rawToyAnswer}
+        onContinue={advance}
+      />
+    );
+  }
 
-  const isBlackout = state.stage === "blackout_one" || state.stage === "blackout_two";
-  const isTask = state.stage === "task_one" || state.stage === "task_two";
+  const stage = state.stage;
+  const dark = stage !== "task_one";
+  const isBlackout =
+    stage === "blackout_one" || stage === "blackout_two" || stage === "blackout_three";
+  const isTask = stage === "task_one" || stage === "task_two" || stage === "task_three";
   const level =
-    state.stage === "task_one" || state.stage === "blackout_one" || state.stage === "question_one"
+    stage === "task_one" || stage === "blackout_one" || stage === "question_one"
       ? STORY_LEVELS.task_one
-      : STORY_LEVELS.task_two;
+      : stage === "task_two" || stage === "blackout_two" || stage === "question_two"
+        ? STORY_LEVELS.task_two
+        : STORY_LEVELS.task_three;
   const isQuestion = state.stage === "question_one" || state.stage === "question_two";
 
   return (
@@ -79,7 +93,13 @@ export function GameScreen() {
 
         {isBlackout && (
           <MonsterOverlay
-            line={state.stage === "blackout_one" ? "The lights went out…" : "It's back…"}
+            line={
+              stage === "blackout_one"
+                ? "The lights went out…"
+                : stage === "blackout_two"
+                  ? "It's back…"
+                  : "Lights out. Good night…"
+            }
           />
         )}
 
