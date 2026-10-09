@@ -136,6 +136,8 @@ export function GameScreen() {
   return (
     <div
       className={`flex min-h-dvh flex-col items-center gap-3 px-3 py-3 transition-colors duration-1000 ${
+        isQuestion ? "pb-[55dvh]" : ""
+      } ${
         dark ? "bg-neutral-950" : "game-room-cozy"
       }`}
     >
