@@ -21,6 +21,7 @@ import {
   type StoryConfig,
   type StorySlot,
 } from "@/game/demoProfile";
+import { AITestBox } from "@/components/editor/AITestBox";
 import { MinigameHost } from "@/components/minigames/MinigameHost";
 import { SceneBackdrop } from "@/components/minigames/SceneBackdrop";
 import type { GameMemory } from "@/game/GameState";
@@ -385,7 +386,21 @@ export function LevelEditor() {
             — dev only, saved in this browser
           </span>
         </h1>
+        <p
+          aria-label="Current AI mode"
+          className={`ml-auto rounded-xl px-4 py-2 text-3xl font-black tracking-wide md:text-5xl ${
+            aiMode === "live"
+              ? "bg-emerald-900 text-emerald-200"
+              : aiMode === "scripted"
+                ? "bg-amber-800 text-amber-100"
+                : "bg-sky-900 text-sky-200"
+          }`}
+        >
+          AI: {aiMode.toUpperCase()}
+        </p>
       </header>
+
+      <AITestBox />
 
       <section className="mb-4 grid gap-3 rounded border border-neutral-800 p-3 md:grid-cols-[180px_1fr_1fr]">
         <label className={label}>
