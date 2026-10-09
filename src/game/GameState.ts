@@ -89,8 +89,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         case "question_one":
           // only reachable after AI_RESULT stored the color
           return state.memory.favoriteColor ? { ...state, stage: "task_two" } : state;
-        case "blackout_two":
-          return { ...state, stage: "question_two" };
         case "question_two":
           return state.memory.favoriteToy ? { ...state, stage: "ending" } : state;
         default:
