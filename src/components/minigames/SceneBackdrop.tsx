@@ -34,6 +34,42 @@ export function SceneBackdrop({ theme, dark }: { theme: SceneTheme; dark: boolea
         </>
       )}
 
+      {theme === "bedroom" && (
+        <>
+          {/* window with moon */}
+          <div
+            className={`absolute left-[10%] top-[6%] h-[18%] w-[26%] rounded-md border-4 ${dark ? "border-neutral-700 bg-neutral-900" : "border-indigo-200 bg-indigo-950"}`}
+          >
+            <div className="absolute right-[18%] top-[18%] h-5 w-5 rounded-full bg-amber-50 shadow-[0_0_14px_rgba(255,250,220,0.7)]" />
+            <div className="absolute inset-y-0 left-1/2 w-1 -translate-x-1/2 bg-indigo-200/70" />
+          </div>
+          {/* wardrobe */}
+          <div
+            className={`absolute right-[6%] top-[8%] h-[46%] w-[24%] rounded-t-lg border-4 ${dark ? "border-neutral-800 bg-neutral-900" : "border-amber-900 bg-amber-800"}`}
+          >
+            <div className="absolute inset-y-2 left-1/2 w-0.5 bg-black/40" />
+          </div>
+          {/* bed */}
+          <div
+            className={`absolute left-[4%] top-[48%] h-[22%] w-[62%] rounded-xl ${dark ? "bg-neutral-800" : "bg-sky-300"}`}
+          />
+          <div
+            className={`absolute left-[6%] top-[44%] h-[8%] w-[18%] rounded-lg ${dark ? "bg-neutral-700" : "bg-white"}`}
+          />
+          <div
+            className={`absolute left-[2%] top-[38%] h-[34%] w-[4%] rounded-t-md ${dark ? "bg-neutral-800" : "bg-amber-900"}`}
+          />
+          {/* nightstand */}
+          <div
+            className={`absolute right-[22%] top-[60%] h-[12%] w-[14%] rounded ${dark ? "bg-neutral-800" : "bg-amber-700"}`}
+          />
+          {/* rug */}
+          <div
+            className={`absolute left-[20%] top-[80%] h-[10%] w-[56%] rounded-[50%] ${dark ? "bg-neutral-900" : "bg-rose-300/70"}`}
+          />
+        </>
+      )}
+
       {theme === "dining_room" && (
         <>
           <div className="absolute left-1/2 top-[3%] flex -translate-x-1/2 flex-col items-center">
