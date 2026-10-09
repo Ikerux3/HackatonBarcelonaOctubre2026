@@ -104,6 +104,45 @@ export interface FlashlightFindLevel extends LevelBase {
   flashlight: FlashlightOptions;
 }
 
-export type LevelConfig = DragToTargetLevel | PlaceItemsLevel | FlashlightFindLevel;
+/** Role of the Nth toy put away — depends on ORDER of interaction, not on the toy. */
+export type TidyRole = "plain" | "cushion" | "drawer";
+export const TIDY_ROLES: TidyRole[] = ["plain", "cushion", "drawer"];
+
+export interface TidyStep {
+  role: TidyRole;
+  /** short hint shown while this step is active */
+  hint: string;
+}
+
+export interface TidyOptions {
+  /** fixed seed for the demo; null = new random toys every run */
+  seed: number | null;
+  /** assets the toys are drawn from (needs at least one per object slot) */
+  pool: AssetId[];
+  /** one step per object slot, in order */
+  steps: TidyStep[];
+  /** where the cushion / drawer sit (% of scene) */
+  cushion: Point;
+  drawer: Point;
+  /** monster line after the last toy (shown during the following blackout) */
+  completeLine: string;
+}
+
+/**
+ * Objects are SLOTS (positions/colors); their sprites are replaced by seeded picks from
+ * `tidy.pool`. All slots go into the first "box" target.
+ */
+export interface TidyRolesLevel extends LevelBase {
+  type: "tidy_roles";
+  tidy: TidyOptions;
+}
+
+export type LevelConfig =
+  DragToTargetLevel | PlaceItemsLevel | FlashlightFindLevel | TidyRolesLevel;
 export type MinigameType = LevelConfig["type"];
-export const MINIGAME_TYPES: MinigameType[] = ["drag_to_target", "place_items", "flashlight_find"];
+export const MINIGAME_TYPES: MinigameType[] = [
+  "drag_to_target",
+  "place_items",
+  "flashlight_find",
+  "tidy_roles",
+];

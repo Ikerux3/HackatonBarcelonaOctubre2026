@@ -110,3 +110,21 @@ Demo phone: open `/editor` on it → Import profile → ▶ Play full story (or 
 - **Editor header** shows the AI mode in big letters (green LIVE / amber SCRIPTED / blue MOCK).
 - **Flashlight**: on touch the light is drawn 12% of scene height above the finger; mouse/pen stay centered.
 - **Verified** (live, via Test AI): "a green dinosaur called Rex" → dinosaur / "Rex the dinosaur" 916 ms; "el color del cielo" → blue / "sky blue"; Catalan "l'osset vell de l'àvia" → teddy / "grandma's old teddy"; profanity, "ignore all rules…" and gibberish → other, no displayAnswer, cold line, 660–840 ms. Full phone run in mock mode with ?debug=1: no raw text in mother/ending screens.
+
+## Iteration 8 — Task one rework: name intro + tidy_roles
+
+**Flow:** `intro (Play) → intro_name → intro_leave → task_one → blackout_one → question_one …`
+- `intro_name` (`IntroName.tsx`): mom's subtitle types "I'm going to get dinner, " and pauses; "What's your name?" input appears. `sanitizeName()` (`src/game/playerName.ts`): letters/spaces, 1–16 chars, small ES/EN/CA blocklist (substring for unambiguous words, whole-word for short ones so "Cassandra" passes) → otherwise "sweetie". Stored in `GameMemory.playerName` (session only; stripped before any AI request).
+- `intro_leave`: mom finishes "…, [name]. I'll be back in a few minutes. Remember to tidy up your toys, okay?", door sound, auto-advances (8.2 s) or tap. No monster / blackout here. Music box plays through intro + task one.
+
+**New minigame `tidy_roles`** (`TidyRolesMinigame.tsx`, in `MINIGAME_REGISTRY`, `validate.ts`, editor):
+- Level: objects are toy SLOTS (position + color); sprites are picked from `tidy.pool` with a seeded shuffle (`tidy.seed`, `null` = new per run; fix it in /editor for the demo). One `box` target. Progress N/total always visible. Drag to box or tap toy → tap box.
+- `tidy.steps[i] = { role, hint }` — the role applies to the i-th toy put away (order, not identity):
+  - `plain`: just drag. `cushion`: the remaining toy closest to `tidy.cushion` slides there and a cushion covers it; tap/drag the cushion away, then drag. `drawer`: the closest toy slides into the drawer at `tidy.drawer`; tap to open (odd music-box sound, `sfx.odd`), then drag.
+  - While a cushion/drawer is active, other toys are locked (dimmed, shake on touch). Works for any asset.
+- Built-in `tidy_toys` = plain, cushion, drawer, plain, plain (steps 4–5 are placeholders for part B). After 5/5 the box lid closes and the blackout shows `tidy.completeLine` ("You put them all away. Now it's my turn to ask."), then the color question.
+- The old drag version is kept as built-in "Tidy up the toys (simple drag)" (used by the "+ Drag to box" template). Built-in order unchanged for indexes 0–2, so saved demo profiles still point at the same levels.
+
+**Editor:** "+ Tidy roles" template; Tidy panel: seed, toy pool, per-order role + hint, cushion/drawer positions (dashed markers in preview), completion line.
+
+**Verified** (phone 390px, mock AI): name typed → "…dinner, Iker. …"; 5 toys placed in order with cushion at step 2 and drawer at step 3 (only the covered toy selectable), lid closes, monster line shown, no console errors.

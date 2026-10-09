@@ -104,6 +104,36 @@ export function validateLevel(input: unknown): ValidationResult {
     }
   }
 
+  if (l.type === "tidy_roles") {
+    const t = l.tidy;
+    if (!isObj(t)) e.push("tidy options are required.");
+    else {
+      if (t.seed !== null && !(Number.isInteger(t.seed) && t.seed >= 0 && t.seed <= 2 ** 31))
+        e.push("tidy.seed must be a whole number or null (random).");
+      const pool = Array.isArray(t.pool) ? t.pool : [];
+      if (pool.some((a: unknown) => !(typeof a === "string" && a in ASSETS)))
+        e.push("tidy.pool contains an unknown asset.");
+      if (new Set(pool).size < objects.length)
+        e.push(`tidy.pool needs at least ${objects.length} different assets.`);
+      const steps = Array.isArray(t.steps) ? t.steps : [];
+      if (steps.length !== objects.length)
+        e.push(`tidy.steps needs exactly one step per object (${objects.length}).`);
+      steps.forEach((s: Loose, i: number) => {
+        if (!isObj(s) || !["plain", "cushion", "drawer"].includes(s.role as string))
+          e.push(`tidy step #${i + 1}: role must be plain, cushion or drawer.`);
+        else if (typeof s.hint !== "string" || s.hint.length > 80)
+          e.push(`tidy step #${i + 1}: hint must be text (max 80).`);
+      });
+      for (const k of ["cushion", "drawer"] as const)
+        if (!isObj(t[k]) || !isNum(t[k].x, 0, 100) || !isNum(t[k].y, 0, 100))
+          e.push(`tidy.${k} x/y must be 0–100.`);
+      if (typeof t.completeLine !== "string" || t.completeLine.length > 140)
+        e.push("tidy.completeLine must be text (max 140).");
+      if (!targets.some((x: Loose) => isObj(x) && x.shape === "box"))
+        e.push("tidy_roles needs a target with shape box.");
+    }
+  }
+
   if (!isObj(l.success)) e.push("success condition is required.");
   else if (l.success.kind === "min_placed") {
     if (!isNum(l.success.count, 1, objects.length || 1))

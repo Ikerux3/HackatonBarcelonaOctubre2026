@@ -176,8 +176,16 @@ export const sfx = {
     tone(140, 0.25, "sine", 0.07, 90);
   },
   hum: () => tone(55, 2.4, "sine", 0.05),
+  /** foreshadowing: a short, slightly wrong music-box phrase */
+  odd: () => {
+    [880, 830, 622, 587].forEach((f, i) =>
+      setTimeout(() => tone(f, 0.5, "sine", 0.05, f * 0.97), i * 170),
+    );
+  },
   knock: () => {
-    [0, 260, 520, 1300, 1560].forEach((d) => setTimeout(() => tone(110, 0.09, "square", 0.08, 70), d));
+    [0, 260, 520, 1300, 1560].forEach((d) =>
+      setTimeout(() => tone(110, 0.09, "square", 0.08, 70), d),
+    );
   },
   door: () => {
     tone(90, 0.25, "sine", 0.09);
