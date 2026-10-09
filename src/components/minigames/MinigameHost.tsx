@@ -56,7 +56,7 @@ export function MinigameHost({ level, memory, dark, onComplete, onSkip }: HostPr
           type="button"
           onClick={() => setRound((r) => r + 1)}
           aria-label="Restart this task"
-          className="min-h-10 shrink-0 rounded-full bg-black/60 px-3 text-sm font-semibold text-neutral-100 active:scale-95"
+          className="min-h-12 min-w-12 shrink-0 rounded-full bg-black/60 px-3 text-sm font-semibold text-neutral-100 active:scale-95"
         >
           ↺ Restart
         </button>

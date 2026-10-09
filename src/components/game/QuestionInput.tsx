@@ -67,6 +67,12 @@ export function QuestionInput({
         onChange={(e) => setValue(e.target.value)}
         disabled={busy}
         maxLength={60}
+        enterKeyHint="send"
+        onFocus={(e) => {
+          // iOS/Android: wait for the keyboard, then keep the field above it
+          const el = e.currentTarget;
+          setTimeout(() => el.scrollIntoView({ block: "center", behavior: "smooth" }), 320);
+        }}
         autoComplete="off"
         placeholder="Answer it…"
         className="min-h-12 w-full rounded-xl border border-neutral-600 bg-neutral-950 px-4 py-3 text-base text-neutral-100 placeholder:text-neutral-500 focus:border-neutral-300 focus:outline-none"

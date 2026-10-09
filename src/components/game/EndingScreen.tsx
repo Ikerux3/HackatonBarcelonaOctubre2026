@@ -8,6 +8,8 @@ interface EndingScreenProps {
   memory: GameMemory;
   rawColorAnswer: string | null;
   rawToyAnswer: string | null;
+  /** in-memory run duration, ms */
+  lastedMs: number;
   onReplay: () => void;
 }
 
@@ -15,6 +17,7 @@ export function EndingScreen({
   memory,
   rawColorAnswer,
   rawToyAnswer,
+  lastedMs,
   onReplay,
 }: EndingScreenProps) {
   useEffect(() => {
@@ -50,6 +53,17 @@ export function EndingScreen({
           place. Nothing at all.
         </p>
       </div>
+
+      {lastedMs > 0 && (
+        <p className="font-serif text-base text-neutral-300">
+          You lasted{" "}
+          <span className="font-bold text-neutral-100">
+            {Math.floor(lastedMs / 60000)}:
+            {String(Math.floor((lastedMs % 60000) / 1000)).padStart(2, "0")}
+          </span>{" "}
+          alone
+        </p>
+      )}
 
       <button
         type="button"
