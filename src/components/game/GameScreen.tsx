@@ -1,25 +1,17 @@
 import { useGameController } from "@/game/GameController";
-import { TABLE_ITEMS, TOYS } from "@/game/PuzzleData";
+import { STORY_LEVELS } from "@/game/levels/defaultLevels";
+import { MinigameHost } from "@/components/minigames/MinigameHost";
 import { EndingScreen } from "./EndingScreen";
 import { MonsterOverlay } from "./MonsterOverlay";
 import { QuestionInput } from "./QuestionInput";
-import { RoomScene } from "./RoomScene";
 
 const QUESTIONS = {
   question_one: "What's your favorite color?",
   question_two: "What was your favorite childhood toy?",
 } as const;
 
-function Objective({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="rounded-full bg-black/60 px-4 py-2 text-center text-sm font-medium text-neutral-100">
-      {children}
-    </p>
-  );
-}
-
 export function GameScreen() {
-  const { state, start, tidyToy, placeItem, submitAnswer, advance, replay } = useGameController();
+  const { state, start, completeTask, submitAnswer, advance, replay } = useGameController();
 
   if (state.stage === "intro") {
     return (
@@ -63,35 +55,26 @@ export function GameScreen() {
     state.stage === "task_two";
 
   const isBlackout = state.stage === "blackout_one" || state.stage === "blackout_two";
+  const isTask = state.stage === "task_one" || state.stage === "task_two";
+  const level =
+    state.stage === "task_one" || state.stage === "blackout_one" || state.stage === "question_one"
+      ? STORY_LEVELS.task_one
+      : STORY_LEVELS.task_two;
   const isQuestion = state.stage === "question_one" || state.stage === "question_two";
 
   return (
     <div
-      className={`flex min-h-dvh flex-col items-center gap-4 px-4 py-6 transition-colors duration-1000 ${
+      className={`flex min-h-dvh flex-col items-center gap-3 px-3 py-3 transition-colors duration-1000 ${
         dark ? "bg-neutral-950" : "game-room-cozy"
       }`}
     >
-      <div className="flex min-h-8 items-center">
-        {state.stage === "task_one" && (
-          <Objective>
-            Tidy up the toys — tap each one ({state.toysTidied.length}/{TOYS.length})
-          </Objective>
-        )}
-        {state.stage === "task_two" && (
-          <Objective>
-            Set the table for dinner — tap each item ({state.tableSet.length}/{TABLE_ITEMS.length})
-          </Objective>
-        )}
-      </div>
-
       <div className={`relative w-full max-w-md ${isBlackout ? "game-flicker" : ""}`}>
-        <RoomScene
+        <MinigameHost
+          key={level.id}
+          level={level}
+          memory={state.memory}
           dark={dark}
-          toysTidied={state.toysTidied}
-          tableSet={state.tableSet}
-          {...(state.memory.favoriteColor ? { favoriteColor: state.memory.favoriteColor } : {})}
-          onTidyToy={tidyToy}
-          onPlaceItem={placeItem}
+          {...(isTask ? { onComplete: completeTask, onSkip: completeTask } : {})}
         />
 
         {isBlackout && (

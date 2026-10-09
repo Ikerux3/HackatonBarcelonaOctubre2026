@@ -2,6 +2,7 @@ import { useEffect } from "react";
 
 import type { GameMemory } from "@/game/GameState";
 import { sfx } from "@/game/audio";
+import { ASSETS, TOY_ASSET } from "@/game/levels/assets";
 
 interface EndingScreenProps {
   memory: GameMemory;
@@ -24,6 +25,10 @@ export function EndingScreen({ memory, rawColorAnswer, rawToyAnswer, onReplay }:
       <div className="game-glitch font-serif text-3xl font-bold text-neutral-100">
         MOMMY WILL BE BACK
       </div>
+
+      <span className="game-echo text-7xl" role="img" aria-label="The shadow of your favorite toy">
+        {ASSETS[TOY_ASSET[memory.favoriteToy ?? "other"]].emoji}
+      </span>
 
       <p className="max-w-sm font-serif text-lg italic leading-relaxed text-neutral-300">
         “I know you love{" "}
