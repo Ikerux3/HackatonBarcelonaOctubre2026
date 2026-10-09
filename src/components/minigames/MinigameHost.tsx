@@ -31,7 +31,11 @@ export function MinigameHost({ level, memory, dark, onComplete, onSkip }: HostPr
           ))}
         </ul>
         {onSkip && (
-          <button type="button" onClick={onSkip} className="mt-3 rounded-lg bg-red-100 px-4 py-2 font-bold text-red-950">
+          <button
+            type="button"
+            onClick={onSkip}
+            className="mt-3 rounded-lg bg-red-100 px-4 py-2 font-bold text-red-950"
+          >
             Skip level
           </button>
         )}
@@ -55,7 +59,13 @@ export function MinigameHost({ level, memory, dark, onComplete, onSkip }: HostPr
           ↺ Restart
         </button>
       </div>
-      <Game key={`${check.level.id}-${round}`} level={check.level} memory={memory} dark={dark} {...(onComplete ? { onComplete } : {})} />
+      <Game
+        key={`${check.level.id}-${round}`}
+        level={check.level}
+        memory={memory}
+        dark={dark}
+        {...(onComplete ? { onComplete } : {})}
+      />
     </div>
   );
 }

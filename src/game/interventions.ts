@@ -33,7 +33,11 @@ export function theftColor(c: NormalizedColor): NormalizedColor {
   return map[c] ?? c;
 }
 
-export function resolveInterventions(level: LevelConfig, memory: GameMemory, dark: boolean): ActiveInterventions {
+export function resolveInterventions(
+  level: LevelConfig,
+  memory: GameMemory,
+  dark: boolean,
+): ActiveInterventions {
   const { source, transform } = level.personalization;
   const colorTheft =
     dark && source === "favorite_color" && transform === "color_removed" && memory.favoriteColor

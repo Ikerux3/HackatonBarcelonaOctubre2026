@@ -71,9 +71,10 @@ export function DragMinigame({ level, memory, dark, onComplete }: MinigameProps)
     }
     if (iv.falseHint) {
       fired.current = true;
-      const filled = level.targets.find(
-        (t) => !level.objects.some((o) => o.targetId === t.id && !placed.includes(o.id)),
-      ) ?? level.targets[level.targets.length - 1];
+      const filled =
+        level.targets.find(
+          (t) => !level.objects.some((o) => o.targetId === t.id && !placed.includes(o.id)),
+        ) ?? level.targets[level.targets.length - 1];
       if (filled) {
         setFalseHint(filled.id);
         const t = setTimeout(() => setFalseHint(null), 1800);
@@ -113,7 +114,16 @@ export function DragMinigame({ level, memory, dark, onComplete }: MinigameProps)
     e.currentTarget.setPointerCapture(e.pointerId);
     const p = toPct(e.clientX, e.clientY);
     sfx.click();
-    setDrag({ id: obj.id, x: obj.x, y: obj.y, dx: p.x - obj.x, dy: p.y - obj.y, sx: p.x, sy: p.y, moved: false });
+    setDrag({
+      id: obj.id,
+      x: obj.x,
+      y: obj.y,
+      dx: p.x - obj.x,
+      dy: p.y - obj.y,
+      sx: p.x,
+      sy: p.y,
+      moved: false,
+    });
   };
   const onMove = (e: React.PointerEvent) => {
     if (!drag) return;
@@ -190,7 +200,12 @@ export function DragMinigame({ level, memory, dark, onComplete }: MinigameProps)
             } ${pop === t.id ? "game-pop" : ""} ${falseHint === t.id ? "game-false-hint" : ""} ${
               selected ? "ring-2 ring-amber-200/70" : ""
             }`}
-            style={{ left: `${t.x - t.w / 2}%`, top: `${t.y - t.h / 2}%`, width: `${t.w}%`, height: `${t.h}%` }}
+            style={{
+              left: `${t.x - t.w / 2}%`,
+              top: `${t.y - t.h / 2}%`,
+              width: `${t.w}%`,
+              height: `${t.h}%`,
+            }}
           >
             {!isBox && ghosts[0] && (
               <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-3xl opacity-25 grayscale">
@@ -198,7 +213,9 @@ export function DragMinigame({ level, memory, dark, onComplete }: MinigameProps)
               </span>
             )}
             {isBox && (
-              <span className={`text-[10px] font-bold uppercase ${dark ? "text-neutral-400" : "text-amber-950"}`}>
+              <span
+                className={`text-[10px] font-bold uppercase ${dark ? "text-neutral-400" : "text-amber-950"}`}
+              >
                 {t.label}
               </span>
             )}
@@ -237,8 +254,14 @@ export function DragMinigame({ level, memory, dark, onComplete }: MinigameProps)
               aspectRatio: "1",
               transform: `translate(-50%, -50%) ${intoBox ? "scale(0.2)" : ""}`,
               opacity: intoBox ? 0 : 1,
-              backgroundColor: stolen ? "#161616" : dark ? `${COLOR_HEX[o.color]}aa` : COLOR_HEX[o.color],
-              transition: dragging ? "none" : "left .35s ease, top .35s ease, transform .35s ease, opacity .45s ease",
+              backgroundColor: stolen
+                ? "#161616"
+                : dark
+                  ? `${COLOR_HEX[o.color]}aa`
+                  : COLOR_HEX[o.color],
+              transition: dragging
+                ? "none"
+                : "left .35s ease, top .35s ease, transform .35s ease, opacity .45s ease",
             }}
           >
             <span
@@ -248,13 +271,17 @@ export function DragMinigame({ level, memory, dark, onComplete }: MinigameProps)
             >
               {ASSETS[o.asset].emoji}
             </span>
-            <span className="pointer-events-none mt-0.5 text-[9px] font-bold text-white drop-shadow">{o.label}</span>
+            <span className="pointer-events-none mt-0.5 text-[9px] font-bold text-white drop-shadow">
+              {o.label}
+            </span>
           </button>
         );
       })}
 
       {dark && <div className="game-vignette pointer-events-none absolute inset-0 z-[35]" />}
-      {iv.lightDisturbance && <div className="game-light-disturb pointer-events-none absolute inset-0 z-[36]" />}
+      {iv.lightDisturbance && (
+        <div className="game-light-disturb pointer-events-none absolute inset-0 z-[36]" />
+      )}
 
       <div className="pointer-events-none absolute bottom-1 right-2 z-40 rounded-full bg-black/50 px-2 py-0.5 text-xs font-bold text-neutral-100">
         {Math.min(placed.length, required)}/{required}

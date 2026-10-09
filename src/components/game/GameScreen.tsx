@@ -22,8 +22,8 @@ export function GameScreen() {
           WILL BE BACK
         </h1>
         <p className="max-w-xs font-serif text-base italic text-amber-900">
-          “Sweetie, I'm just running to the store for dinner. Be a good kid, tidy your toys,
-          and set the table. I'll be back before you know it.”
+          “Sweetie, I'm just running to the store for dinner. Be a good kid, tidy your toys, and set
+          the table. I'll be back before you know it.”
         </p>
         <button
           type="button"
@@ -86,7 +86,9 @@ export function GameScreen() {
         {isQuestion && (
           <MonsterOverlay line={state.monsterLine}>
             <QuestionInput
-              question={state.stage === "question_one" ? QUESTIONS.question_one : QUESTIONS.question_two}
+              question={
+                state.stage === "question_one" ? QUESTIONS.question_one : QUESTIONS.question_two
+              }
               busy={state.aiBusy}
               monsterLine={state.monsterLine}
               onSubmit={(answer) =>
