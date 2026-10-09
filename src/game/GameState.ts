@@ -125,7 +125,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 export function colorLabel(state: Pick<GameState, "displayColor" | "memory">): string {
   if (state.displayColor) return state.displayColor;
   const c = state.memory.favoriteColor;
-  return c && c !== "other" ? c : "your color";
+  return c && c !== "other" ? c : "that color";
 }
 export function toyLabel(state: Pick<GameState, "displayToy" | "memory">): string {
   if (state.displayToy) return state.displayToy;
