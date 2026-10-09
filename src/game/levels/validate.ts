@@ -1,6 +1,17 @@
 import type { NormalizedColor } from "@/ai/contracts";
 import { ASSETS, COLOR_HEX } from "./assets";
-import { MINIGAME_TYPES, SCENE_THEMES, type LevelConfig } from "./types";
+import {
+  HIDE_SPOT_KINDS,
+  MINIGAME_TYPES,
+  SCENE_THEMES,
+  TIDY_ROLES,
+  zoneCovers,
+  type HideSpotKind,
+  type LevelConfig,
+  type LightZone,
+  type Point,
+  type TidyRole,
+} from "./types";
 
 export type ValidationResult = { ok: true; level: LevelConfig } | { ok: false; errors: string[] };
 
@@ -119,14 +130,64 @@ export function validateLevel(input: unknown): ValidationResult {
       if (steps.length !== objects.length)
         e.push(`tidy.steps needs exactly one step per object (${objects.length}).`);
       steps.forEach((s: Loose, i: number) => {
-        if (!isObj(s) || !["plain", "cushion", "drawer"].includes(s.role as string))
-          e.push(`tidy step #${i + 1}: role must be plain, cushion or drawer.`);
+        if (!isObj(s) || !TIDY_ROLES.includes(s.role as TidyRole))
+          e.push(`tidy step #${i + 1}: role must be one of ${TIDY_ROLES.join(", ")}.`);
         else if (typeof s.hint !== "string" || s.hint.length > 80)
           e.push(`tidy step #${i + 1}: hint must be text (max 80).`);
       });
       for (const k of ["cushion", "drawer"] as const)
         if (!isObj(t[k]) || !isNum(t[k].x, 0, 100) || !isNum(t[k].y, 0, 100))
           e.push(`tidy.${k} x/y must be 0–100.`);
+      const roles = steps.map((s: Loose) => (isObj(s) ? s.role : null));
+      const pt = (v: unknown) => isObj(v) && isNum(v.x, 0, 100) && isNum(v.y, 0, 100);
+      const zone = (v: unknown) => pt(v) && isNum((v as Loose).r, 2, 100);
+      const txt = (v: unknown) => typeof v === "string" && v.length <= 140;
+      if (roles.includes("possessed")) {
+        const p = t.possessed;
+        if (!isObj(p)) e.push("tidy.possessed is required when a step is possessed.");
+        else {
+          const slots = Array.isArray(p.slots) ? p.slots : [];
+          if (slots.length < 3 || slots.length > 4 || !slots.every(pt))
+            e.push("tidy.possessed.slots needs 3–4 points (0–100).");
+          if (!pt(p.mainSwitch) || !pt(p.lamp)) e.push("tidy.possessed switch/lamp x/y must be 0–100.");
+          const mz = Array.isArray(p.mainZones) ? p.mainZones : [];
+          const lz = Array.isArray(p.lampZones) ? p.lampZones : [];
+          if (!mz.every(zone) || !lz.every(zone) || mz.length + lz.length === 0)
+            e.push("tidy.possessed zones need x/y 0–100 and r 2–100.");
+          else if (slots.every(pt)) {
+            // no soft-lock: every slot must be coverable by some light
+            slots.forEach((sl: Point, i: number) => {
+              if (![...mz, ...lz].some((z: LightZone) => zoneCovers(z, sl)))
+                e.push(`tidy.possessed slot #${i + 1} is not lit by any light.`);
+            });
+          }
+          if (!isNum(p.maxBlackouts, 1, 3)) e.push("tidy.possessed.maxBlackouts must be 1–3.");
+          if (!isNum(p.safeWindowMs, 3000, 60000)) e.push("tidy.possessed.safeWindowMs must be 3000–60000.");
+          if (!isNum(p.moveMs, 400, 5000)) e.push("tidy.possessed.moveMs must be 400–5000.");
+          if (!isNum(p.hintAfterMs, 3000, 120000)) e.push("tidy.possessed.hintAfterMs must be 3000–120000.");
+          if (!txt(p.possessLine) || !txt(p.freezeLine)) e.push("tidy.possessed lines must be text (max 140).");
+        }
+      }
+      if (roles.includes("hide_seek")) {
+        const h = t.hideSeek;
+        if (!isObj(h)) e.push("tidy.hideSeek is required when a step is hide_seek.");
+        else {
+          const spots = Array.isArray(h.spots) ? h.spots : [];
+          if (
+            spots.length !== 3 ||
+            !spots.every(
+              (s: Loose) =>
+                pt(s) && typeof s.label === "string" && s.label.length <= 40 &&
+                HIDE_SPOT_KINDS.includes(s.kind as HideSpotKind),
+            )
+          )
+            e.push("tidy.hideSeek.spots needs exactly 3 spots (label, kind, x/y 0–100).");
+          if (!isNum(h.hintAfterMs, 3000, 120000)) e.push("tidy.hideSeek.hintAfterMs must be 3000–120000.");
+          if (!txt(h.hintLine) || !txt(h.wrongLine)) e.push("tidy.hideSeek lines must be text (max 140).");
+        }
+        if (roles.indexOf("hide_seek") !== roles.length - 1)
+          e.push("hide_seek must be the last step.");
+      }
       if (typeof t.completeLine !== "string" || t.completeLine.length > 140)
         e.push("tidy.completeLine must be text (max 140).");
       if (!targets.some((x: Loose) => isObj(x) && x.shape === "box"))

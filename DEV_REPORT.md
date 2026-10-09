@@ -128,3 +128,11 @@ Demo phone: open `/editor` on it → Import profile → ▶ Play full story (or 
 **Editor:** "+ Tidy roles" template; Tidy panel: seed, toy pool, per-order role + hint, cushion/drawer positions (dashed markers in preview), completion line.
 
 **Verified** (phone 390px, mock AI): name typed → "…dinner, Iker. …"; 5 toys placed in order with cushion at step 2 and drawer at step 3 (only the covered toy selectable), lid closes, monster line shown, no console errors.
+
+## Iteration 9 — tidy_roles part B (roles 4 & 5)
+
+**Toy 4 — `possessed`.** Grabbing any toy at step 4 triggers a scripted blackout (lights off, red eyes, distorted giggle, whisper `possessLine`). Two light hotspots: main switch and small lamp, each lighting its own circle zones (`mainZones`, `lampZones`; r = % of scene width, scene is 2:3). The toy hops every `moveMs` only between **dark** slots, in list order (keep neighbouring slots free of furniture between them), and freezes instantly when its slot is lit; lit = draggable/tap-selectable. Automatic blackouts: at most `maxBlackouts` total (incl. the scripted one), never sooner than `safeWindowMs` after the last blackout or the last drop. Light out mid-drag → toy returns to the nearest slot; toys 1–3 stay in the box. After `hintAfterMs` without progress the hotspot that would light the toy pulses. Validator rejects any slot no light can reach (no soft-lock).
+
+**Toy 5 — `hide_seek`** (must be the last step). The last toy is hidden in one of 3 `spots` (sofa / drawer / curtain), chosen by `hideSpotIndex(seed)` — fixed seed = same spot every run. Clues: toy peeking out + shadow at that spot, and a squeak panned to its side every 5 s. After `hintAfterMs` the `hintLine` whisper shows and the clue pulses. Wrong spot → `wrongLine`; right spot → toy appears, drag it in.
+
+**Editor.** Tidy panel → step roles now include `possessed` / `hide_seek`; their settings (slots, switch, lamp, zones, timings, whispers, spots) are editable below, with P1–P4 / 💡 / 🪔 / zone circles / H1–H3 shown on the preview. Older drafts without these settings get an "+ Add … settings" button. Seed + playtest work as before. No AI calls; everything is timers + JSON.
