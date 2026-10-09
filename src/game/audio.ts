@@ -157,7 +157,45 @@ function tone(
   }
 }
 
+/** Short tone panned left (-1) … right (1). */
+function pannedTone(freq: number, duration: number, pan: number, glideTo?: number): void {
+  if (!ctx) return;
+  resume();
+  try {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const p = ctx.createStereoPanner();
+    p.pan.value = Math.max(-1, Math.min(1, pan));
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    if (glideTo !== undefined)
+      osc.frequency.exponentialRampToValueAtTime(glideTo, ctx.currentTime + duration);
+    gain.gain.setValueAtTime(0.07, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+    osc.connect(gain).connect(p).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch {
+    /* audio is optional */
+  }
+}
+
 export const sfx = {
+  /** distorted, slowed-down giggle for the possessed toy */
+  possessed: () => {
+    haptic([120, 80, 120]);
+    tone(160, 1.4, "sawtooth", 0.06, 52);
+    [0, 220, 440].forEach((d, i) =>
+      setTimeout(() => tone(420 - i * 70, 0.3, "square", 0.025, 300 - i * 60), 300 + d),
+    );
+  },
+  lightSwitch: () => tone(2000, 0.03, "square", 0.05),
+  /** squeaky toy noise coming from one side of the room (x in %) */
+  squeak: (x: number) => {
+    const pan = (x - 50) / 50;
+    pannedTone(900, 0.12, pan, 1300);
+    setTimeout(() => pannedTone(1100, 0.14, pan, 760), 150);
+  },
   click: () => tone(1200, 0.06, "square", 0.04),
   success: () => {
     tone(523, 0.12, "sine", 0.06);
