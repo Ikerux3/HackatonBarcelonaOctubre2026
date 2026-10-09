@@ -1,6 +1,6 @@
 import type { NormalizedColor } from "@/ai/contracts";
 import { ASSETS, COLOR_HEX } from "./assets";
-import { MINIGAME_TYPES, type LevelConfig } from "./types";
+import { MINIGAME_TYPES, SCENE_THEMES, type LevelConfig } from "./types";
 
 export type ValidationResult = { ok: true; level: LevelConfig } | { ok: false; errors: string[] };
 
@@ -23,12 +23,13 @@ export function validateLevel(input: unknown): ValidationResult {
   if (typeof l.instructions !== "string") e.push("instructions must be text.");
   if (!MINIGAME_TYPES.includes(l.type as never))
     e.push(`type must be one of: ${MINIGAME_TYPES.join(", ")}.`);
-  if (l.theme !== "living_room" && l.theme !== "dining_room")
-    e.push("theme must be living_room or dining_room.");
+  if (!SCENE_THEMES.includes(l.theme as never))
+    e.push(`theme must be one of: ${SCENE_THEMES.join(", ")}.`);
+  const isFlash = l.type === "flashlight_find";
 
   const targets = Array.isArray(l.targets) ? l.targets : [];
-  if (!Array.isArray(l.targets) || targets.length === 0)
-    e.push("At least one target zone is required.");
+  if (!Array.isArray(l.targets)) e.push("targets must be a list.");
+  else if (!isFlash && targets.length === 0) e.push("At least one target zone is required.");
   const targetIds = new Set<string>();
   targets.forEach((t: Loose, i: number) => {
     const n = `Target #${i + 1}`;
@@ -65,7 +66,10 @@ export function validateLevel(input: unknown): ValidationResult {
       e.push(`${n}: unknown color "${String(o.color)}".`);
     if (!isNum(o.x, 0, 100) || !isNum(o.y, 0, 100)) e.push(`${n}: x/y must be 0–100.`);
     if (!isNum(o.size, 6, 40)) e.push(`${n}: size must be 6–40.`);
-    if (!isStr(o.targetId)) e.push(`${n}: missing target.`);
+    if (isFlash) {
+      if (o.targetId !== "" && o.targetId !== undefined && !targetIds.has(o.targetId))
+        e.push(`${n}: targetId must be empty for flashlight_find.`);
+    } else if (!isStr(o.targetId)) e.push(`${n}: missing target.`);
     else if (!targetIds.has(o.targetId)) e.push(`${n}: target "${o.targetId}" does not exist.`);
   });
 
@@ -73,6 +77,30 @@ export function validateLevel(input: unknown): ValidationResult {
     const used = objects.filter(isObj).map((o: Loose) => o.targetId);
     const dup = used.find((t: unknown, i: number) => used.indexOf(t) !== i);
     if (dup) e.push(`place_items: target "${String(dup)}" is used by more than one object.`);
+  }
+
+  if (isFlash) {
+    const f = l.flashlight;
+    if (!isObj(f)) e.push("flashlight options are required.");
+    else {
+      if (!isNum(f.radius, 10, 50)) e.push("flashlight.radius must be 10–50.");
+      if (f.evasive !== undefined) {
+        const ev = f.evasive;
+        if (!isObj(ev)) e.push("flashlight.evasive must be an object.");
+        else {
+          if (!objIds.has(ev.objectId)) e.push(`evasive object "${String(ev.objectId)}" does not exist.`);
+          if (!Array.isArray(ev.positions) || ev.positions.length < 1 || ev.positions.length > 8)
+            e.push("evasive.positions needs 1–8 positions.");
+          else
+            ev.positions.forEach((p: Loose, i: number) => {
+              if (!isObj(p) || !isNum(p.x, 0, 100) || !isNum(p.y, 0, 100))
+                e.push(`evasive position #${i + 1}: x/y must be 0–100.`);
+            });
+          if (typeof ev.whisper !== "string" || ev.whisper.length > 140)
+            e.push("evasive.whisper must be text (max 140 chars).");
+        }
+      }
+    }
   }
 
   if (!isObj(l.success)) e.push("success condition is required.");

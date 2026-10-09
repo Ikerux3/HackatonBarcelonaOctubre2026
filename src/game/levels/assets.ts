@@ -16,6 +16,9 @@ export const ASSETS = {
   fork: { emoji: "🍴", label: "Fork" },
   spoon: { emoji: "🥄", label: "Spoon" },
   napkin: { emoji: "🧻", label: "Napkin" },
+  pajamas: { emoji: "👚", label: "Pajamas" },
+  toothbrush: { emoji: "🪥", label: "Toothbrush" },
+  slippers: { emoji: "🥿", label: "Slippers" },
 } as const;
 
 export type AssetId = keyof typeof ASSETS;
