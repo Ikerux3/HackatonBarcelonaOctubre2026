@@ -26,6 +26,15 @@ const QUESTIONS = {
 } as const;
 
 export function GameScreen() {
+  return (
+    <>
+      <GameScreenInner />
+      <AIDebugBadge />
+    </>
+  );
+}
+
+function GameScreenInner() {
   const { state, start, completeTask, submitAnswer, advance, replay } = useGameController();
   // saved demo story (validated, per-slot fallback to built-in); read after hydration
   const [story, setStory] = useState<StoryLevels>(STORY_LEVELS);
