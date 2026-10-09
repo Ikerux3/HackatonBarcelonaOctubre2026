@@ -4,7 +4,9 @@ import { MINIGAME_TYPES, type LevelConfig } from "./types";
 
 export type ValidationResult = { ok: true; level: LevelConfig } | { ok: false; errors: string[] };
 
-const isObj = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Loose = any;
+const isObj = (v: unknown): v is Loose => typeof v === "object" && v !== null && !Array.isArray(v);
 const isStr = (v: unknown): v is string => typeof v === "string" && v.trim().length > 0;
 const isNum = (v: unknown, min: number, max: number): v is number =>
   typeof v === "number" && Number.isFinite(v) && v >= min && v <= max;
@@ -13,7 +15,7 @@ const isNum = (v: unknown, min: number, max: number): v is number =>
 export function validateLevel(input: unknown): ValidationResult {
   const e: string[] = [];
   if (!isObj(input)) return { ok: false, errors: ["Level must be a JSON object."] };
-  const l = input;
+  const l: Loose = input;
 
   if (!isStr(l.id) || !/^[a-z0-9_-]+$/i.test(l.id)) e.push("id must be letters, numbers, _ or - only.");
   if (!isStr(l.title)) e.push("title is required.");
@@ -24,9 +26,9 @@ export function validateLevel(input: unknown): ValidationResult {
   const targets = Array.isArray(l.targets) ? l.targets : [];
   if (!Array.isArray(l.targets) || targets.length === 0) e.push("At least one target zone is required.");
   const targetIds = new Set<string>();
-  targets.forEach((t, i) => {
+  targets.forEach((t: Loose, i: number) => {
     const n = `Target #${i + 1}`;
-    if (!isObj(t)) return e.push(`${n} is not an object.`);
+    if (!isObj(t)) { e.push(`${n} is not an object.`); return; }
     if (!isStr(t.id)) e.push(`${n}: id is required.`);
     else if (targetIds.has(t.id)) e.push(`${n}: duplicate id "${t.id}".`);
     else targetIds.add(t.id);
@@ -39,9 +41,9 @@ export function validateLevel(input: unknown): ValidationResult {
   const objects = Array.isArray(l.objects) ? l.objects : [];
   if (!Array.isArray(l.objects) || objects.length === 0) e.push("At least one object is required.");
   const objIds = new Set<string>();
-  objects.forEach((o, i) => {
+  objects.forEach((o: Loose, i: number) => {
     const n = `Object #${i + 1}`;
-    if (!isObj(o)) return e.push(`${n} is not an object.`);
+    if (!isObj(o)) { e.push(`${n} is not an object.`); return; }
     if (!isStr(o.id)) e.push(`${n}: id is required.`);
     else if (objIds.has(o.id)) e.push(`${n}: duplicate id "${o.id}".`);
     else objIds.add(o.id);
@@ -55,7 +57,7 @@ export function validateLevel(input: unknown): ValidationResult {
   });
 
   if (l.type === "place_items") {
-    const used = objects.filter(isObj).map((o) => o.targetId);
+    const used = objects.filter(isObj).map((o: Loose) => o.targetId);
     const dup = used.find((t, i) => used.indexOf(t) !== i);
     if (dup) e.push(`place_items: target "${String(dup)}" is used by more than one object.`);
   }
