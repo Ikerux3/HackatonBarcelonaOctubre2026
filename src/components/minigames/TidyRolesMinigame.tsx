@@ -681,7 +681,7 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
 
       {/* monster whisper */}
       {whisper && (
-        <p className="game-monster-line pointer-events-none absolute inset-x-0 top-10 z-50 px-4 text-center font-serif text-base italic text-red-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+        <p className="game-monster-line pointer-events-none absolute left-1/2 top-10 z-50 w-[90%] -translate-x-1/2 rounded-lg bg-black/70 px-3 py-1 text-center font-serif text-base italic text-red-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
           {whisper}
         </p>
       )}
