@@ -115,6 +115,11 @@ export interface LightZone {
   r: number;
 }
 
+/** Scenes are 2:3, so 1% of height = 1.5% of width. */
+export function zoneCovers(z: LightZone, p: Point): boolean {
+  return Math.hypot(p.x - z.x, (p.y - z.y) * 1.5) <= z.r;
+}
+
 /** Role "possessed": the toy flees between dark slots and freezes when lit. */
 export interface PossessedOptions {
   /** 3–4 dark slots, visited in order (keep neighbours free of furniture between them) */

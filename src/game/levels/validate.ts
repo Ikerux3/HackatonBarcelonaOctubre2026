@@ -1,6 +1,17 @@
 import type { NormalizedColor } from "@/ai/contracts";
 import { ASSETS, COLOR_HEX } from "./assets";
-import { MINIGAME_TYPES, SCENE_THEMES, type LevelConfig } from "./types";
+import {
+  HIDE_SPOT_KINDS,
+  MINIGAME_TYPES,
+  SCENE_THEMES,
+  TIDY_ROLES,
+  zoneCovers,
+  type HideSpotKind,
+  type LevelConfig,
+  type LightZone,
+  type Point,
+  type TidyRole,
+} from "./types";
 
 export type ValidationResult = { ok: true; level: LevelConfig } | { ok: false; errors: string[] };
 
