@@ -157,7 +157,7 @@ export function DragMinigame({ level, memory, dark, onComplete }: MinigameProps)
       className={`relative w-full touch-none select-none overflow-hidden rounded-2xl border ${
         dark ? "border-neutral-800 game-room-dark" : "border-amber-200 game-room-cozy"
       }`}
-      style={{ aspectRatio: "3 / 4" }}
+      style={{ aspectRatio: "2 / 3" }}
     >
       <SceneBackdrop theme={level.theme} dark={dark} />
 

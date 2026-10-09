@@ -845,7 +845,7 @@ export function LevelEditor() {
                 onPointerUp={() => (dragRef.current = null)}
                 onPointerDown={() => setSel(null)}
                 className="relative w-full touch-none select-none overflow-hidden rounded-2xl"
-                style={{ aspectRatio: "3 / 4" }}
+                style={{ aspectRatio: "2 / 3" }}
               >
                 <SceneBackdrop theme={level.theme} dark={dark} />
                 {level.targets.map((t) => (
