@@ -103,7 +103,7 @@ export function GameScreen() {
         {isQuestion && (
           <MonsterOverlay line={state.monsterLine}>
             <QuestionInput
-              question={QUESTIONS[state.stage]}
+              question={state.stage === "question_one" ? QUESTIONS.question_one : QUESTIONS.question_two}
               busy={state.aiBusy}
               monsterLine={state.monsterLine}
               onSubmit={(answer) =>

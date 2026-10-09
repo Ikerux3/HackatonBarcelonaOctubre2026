@@ -54,6 +54,7 @@ export function useGameController() {
       }, 800);
       return () => clearTimeout(t);
     }
+    return undefined;
   }, [state.stage, state.toysTidied.length, state.tableSet.length]);
 
   // Blackout lingers, then the monster asks its question.
