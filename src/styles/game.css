@@ -1,0 +1,153 @@
+/* Game-specific atmosphere for MOMMY WILL BE BACK.
+ * Keyframes respect prefers-reduced-motion below. */
+
+.game-room-cozy {
+  background: radial-gradient(circle at 50% 20%, #fdf3e0 0%, #f3e2c3 60%, #e8d0a8 100%);
+}
+
+.game-room-dark {
+  background: radial-gradient(circle at 50% 30%, #151515 0%, #0a0a0a 70%);
+}
+
+.game-vignette {
+  background: radial-gradient(circle at 50% 45%, transparent 25%, rgba(0, 0, 0, 0.85) 85%);
+}
+
+.game-lamp-glow {
+  box-shadow: 0 0 40px 18px rgba(250, 220, 120, 0.45);
+}
+
+/* The "color_removed" variant: the object keeps its shape and label,
+ * only its color is drained into a shadow silhouette. */
+.game-shadow-item svg {
+  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.9));
+}
+
+@keyframes game-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+.game-bob {
+  display: inline-block;
+  animation: game-bob 2.2s ease-in-out infinite;
+}
+
+@keyframes game-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  8% {
+    opacity: 0.4;
+  }
+  12% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0.6;
+  }
+  34% {
+    opacity: 1;
+  }
+  62% {
+    opacity: 0.5;
+  }
+  66% {
+    opacity: 1;
+  }
+}
+.game-flicker {
+  animation: game-flicker 2.6s linear 1;
+}
+
+@keyframes game-monster-sway {
+  0%,
+  100% {
+    transform: translateX(0) scaleY(1);
+  }
+  50% {
+    transform: translateX(3px) scaleY(1.02);
+  }
+}
+.game-monster {
+  animation: game-monster-sway 5s ease-in-out infinite;
+}
+
+@keyframes game-eyes-blink {
+  0%,
+  92%,
+  100% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 0;
+  }
+}
+.game-eyes {
+  animation: game-eyes-blink 4.5s linear infinite;
+}
+
+@keyframes game-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.game-monster-line {
+  animation: game-line-in 1.2s ease-out both;
+}
+
+@keyframes game-glitch-shift {
+  0%,
+  90%,
+  100% {
+    transform: translate(0);
+    text-shadow: none;
+  }
+  92% {
+    transform: translate(-2px, 1px);
+    text-shadow: 2px 0 rgba(255, 0, 60, 0.5);
+  }
+  96% {
+    transform: translate(2px, -1px);
+    text-shadow: -2px 0 rgba(0, 200, 255, 0.5);
+  }
+}
+.game-glitch {
+  animation: game-glitch-shift 4s linear infinite;
+}
+
+/* Ending color reveal — one class per normalized color. */
+.game-reveal-color {
+  font-weight: 700;
+}
+.game-color-red { color: #e06a6a; }
+.game-color-blue { color: #7b9be0; }
+.game-color-yellow { color: #e0c96a; }
+.game-color-green { color: #7cc489; }
+.game-color-purple { color: #b48ad6; }
+.game-color-pink { color: #e08ab8; }
+.game-color-orange { color: #e09a5e; }
+.game-color-other { color: #9a9a9a; }
+
+@media (prefers-reduced-motion: reduce) {
+  .game-bob,
+  .game-monster,
+  .game-eyes,
+  .game-glitch,
+  .game-flicker {
+    animation: none;
+  }
+  .game-monster-line {
+    animation-duration: 0.01s;
+  }
+}

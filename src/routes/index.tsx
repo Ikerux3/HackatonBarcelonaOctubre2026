@@ -1,24 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
-export const Route = createFileRoute("/")({
-  component: Index,
-});
+import { GameScreen } from "@/components/game/GameScreen";
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
-}
+export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Mommy Will Be Back — a short horror puzzle game" },
+      {
+        name: "description",
+        content:
+          "A mobile-first psychological horror puzzle game. Tidy your toys, set the table, and answer the thing in the dark — it remembers what you tell it.",
+      },
+      { property: "og:title", content: "Mommy Will Be Back — a short horror puzzle game" },
+      {
+        property: "og:description",
+        content:
+          "A mobile-first psychological horror puzzle game. Tidy your toys, set the table, and answer the thing in the dark — it remembers what you tell it.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: GameScreen,
+});
