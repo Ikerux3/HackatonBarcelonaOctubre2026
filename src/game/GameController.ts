@@ -14,9 +14,9 @@ const TIMED_STAGES: Partial<Record<GameStage, number>> = {
   blackout_one: BLACKOUT_MS,
   blackout_two: BLACKOUT_MS,
   blackout_three: BLACKOUT_MS,
-  knock: 2600,
-  mother_voice: 9000, // tap also continues
-  final_dark: 2200,
+  goodnight_whisper: 5200,
+  mom_returns: 4800,
+  unsettling_detail: 5000,
 };
 
 export function useGameController() {
@@ -41,10 +41,7 @@ export function useGameController() {
   useEffect(() => {
     const ms = TIMED_STAGES[state.stage];
     if (ms === undefined) return;
-    if (state.stage === "knock") {
-      sfx.knock();
-    }
-    if (state.stage === "final_dark") sfx.blackout();
+    if (state.stage === "mom_returns") sfx.door();
     const door =
       state.stage === "intro_leave" ? setTimeout(() => sfx.door(), ms - 1600) : undefined;
     const t = setTimeout(() => dispatch({ type: "ADVANCE" }), ms);

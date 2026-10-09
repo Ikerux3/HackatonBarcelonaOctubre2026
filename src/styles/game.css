@@ -201,3 +201,10 @@
 @media (prefers-reduced-motion: reduce) {
   .game-shake, .game-wobble, .game-pop, .game-false-hint, .game-echo, .game-light-disturb { animation: none; }
 }
+
+@keyframes game-door-open {
+  from { transform: perspective(600px) rotateY(0deg); }
+  to { transform: perspective(600px) rotateY(-70deg); }
+}
+.game-door-open { animation: game-door-open 1.6s ease-out 0.3s both; }
+@media (prefers-reduced-motion: reduce) { .game-door-open { animation: none; } }

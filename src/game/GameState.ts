@@ -13,9 +13,9 @@ export type GameStage =
   | "question_two"
   | "task_three" // bedtime: flashlight, favorite toy evades
   | "blackout_three" // final blackout
-  | "knock" // knocking at the door
-  | "mother_voice" // the "mother" repeats what only the monster heard
-  | "final_dark" // black screen
+  | "goodnight_whisper" // total darkness, the monster whispers the name once
+  | "mom_returns" // lights on, the front door opens: mom is really home
+  | "unsettling_detail" // cozy room, but the toy is on the table and the color is gone
   | "ending";
 
 export interface GameMemory {
@@ -96,12 +96,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             ? { ...state, stage: "task_three", monsterLine: null }
             : state;
         case "blackout_three":
-          return { ...state, stage: "knock" };
-        case "knock":
-          return { ...state, stage: "mother_voice" };
-        case "mother_voice":
-          return { ...state, stage: "final_dark" };
-        case "final_dark":
+          return { ...state, stage: "goodnight_whisper" };
+        case "goodnight_whisper":
+          return { ...state, stage: "mom_returns" };
+        case "mom_returns":
+          return { ...state, stage: "unsettling_detail" };
+        case "unsettling_detail":
           return { ...state, stage: "ending" };
         default:
           return state;

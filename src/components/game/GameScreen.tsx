@@ -16,7 +16,7 @@ import { loadStoryLevels, type StoryLevels } from "@/game/demoProfile";
 import { STORY_LEVELS } from "@/game/levels/defaultLevels";
 import { MinigameHost } from "@/components/minigames/MinigameHost";
 import { EndingScreen } from "./EndingScreen";
-import { MotherSequence } from "./MotherSequence";
+import { EndingSequence } from "./EndingSequence";
 import { IntroName } from "./IntroName";
 import { MonsterOverlay } from "./MonsterOverlay";
 import { QuestionInput } from "./QuestionInput";
@@ -58,7 +58,7 @@ function GameScreenInner() {
     if (st === "intro_name" || st === "intro_leave" || st === "task_one") {
       stopDrone();
       startMusicBox();
-    } else if (st === "ending") {
+    } else if (st === "ending" || st === "mom_returns" || st === "unsettling_detail") {
       stopMusicBox(true);
       stopDrone();
     } else {
@@ -67,7 +67,7 @@ function GameScreenInner() {
       setMusicDetune(60);
       startDrone();
     }
-    if (st === "question_one" || st === "question_two" || st === "mother_voice")
+    if (st === "question_one" || st === "question_two" || st === "goodnight_whisper")
       haptic([30, 80, 30]);
   }, [state.stage]);
   useEffect(() => () => {
@@ -108,9 +108,6 @@ function GameScreenInner() {
   if (state.stage === "ending") {
     return (
       <EndingScreen
-        memory={state.memory}
-        colorText={colorLabel(state)}
-        toyText={toyLabel(state)}
         lastedMs={lastedMs}
         onReplay={replay}
       />
@@ -129,16 +126,17 @@ function GameScreenInner() {
   }
 
   if (
-    state.stage === "knock" ||
-    state.stage === "mother_voice" ||
-    state.stage === "final_dark"
+    state.stage === "goodnight_whisper" ||
+    state.stage === "mom_returns" ||
+    state.stage === "unsettling_detail"
   ) {
     return (
-      <MotherSequence
+      <EndingSequence
         stage={state.stage}
-        colorText={colorLabel(state)}
+        name={state.memory.playerName ?? "sweetie"}
+        memory={state.memory}
         toyText={toyLabel(state)}
-        onContinue={advance}
+        colorText={colorLabel(state)}
       />
     );
   }
