@@ -118,7 +118,7 @@ export function parseProfileJson(text: string): ProfileResult {
   const drafts: DemoProfile["drafts"] = [];
   if (data.drafts !== undefined && !Array.isArray(data.drafts))
     errors.push("drafts must be a list.");
-  (Array.isArray(data.drafts) ? data.drafts : []).forEach((d, i) => {
+  (Array.isArray(data.drafts) ? data.drafts : []).forEach((d: unknown, i: number) => {
     const v = validateLevel(isObj(d) ? d.level : undefined);
     if (!v.ok) errors.push(`draft #${i + 1}: ${v.errors.slice(0, 2).join(" ")}`);
     else
