@@ -9,7 +9,13 @@ interface QuestionInputProps {
   onContinue: () => void;
 }
 
-export function QuestionInput({ question, busy, monsterLine, onSubmit, onContinue }: QuestionInputProps) {
+export function QuestionInput({
+  question,
+  busy,
+  monsterLine,
+  onSubmit,
+  onContinue,
+}: QuestionInputProps) {
   const [value, setValue] = useState("");
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);

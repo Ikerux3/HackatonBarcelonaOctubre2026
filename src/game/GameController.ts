@@ -3,7 +3,6 @@ import { useCallback, useEffect, useReducer } from "react";
 import { interpretAnswerSafe } from "@/ai/aiAdapter";
 import type { QuestionType } from "@/ai/contracts";
 import { gameReducer, initialGameState } from "./GameState";
-import { TABLE_ITEMS, TOYS } from "./PuzzleData";
 import { initAudio, sfx } from "./audio";
 
 /** how long a blackout lingers before the question appears */
@@ -18,44 +17,15 @@ export function useGameController() {
     dispatch({ type: "START" });
   }, []);
 
-  const tidyToy = useCallback(
-    (id: string) => {
-      if (state.stage !== "task_one" || state.toysTidied.includes(id)) return;
-      sfx.click();
-      dispatch({ type: "TIDY_TOY", id });
-    },
-    [state.stage, state.toysTidied],
-  );
-
-  const placeItem = useCallback(
-    (id: string) => {
-      if (state.stage !== "task_two" || state.tableSet.includes(id)) return;
-      sfx.click();
-      dispatch({ type: "PLACE_ITEM", id });
-    },
-    [state.stage, state.tableSet],
-  );
-
-  // Task completion -> success sting -> blackout.
-  useEffect(() => {
-    if (state.stage === "task_one" && state.toysTidied.length === TOYS.length) {
-      sfx.success();
-      const t = setTimeout(() => {
-        sfx.blackout();
-        dispatch({ type: "TASK_ONE_DONE" });
-      }, 800);
-      return () => clearTimeout(t);
-    }
-    if (state.stage === "task_two" && state.tableSet.length === TABLE_ITEMS.length) {
-      sfx.success();
-      const t = setTimeout(() => {
-        sfx.blackout();
-        dispatch({ type: "TASK_TWO_DONE" });
-      }, 800);
-      return () => clearTimeout(t);
-    }
-    return undefined;
-  }, [state.stage, state.toysTidied.length, state.tableSet.length]);
+  /** Called by the active minigame when its success condition is met. */
+  const completeTask = useCallback(() => {
+    sfx.success();
+    const stage = state.stage;
+    setTimeout(() => {
+      sfx.blackout();
+      dispatch({ type: stage === "task_one" ? "TASK_ONE_DONE" : "TASK_TWO_DONE" });
+    }, 900);
+  }, [state.stage]);
 
   // Blackout lingers, then the monster asks its question.
   useEffect(() => {
@@ -95,5 +65,5 @@ export function useGameController() {
     dispatch({ type: "REPLAY" });
   }, []);
 
-  return { state, start, tidyToy, placeItem, submitAnswer, advance, replay };
+  return { state, start, completeTask, submitAnswer, advance, replay };
 }

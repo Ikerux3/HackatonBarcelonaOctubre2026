@@ -18,10 +18,6 @@ export interface GameMemory {
 
 export interface GameState {
   stage: GameStage;
-  /** ids of toys tidied in task_one */
-  toysTidied: string[];
-  /** ids of items placed on the table in task_two */
-  tableSet: string[];
   memory: GameMemory;
   /** last thing the monster said, shown during blackouts */
   monsterLine: string | null;
@@ -33,8 +29,6 @@ export interface GameState {
 
 export const initialGameState: GameState = {
   stage: "intro",
-  toysTidied: [],
-  tableSet: [],
   memory: {},
   monsterLine: null,
   rawColorAnswer: null,
@@ -44,8 +38,6 @@ export const initialGameState: GameState = {
 
 export type GameAction =
   | { type: "START" }
-  | { type: "TIDY_TOY"; id: string }
-  | { type: "PLACE_ITEM"; id: string }
   | { type: "TASK_ONE_DONE" }
   | { type: "TASK_TWO_DONE" }
   | { type: "ADVANCE" } // blackout timers / monster dialogue continue
@@ -63,16 +55,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "START":
       return { ...initialGameState, stage: "task_one" };
-
-    case "TIDY_TOY": {
-      if (state.stage !== "task_one" || state.toysTidied.includes(action.id)) return state;
-      return { ...state, toysTidied: [...state.toysTidied, action.id] };
-    }
-
-    case "PLACE_ITEM": {
-      if (state.stage !== "task_two" || state.tableSet.includes(action.id)) return state;
-      return { ...state, tableSet: [...state.tableSet, action.id] };
-    }
 
     case "TASK_ONE_DONE":
       return state.stage === "task_one" ? { ...state, stage: "blackout_one" } : state;
