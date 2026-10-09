@@ -3,6 +3,8 @@ import type { NormalizedColor, ToyCategory } from "@/ai/contracts";
 // Explicit game stages — one active stage at a time, no loose boolean flags.
 export type GameStage =
   | "intro"
+  | "intro_name" // mom types her goodbye and asks the player's name
+  | "intro_leave" // mom finishes the sentence with the name and leaves
   | "task_one"
   | "blackout_one"
   | "question_one"
@@ -19,6 +21,8 @@ export type GameStage =
 export interface GameMemory {
   favoriteColor?: NormalizedColor;
   favoriteToy?: ToyCategory;
+  /** validated locally, session memory only — never sent to the AI */
+  playerName?: string;
 }
 
 export interface GameState {
@@ -43,6 +47,7 @@ export const initialGameState: GameState = {
 
 export type GameAction =
   | { type: "START" }
+  | { type: "SET_NAME"; name: string }
   | { type: "TASK_DONE" }
   | { type: "ADVANCE" } // blackout timers / monster dialogue continue
   | { type: "AI_REQUEST" }
@@ -58,7 +63,12 @@ export type GameAction =
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "START":
-      return { ...initialGameState, stage: "task_one" };
+      return { ...initialGameState, stage: "intro_name" };
+
+    case "SET_NAME":
+      return state.stage === "intro_name"
+        ? { ...state, stage: "intro_leave", memory: { ...state.memory, playerName: action.name } }
+        : state;
 
     case "TASK_DONE": {
       const next: Partial<Record<GameStage, GameStage>> = {
@@ -72,6 +82,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "ADVANCE": {
       switch (state.stage) {
+        case "intro_leave":
+          return { ...state, stage: "task_one" };
         case "blackout_one":
           return { ...state, stage: "question_one", monsterLine: null };
         case "blackout_two":

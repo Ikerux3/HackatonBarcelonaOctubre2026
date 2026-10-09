@@ -10,6 +10,7 @@ export const BLACKOUT_MS = 3200;
 
 /** auto-advance timings for the timed stages (ms) */
 const TIMED_STAGES: Partial<Record<GameStage, number>> = {
+  intro_leave: 8200, // typing + door; tap also continues
   blackout_one: BLACKOUT_MS,
   blackout_two: BLACKOUT_MS,
   blackout_three: BLACKOUT_MS,
@@ -44,8 +45,13 @@ export function useGameController() {
       sfx.knock();
     }
     if (state.stage === "final_dark") sfx.blackout();
+    const door =
+      state.stage === "intro_leave" ? setTimeout(() => sfx.door(), ms - 1600) : undefined;
     const t = setTimeout(() => dispatch({ type: "ADVANCE" }), ms);
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(t);
+      if (door) clearTimeout(door);
+    };
   }, [state.stage]);
 
   const submitAnswer = useCallback(
@@ -55,7 +61,11 @@ export function useGameController() {
       const response = await interpretAnswerSafe({
         questionType,
         answer,
-        memory: state.memory,
+        // the player's name never leaves the device
+        memory: {
+          ...(state.memory.favoriteColor ? { favoriteColor: state.memory.favoriteColor } : {}),
+          ...(state.memory.favoriteToy ? { favoriteToy: state.memory.favoriteToy } : {}),
+        },
       });
       dispatch({
         type: "AI_RESULT",
@@ -74,10 +84,15 @@ export function useGameController() {
     dispatch({ type: "ADVANCE" });
   }, []);
 
+  const setName = useCallback((name: string) => {
+    sfx.click();
+    dispatch({ type: "SET_NAME", name });
+  }, []);
+
   const replay = useCallback(() => {
     sfx.click();
     dispatch({ type: "REPLAY" });
   }, []);
 
-  return { state, start, completeTask, submitAnswer, advance, replay };
+  return { state, start, setName, completeTask, submitAnswer, advance, replay };
 }

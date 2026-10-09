@@ -1,8 +1,8 @@
-import type { LevelConfig } from "./types";
+import type { LevelConfig, SceneObject } from "./types";
 
-export const TIDY_TOYS: LevelConfig = {
-  id: "tidy_toys",
-  title: "Tidy up the toys",
+export const TIDY_TOYS_DRAG: LevelConfig = {
+  id: "tidy_toys_drag",
+  title: "Tidy up the toys (simple drag)",
   type: "drag_to_target",
   instructions: "Drag every toy into the toy box",
   theme: "living_room",
@@ -52,6 +52,50 @@ export const TIDY_TOYS: LevelConfig = {
   success: { kind: "all_placed" },
   monster: { trigger: "on_complete", intervention: "none" },
   personalization: { source: "none", transform: "none" },
+};
+
+const slot = (id: string, color: SceneObject["color"], x: number, y: number): SceneObject => ({
+  id,
+  label: "Toy",
+  asset: "ball",
+  color,
+  x,
+  y,
+  size: 17,
+  targetId: "toy_box",
+});
+
+export const TIDY_TOYS: LevelConfig = {
+  id: "tidy_toys",
+  title: "Tidy up the toys",
+  type: "tidy_roles",
+  instructions: "Put every toy in the toy box",
+  theme: "living_room",
+  objects: [
+    slot("toy_1", "red", 16, 60),
+    slot("toy_2", "blue", 44, 64),
+    slot("toy_3", "yellow", 16, 84),
+    slot("toy_4", "green", 44, 86),
+    slot("toy_5", "purple", 70, 56),
+  ],
+  targets: [{ id: "toy_box", label: "Toys", shape: "box", x: 80, y: 80, w: 30, h: 18 }],
+  success: { kind: "all_placed" },
+  monster: { trigger: "on_complete", intervention: "none" },
+  personalization: { source: "none", transform: "none" },
+  tidy: {
+    seed: null,
+    pool: ["ball", "blocks", "doll", "dino", "teddy", "car", "robot", "book"],
+    steps: [
+      { role: "plain", hint: "Drag the toys into the box" },
+      { role: "cushion", hint: "Something slipped under the cushion…" },
+      { role: "drawer", hint: "Did the drawer just close?" },
+      { role: "plain", hint: "Almost done…" },
+      { role: "plain", hint: "One more." },
+    ],
+    cushion: { x: 50, y: 44 },
+    drawer: { x: 18, y: 40 },
+    completeLine: "You put them all away. Now it's my turn to ask.",
+  },
 };
 
 export const SET_TABLE: LevelConfig = {
@@ -169,7 +213,7 @@ export const BEDTIME: LevelConfig = {
   },
 };
 
-export const BUILT_IN_LEVELS: LevelConfig[] = [TIDY_TOYS, SET_TABLE, BEDTIME];
+export const BUILT_IN_LEVELS: LevelConfig[] = [TIDY_TOYS, SET_TABLE, BEDTIME, TIDY_TOYS_DRAG];
 
 /** Which level plays at each task stage of the main story. */
 export const STORY_LEVELS = {
