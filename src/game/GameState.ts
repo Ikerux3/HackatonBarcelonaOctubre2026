@@ -46,6 +46,8 @@ export type GameAction =
   | { type: "START" }
   | { type: "TIDY_TOY"; id: string }
   | { type: "PLACE_ITEM"; id: string }
+  | { type: "TASK_ONE_DONE" }
+  | { type: "TASK_TWO_DONE" }
   | { type: "ADVANCE" } // blackout timers / monster dialogue continue
   | { type: "AI_REQUEST" }
   | {
@@ -71,6 +73,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.stage !== "task_two" || state.tableSet.includes(action.id)) return state;
       return { ...state, tableSet: [...state.tableSet, action.id] };
     }
+
+    case "TASK_ONE_DONE":
+      return state.stage === "task_one" ? { ...state, stage: "blackout_one" } : state;
+
+    case "TASK_TWO_DONE":
+      return state.stage === "task_two" ? { ...state, stage: "blackout_two" } : state;
 
     case "ADVANCE": {
       switch (state.stage) {
