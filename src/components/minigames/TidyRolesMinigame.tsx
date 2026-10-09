@@ -396,7 +396,11 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
 
       {/* hint for the current step */}
       {!done && step?.hint && (
-        <p className="pointer-events-none absolute inset-x-0 top-2 z-40 px-3 text-center font-serif text-sm italic text-amber-950 drop-shadow-[0_1px_0_rgba(255,255,255,0.6)]">
+        <p
+          className={`pointer-events-none absolute inset-x-0 top-2 z-40 px-3 text-center font-serif text-sm italic drop-shadow-[0_1px_0_rgba(255,255,255,0.6)] ${
+            possActive ? "text-neutral-200 drop-shadow-none" : "text-amber-950"
+          }`}
+        >
           {step.hint}
         </p>
       )}
@@ -414,6 +418,28 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
           aria-hidden
         />
       )}
+
+      {/* hide-and-seek furniture (always part of the room) */}
+      {H &&
+        H.spots.map((sp, i) => (
+          <div
+            key={`f-${i}`}
+            aria-hidden
+            className={`pointer-events-none absolute z-0 -translate-x-1/2 -translate-y-1/2 border-4 ${
+              sp.kind === "sofa"
+                ? "rounded-t-[40%] rounded-b-lg border-rose-950 bg-rose-800"
+                : sp.kind === "drawer"
+                  ? "rounded-md border-amber-950 bg-amber-800"
+                  : "rounded-b-[30%] border-red-950 bg-[repeating-linear-gradient(90deg,var(--color-red-800)_0_6px,var(--color-red-900)_6px_12px)]"
+            }`}
+            style={{
+              left: `${sp.x}%`,
+              top: `${sp.y}%`,
+              width: sp.kind === "sofa" ? "46%" : sp.kind === "drawer" ? "20%" : "20%",
+              height: sp.kind === "sofa" ? "12%" : sp.kind === "drawer" ? "9%" : "22%",
+            }}
+          />
+        ))}
 
       {/* toy box */}
       <button
@@ -457,6 +483,8 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
         const lockedNow = locked(o.id);
         const sprite = spriteOf(o, i);
         const { x, y } = posOf(o);
+        const hidden = hide?.toyId === o.id && !hide.revealed && !isPlaced;
+        const isPoss = poss?.toyId === o.id && !isPlaced;
         return (
           <button
             key={o.id}
@@ -471,7 +499,7 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
             className={`absolute flex touch-none flex-col items-center justify-center rounded-2xl border-2 border-white/60 ${
               dragging ? "z-40 scale-110 shadow-2xl" : isPlaced ? "z-[5]" : "z-20 shadow-lg"
             } ${selected === o.id ? "ring-4 ring-amber-300" : ""} ${shake === o.id ? "game-shake" : ""} ${
-              isPlaced ? "pointer-events-none" : ""
+              isPlaced || hidden ? "pointer-events-none" : ""
             }`}
             style={{
               left: `${x}%`,
@@ -479,11 +507,20 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
               width: `${o.size}%`,
               aspectRatio: "1",
               transform: `translate(-50%, -50%) ${isPlaced ? "scale(0.2)" : ""}`,
-              opacity: isPlaced ? 0 : lockedNow && !cover ? 1 : lockedNow ? 0.55 : 1,
+              opacity:
+                isPlaced || hidden
+                  ? 0
+                  : isPoss || (lockedNow && !cover && !possActive)
+                    ? 1
+                    : lockedNow
+                      ? 0.55
+                      : 1,
               backgroundColor: COLOR_HEX[o.color],
               transition: dragging
                 ? "none"
-                : "left .45s ease, top .45s ease, transform .35s ease, opacity .45s ease",
+                : isPoss
+                  ? "left .9s ease-in-out, top .9s ease-in-out, transform .35s ease"
+                  : "left .45s ease, top .45s ease, transform .35s ease, opacity .45s ease",
             }}
           >
             <span className="pointer-events-none text-2xl leading-none" aria-hidden>
@@ -520,6 +557,133 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
             <span className="h-2 w-6 rounded-full bg-amber-300" aria-hidden />
           )}
         </button>
+      )}
+
+      {/* possessed: darkness with holes where the active lights reach */}
+      {possActive && P && (
+        <svg
+          className="pointer-events-none absolute inset-0 z-30 h-full w-full"
+          viewBox="0 0 100 150"
+          preserveAspectRatio="none"
+          aria-hidden
+        >
+          <defs>
+            <radialGradient id={`${maskId}-g`}>
+              <stop offset="0.6" stopColor="black" stopOpacity="1" />
+              <stop offset="1" stopColor="black" stopOpacity="0" />
+            </radialGradient>
+            <mask id={`${maskId}-m`}>
+              <rect width="100" height="150" fill="white" />
+              {[...(lights.main ? P.mainZones : []), ...(lights.lamp ? P.lampZones : [])].map(
+                (z, i) => (
+                  <ellipse
+                    key={i}
+                    cx={z.x}
+                    cy={z.y * 1.5}
+                    rx={z.r}
+                    ry={z.r}
+                    fill={`url(#${maskId}-g)`}
+                  />
+                ),
+              )}
+            </mask>
+          </defs>
+          <rect width="100" height="150" fill="black" opacity="0.9" mask={`url(#${maskId}-m)`} />
+        </svg>
+      )}
+
+      {/* possessed: eyes where the toy hides (only while it is in the dark) */}
+      {possActive && P && (eyes || !litAt(P.slots[poss!.slot]!)) && drag?.id !== poss!.toyId && (
+        <div
+          aria-hidden
+          className="game-eyes pointer-events-none absolute z-[35] flex gap-1.5"
+          style={{
+            left: `${P.slots[poss!.slot]!.x}%`,
+            top: `${P.slots[poss!.slot]!.y - 3}%`,
+            transform: "translate(-50%, -50%)",
+            transition: "left .9s ease-in-out, top .9s ease-in-out",
+            opacity: eyes ? 0.9 : 0.45,
+          }}
+        >
+          <span className="h-1.5 w-2.5 rounded-full bg-red-500 shadow-[0_0_6px_var(--color-red-500)]" />
+          <span className="h-1.5 w-2.5 rounded-full bg-red-500 shadow-[0_0_6px_var(--color-red-500)]" />
+        </div>
+      )}
+
+      {/* possessed: light hotspots */}
+      {possActive && P && (() => {
+        const slot = P.slots[poss!.slot]!;
+        const hintKey: "main" | "lamp" | null = !possHint
+          ? null
+          : P.lampZones.some((z) => zoneCovers(z, slot)) && !lights.lamp
+            ? "lamp"
+            : !lights.main
+              ? "main"
+              : "lamp";
+        return (["main", "lamp"] as const).map((k) => {
+          const at = k === "main" ? P.mainSwitch : P.lamp;
+          const on = lights[k];
+          return (
+            <button
+              key={k}
+              type="button"
+              aria-label={k === "main" ? "Main light switch" : "Small lamp"}
+              aria-pressed={on}
+              onClick={() => toggleLight(k)}
+              className={`absolute z-[45] flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl border-2 text-xl ${
+                on ? "border-amber-200 bg-amber-300/90" : "border-neutral-500 bg-neutral-800/90"
+              } ${hintKey === k ? "animate-pulse ring-4 ring-amber-300" : ""}`}
+              style={{ left: `${at.x}%`, top: `${at.y}%` }}
+            >
+              <span aria-hidden>{k === "main" ? "💡" : "🪔"}</span>
+            </button>
+          );
+        });
+      })()}
+
+      {/* hide and seek: clue + tappable spots */}
+      {hideActive && H && !hide!.revealed && (
+        <>
+          {(() => {
+            const sp = H.spots[hide!.spot]!;
+            const toy = level.objects.find((o) => o.id === hide!.toyId);
+            const idx = toy ? level.objects.indexOf(toy) : 0;
+            return (
+              <div
+                aria-hidden
+                className={`pointer-events-none absolute z-[26] ${hideHint ? "animate-pulse" : ""}`}
+                style={{ left: `${sp.x + 8}%`, top: `${sp.y + 4}%`, transform: "translate(-50%,-50%)" }}
+              >
+                <span className="absolute left-1/2 top-full h-2 w-10 -translate-x-1/2 rounded-full bg-black/50 blur-[2px]" />
+                <span className="block rotate-[28deg] text-xl opacity-90">
+                  {toy ? ASSETS[spriteOf(toy, idx)].emoji : "❓"}
+                </span>
+              </div>
+            );
+          })()}
+          {H.spots.map((sp, i) => (
+            <button
+              key={`s-${i}`}
+              type="button"
+              aria-label={`Look: ${sp.label}`}
+              onClick={() => tapSpot(i)}
+              className="absolute z-[25] min-h-12 min-w-12 -translate-x-1/2 -translate-y-1/2 rounded-xl border-2 border-dashed border-amber-100/40"
+              style={{
+                left: `${sp.x}%`,
+                top: `${sp.y}%`,
+                width: sp.kind === "sofa" ? "46%" : "22%",
+                height: sp.kind === "curtain" ? "22%" : "12%",
+              }}
+            />
+          ))}
+        </>
+      )}
+
+      {/* monster whisper */}
+      {whisper && (
+        <p className="game-line-in pointer-events-none absolute inset-x-0 top-10 z-50 px-4 text-center font-serif text-base italic text-red-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+          {whisper}
+        </p>
       )}
 
       {/* progress, always visible */}
