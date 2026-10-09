@@ -2,11 +2,21 @@ import { useCallback, useEffect, useReducer } from "react";
 
 import { interpretAnswerSafe } from "@/ai/aiAdapter";
 import type { QuestionType } from "@/ai/contracts";
-import { gameReducer, initialGameState } from "./GameState";
+import { gameReducer, initialGameState, type GameStage } from "./GameState";
 import { initAudio, sfx } from "./audio";
 
 /** how long a blackout lingers before the question appears */
 export const BLACKOUT_MS = 3200;
+
+/** auto-advance timings for the timed stages (ms) */
+const TIMED_STAGES: Partial<Record<GameStage, number>> = {
+  blackout_one: BLACKOUT_MS,
+  blackout_two: BLACKOUT_MS,
+  blackout_three: BLACKOUT_MS,
+  knock: 2600,
+  mother_voice: 9000, // tap also continues
+  final_dark: 2200,
+};
 
 export function useGameController() {
   const [state, dispatch] = useReducer(gameReducer, initialGameState);
@@ -20,17 +30,21 @@ export function useGameController() {
   /** Called by the active minigame when its success condition is met. */
   const completeTask = useCallback(() => {
     sfx.success();
-    const stage = state.stage;
     setTimeout(() => {
       sfx.blackout();
-      dispatch({ type: stage === "task_one" ? "TASK_ONE_DONE" : "TASK_TWO_DONE" });
+      dispatch({ type: "TASK_DONE" });
     }, 900);
-  }, [state.stage]);
+  }, []);
 
-  // Blackout lingers, then the monster asks its question.
+  // Timed stages (blackouts, ending sequence) advance on their own.
   useEffect(() => {
-    if (state.stage !== "blackout_one" && state.stage !== "blackout_two") return;
-    const t = setTimeout(() => dispatch({ type: "ADVANCE" }), BLACKOUT_MS);
+    const ms = TIMED_STAGES[state.stage];
+    if (ms === undefined) return;
+    if (state.stage === "knock") {
+      sfx.knock();
+    }
+    if (state.stage === "final_dark") sfx.blackout();
+    const t = setTimeout(() => dispatch({ type: "ADVANCE" }), ms);
     return () => clearTimeout(t);
   }, [state.stage]);
 
