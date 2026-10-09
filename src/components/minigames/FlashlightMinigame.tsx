@@ -12,6 +12,8 @@ const ASPECT = 1.5;
 const TAP_SLOP = 3; // % of width
 /** an object counts as lit when its center is inside this fraction of the radius */
 const LIT_FACTOR = 0.85;
+/** on touch, the light sits this far above the finger (% of scene height) so it stays visible */
+const TOUCH_OFFSET_Y = 12;
 
 const dist = (a: Point, b: Point) => Math.hypot(a.x - b.x, (a.y - b.y) * ASPECT);
 
@@ -77,6 +79,9 @@ export function FlashlightMinigame({ level, memory, onComplete }: MinigameProps)
       y: Math.max(0, Math.min(100, ((e.clientY - r.top) / r.height) * 100)),
     };
   };
+  /** where the light is drawn: above the finger on touch, centered for mouse/pen */
+  const lightAt = (e: React.PointerEvent, p: Point): Point =>
+    e.pointerType === "touch" ? { x: p.x, y: Math.max(0, p.y - TOUCH_OFFSET_Y) } : p;
 
   const onDown = (e: React.PointerEvent) => {
     if (done) return;
@@ -84,11 +89,11 @@ export function FlashlightMinigame({ level, memory, onComplete }: MinigameProps)
     e.currentTarget.setPointerCapture(e.pointerId);
     const p = toPct(e);
     down.current = { light, at: p, id: e.pointerId };
-    setLight(p);
+    setLight(lightAt(e, p));
   };
   const onMove = (e: React.PointerEvent) => {
     if (!down.current || down.current.id !== e.pointerId) return;
-    setLight(toPct(e));
+    setLight(lightAt(e, toPct(e)));
   };
   const onUp = (e: React.PointerEvent) => {
     const d = down.current;

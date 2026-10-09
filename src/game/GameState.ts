@@ -26,9 +26,9 @@ export interface GameState {
   memory: GameMemory;
   /** last thing the monster said, shown during blackouts */
   monsterLine: string | null;
-  /** raw answers, reused in the ending */
-  rawColorAnswer: string | null;
-  rawToyAnswer: string | null;
+  /** AI-cleaned paraphrases (never the raw player text), reused in the ending */
+  displayColor: string | null;
+  displayToy: string | null;
   aiBusy: boolean;
 }
 
@@ -36,8 +36,8 @@ export const initialGameState: GameState = {
   stage: "intro",
   memory: {},
   monsterLine: null,
-  rawColorAnswer: null,
-  rawToyAnswer: null,
+  displayColor: null,
+  displayToy: null,
   aiBusy: false,
 };
 
@@ -51,7 +51,7 @@ export type GameAction =
       monsterLine: string;
       normalizedColor?: NormalizedColor;
       normalizedToy?: ToyCategory;
-      rawAnswer: string;
+      displayAnswer?: string;
     }
   | { type: "REPLAY" };
 
@@ -108,8 +108,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         aiBusy: false,
         memory,
         monsterLine: action.monsterLine,
-        rawColorAnswer: action.normalizedColor ? action.rawAnswer : state.rawColorAnswer,
-        rawToyAnswer: action.normalizedToy ? action.rawAnswer : state.rawToyAnswer,
+        displayColor: action.normalizedColor ? (action.displayAnswer ?? null) : state.displayColor,
+        displayToy: action.normalizedToy ? (action.displayAnswer ?? null) : state.displayToy,
       };
     }
 
@@ -119,4 +119,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     default:
       return state;
   }
+}
+
+/** What the UI may show for each answer: AI paraphrase, else the category label. */
+export function colorLabel(state: Pick<GameState, "displayColor" | "memory">): string {
+  if (state.displayColor) return state.displayColor;
+  const c = state.memory.favoriteColor;
+  return c && c !== "other" ? c : "that color";
+}
+export function toyLabel(state: Pick<GameState, "displayToy" | "memory">): string {
+  if (state.displayToy) return state.displayToy;
+  const t = state.memory.favoriteToy;
+  return t && t !== "other" ? `your ${t}` : "your toy";
 }

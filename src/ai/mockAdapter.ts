@@ -76,6 +76,7 @@ export const mockAdapter: AIAdapter = {
         questionType: "favorite_color",
         normalizedColor: color,
         monsterLine: COLOR_LINES[color],
+        ...(color !== "other" ? { displayAnswer: color } : {}),
         puzzleVariant: "color_removed",
         fallbackUsed: !matched,
       };
@@ -86,6 +87,7 @@ export const mockAdapter: AIAdapter = {
       questionType: "favorite_toy",
       normalizedToy: toy,
       monsterLine: TOY_LINES[toy],
+      ...(toy !== "other" ? { displayAnswer: `your ${toy}` } : {}),
       puzzleVariant: "toy_shadow",
       fallbackUsed: !matched,
     };

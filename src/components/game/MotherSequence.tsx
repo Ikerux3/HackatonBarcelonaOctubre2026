@@ -2,13 +2,14 @@ import type { GameStage } from "@/game/GameState";
 
 interface Props {
   stage: Extract<GameStage, "knock" | "mother_voice" | "final_dark">;
-  rawColorAnswer: string | null;
-  rawToyAnswer: string | null;
+  /** cleaned labels only — never raw player text */
+  colorText: string;
+  toyText: string;
   onContinue: () => void;
 }
 
 /** Knock → the "mother" knows what only the monster was told → black. */
-export function MotherSequence({ stage, rawColorAnswer, rawToyAnswer, onContinue }: Props) {
+export function MotherSequence({ stage, colorText, toyText, onContinue }: Props) {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-black px-6 text-center">
       {stage === "knock" && (
@@ -28,8 +29,8 @@ export function MotherSequence({ stage, rawColorAnswer, rawToyAnswer, onContinue
           </span>
           <span className="game-monster-line font-serif text-xl italic leading-relaxed text-neutral-100">
             “Sweetie, it's mommy. Did you keep{" "}
-            <span className="text-amber-200">{rawToyAnswer ?? "your toy"}</span> safe? I brought you
-            something… <span className="text-amber-200">{rawColorAnswer ?? "your color"}</span>.”
+            <span className="text-amber-200">{toyText}</span> safe? I brought you
+            something… <span className="text-amber-200">{colorText}</span>.”
           </span>
           <span className="mt-4 text-xs text-neutral-600">tap</span>
         </button>

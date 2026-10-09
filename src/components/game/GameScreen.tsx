@@ -1,4 +1,6 @@
 import { useGameController } from "@/game/GameController";
+import { colorLabel, toyLabel } from "@/game/GameState";
+import { AIDebugBadge } from "./AIDebugBadge";
 import { useEffect, useRef, useState } from "react";
 
 import {
@@ -24,6 +26,15 @@ const QUESTIONS = {
 } as const;
 
 export function GameScreen() {
+  return (
+    <>
+      <GameScreenInner />
+      <AIDebugBadge />
+    </>
+  );
+}
+
+function GameScreenInner() {
   const { state, start, completeTask, submitAnswer, advance, replay } = useGameController();
   // saved demo story (validated, per-slot fallback to built-in); read after hydration
   const [story, setStory] = useState<StoryLevels>(STORY_LEVELS);
@@ -97,8 +108,8 @@ export function GameScreen() {
     return (
       <EndingScreen
         memory={state.memory}
-        rawColorAnswer={state.rawColorAnswer}
-        rawToyAnswer={state.rawToyAnswer}
+        colorText={colorLabel(state)}
+        toyText={toyLabel(state)}
         lastedMs={lastedMs}
         onReplay={replay}
       />
@@ -113,8 +124,8 @@ export function GameScreen() {
     return (
       <MotherSequence
         stage={state.stage}
-        rawColorAnswer={state.rawColorAnswer}
-        rawToyAnswer={state.rawToyAnswer}
+        colorText={colorLabel(state)}
+        toyText={toyLabel(state)}
         onContinue={advance}
       />
     );

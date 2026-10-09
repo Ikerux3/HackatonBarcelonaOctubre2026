@@ -98,3 +98,15 @@ Demo phone: open `/editor` on it → Import profile → ▶ Play full story (or 
 - **Run timer**: in-memory (`useRef` in `GameScreen`), from Play to the ending; ending shows "You lasted m:ss alone".
 - **Mobile**: Restart button is now ≥48px; answer field uses 16px text (no iOS zoom), `enterKeyHint="send"`, scrolls itself into view on focus, and the page gets extra bottom space during questions so the keyboard can't cover it.
 - **Verified** (Playwright, full run, mock AI): 360px, 430px, iPhone 13 profile, Pixel 7 profile — no horizontal scroll, every visible tappable ≥48px, no errors; simulated keyboard (viewport 420px tall) keeps input + Answer button visible. Not yet tested on physical devices; Playwright's iPhone profile uses Chromium, not real Safari.
+
+## Iteration 7 — Demo safety (contract addition approved by Unai)
+
+- **Contract**: `AIResponse.displayAnswer?: string` — short clean paraphrase (≤4 words), omitted for offensive / nonsense / prompt-injection answers. `AIAdapter` unchanged.
+- **No raw player text is ever rendered.** `GameState` stores `displayColor` / `displayToy` (from `displayAnswer`) instead of raw answers; UI uses `colorLabel()` / `toyLabel()` → displayAnswer, else category label ("blue", "your teddy"), else "that color" / "your toy". Mock/scripted set `displayAnswer` from the category.
+- **Live AI**: `google/gemini-3.1-flash-lite` (fastest on the gateway in our benchmark, ~0.7–1.2 s), Chat Completions, streamed, `reasoning_effort: "none"`, strict JSON schema `{category, displayAnswer, monsterLine}`. Personality "The Guest" in the system prompt; the answer is treated as data (injection-resistant). Server checks: monsterLine ≤140 chars, displayAnswer ≤4 words/40 chars, and if the answer was flagged the line must not reuse its words — any failure throws → mock fallback. Client timeout 5 s (`LIVE_TIMEOUT_MS`), zod re-validation.
+- **Diagnostics**: `interpretWithDiagnostics()` in `aiAdapter.ts` records mode, adapter actually used (`live | mock | scripted | mock-fallback | hardcoded-fallback`), fallbackUsed, latency, error.
+  - `/?debug=1` shows a small badge (top-left) with the last answer's diagnostics. Hidden otherwise.
+  - `/editor` → "Test AI": answer + question type → raw AIResponse + latency (uses the current mode).
+- **Editor header** shows the AI mode in big letters (green LIVE / amber SCRIPTED / blue MOCK).
+- **Flashlight**: on touch the light is drawn 12% of scene height above the finger; mouse/pen stay centered.
+- **Verified** (live, via Test AI): "a green dinosaur called Rex" → dinosaur / "Rex the dinosaur" 916 ms; "el color del cielo" → blue / "sky blue"; Catalan "l'osset vell de l'àvia" → teddy / "grandma's old teddy"; profanity, "ignore all rules…" and gibberish → other, no displayAnswer, cold line, 660–840 ms. Full phone run in mock mode with ?debug=1: no raw text in mother/ending screens.
