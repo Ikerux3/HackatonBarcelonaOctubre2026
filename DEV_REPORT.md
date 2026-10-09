@@ -77,3 +77,15 @@ Automated full playthrough in a mobile viewport (390×844, Playwright): Play →
 **Editor:** "+ Flashlight find" template; switching type to `flashlight_find` clears targets; Flashlight panel edits radius, evasive object, whisper and hiding spots (shown as numbered markers in the preview). Playtest uses the simulated toy.
 
 **Ending:** knock → the mother's voice repeats the raw toy and color answers (things only the monster heard) → black screen → existing ending text, plus "Play again and answer differently" under the replay button (`MotherSequence.tsx`, `EndingScreen.tsx`).
+
+## Iteration 5 — Demo profile (scripting the live demo)
+
+All in `/editor` (still unlinked from the player flow). Logic: `src/game/demoProfile.ts`.
+
+- **Story panel**: pick the level for `task_one`, `task_two`, `task_three` from built-ins (★) and drafts. Choosing anything makes the story "custom"; it is saved to `localStorage["mwbb.demo.story.v1"]` as `{ slot: { source, level } }` (level snapshots, re-synced when the draft is edited).
+- **Demo profile file** (`Export profile` / `Import profile`): one JSON with `kind: "mwbb-demo-profile"`, `version: 1`, `story`, `aiMode`, `scriptedLines`, `drafts`. Import validates everything (every level via `validateLevel`) and rejects the whole file with a list of errors if anything is wrong.
+- **Player route** (`GameScreen`): after hydration calls `loadStoryLevels()`; each slot uses the saved level only if it validates, otherwise the built-in one. Missing/corrupt storage = built-in story. Never throws.
+- **Reset to built-in**: clears the story, restores default scripted lines and sets AI mode to `live`. Drafts are kept.
+- **▶ Play full story**: saves the current story and opens `/?ai=<mode>` in a new tab.
+
+Demo phone: open `/editor` on it → Import profile → ▶ Play full story (or just open `/`).
