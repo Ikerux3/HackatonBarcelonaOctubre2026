@@ -16,7 +16,7 @@ const TIMED_STAGES: Partial<Record<GameStage, number>> = {
   blackout_three: BLACKOUT_MS,
   goodnight_whisper: 5200,
   mom_returns: 4800,
-  unsettling_detail: 5000,
+  unsettling_detail: 6500, // goodbye line types out; tap also continues
 };
 
 export function useGameController() {

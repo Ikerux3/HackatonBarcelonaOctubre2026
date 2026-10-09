@@ -9,9 +9,11 @@ interface Props {
   /** locally validated name (or "sweetie") — never the raw answer text */
   name: string;
   memory: GameMemory;
-  /** cleaned labels only, used for screen-reader text */
+  /** cleaned labels only (displayAnswer or category) — never raw player text */
   toyText: string;
   colorText: string;
+  /** tap on the final detail skips to the ending screen */
+  onSkip: () => void;
 }
 
 function useTyped(text: string, msPerChar: number, delay = 0) {
@@ -36,10 +38,10 @@ function useTyped(text: string, msPerChar: number, delay = 0) {
 }
 
 /** Final blackout whisper → mom really comes home → one detail is wrong. */
-export function EndingSequence({ stage, name, memory, toyText, colorText }: Props) {
+export function EndingSequence({ stage, name, memory, toyText, colorText, onSkip }: Props) {
   if (stage === "goodnight_whisper") return <Whisper name={name} />;
   if (stage === "mom_returns") return <MomHome name={name} />;
-  return <Detail memory={memory} toyText={toyText} colorText={colorText} />;
+  return <Detail memory={memory} toyText={toyText} colorText={colorText} onSkip={onSkip} />;
 }
 
 function Whisper({ name }: { name: string }) {
@@ -75,18 +77,27 @@ function Detail({
   memory,
   toyText,
   colorText,
+  onSkip,
 }: {
   memory: GameMemory;
   toyText: string;
   colorText: string;
+  onSkip: () => void;
 }) {
   const toy = ASSETS[TOY_ASSET[memory.favoriteToy ?? "other"]];
   const stolen = memory.favoriteColor;
+  // fixed template, no AI call: instant, and only ever shows cleaned labels
+  const goodbye = useTyped(
+    `I'll keep ${toyText} safe for you. And ${colorText}… that's mine now.`,
+    45,
+    1500,
+  );
   return (
-    <div
-      className="game-room-cozy relative flex min-h-dvh items-end justify-center overflow-hidden"
-      role="img"
-      aria-label={`The room is cozy again, but ${toyText} sits on the dinner table, and ${colorText} is gone from the room.`}
+    <button
+      type="button"
+      onClick={onSkip}
+      className="game-room-cozy relative flex min-h-dvh w-full items-end justify-center overflow-hidden"
+      aria-label={`The room is cozy again, but ${toyText} sits on the dinner table, and ${colorText} is gone from the room. Tap to continue.`}
     >
       <SceneBackdrop theme="dining_room" dark={false} />
       {/* bunting on the wall: the stolen color is missing */}
@@ -117,6 +128,15 @@ function Detail({
           <span className="h-24 w-3 bg-amber-900" />
         </div>
       </div>
-    </div>
+      {/* The Guest's goodbye, built only from cleaned labels */}
+      {goodbye && (
+        <p
+          aria-hidden
+          className="game-monster-line absolute inset-x-4 bottom-[6%] mx-auto max-w-sm rounded-lg bg-black/75 px-3 py-2 text-center font-serif text-base italic text-red-200"
+        >
+          {goodbye}
+        </p>
+      )}
+    </button>
   );
 }

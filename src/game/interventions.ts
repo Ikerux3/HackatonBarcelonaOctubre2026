@@ -50,7 +50,7 @@ export function resolveInterventions(
       ? TOY_ASSET[memory.favoriteToy]
       : null;
   const memoryLine = colorTheft
-    ? `You like ${memory.favoriteColor}… I took it.`
+    ? `You like ${memory.favoriteColor === "other" ? "that color" : memory.favoriteColor}… I took it.`
     : toyEcho
       ? "I brought a friend. You remember it."
       : null;

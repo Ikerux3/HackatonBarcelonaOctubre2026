@@ -44,6 +44,31 @@ export function hideSpotIndex(seed: number, count: number): number {
   return Math.floor(mulberry32(seed ^ 0x5eed)() * count);
 }
 
+export interface AutoBlackoutInput {
+  now: number;
+  blackouts: number;
+  maxBlackouts: number;
+  safeWindowMs: number;
+  lightOn: boolean;
+  /** the possessed toy sits in a lit spot (frozen) */
+  possessedLit: boolean;
+  draggingPossessed: boolean;
+  lastBlackout: number;
+  lastLightOn: number;
+  lastDrop: number;
+}
+
+/**
+ * Automatic blackouts only punish a player who has had light for a full safe
+ * window without freezing the toy — never right after switching a light on,
+ * never once the toy is frozen, never mid-drag. The scripted first blackout counts.
+ */
+export function shouldAutoBlackout(i: AutoBlackoutInput): boolean {
+  if (i.blackouts >= i.maxBlackouts) return false;
+  if (!i.lightOn || i.possessedLit || i.draggingPossessed) return false;
+  return i.now - Math.max(i.lastBlackout, i.lastLightOn, i.lastDrop) >= i.safeWindowMs;
+}
+
 type Poss = { toyId: string; slot: number };
 type Hide = { toyId: string; spot: number; revealed: boolean };
 
@@ -96,6 +121,7 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
   const [possHint, setPossHint] = useState(false);
   const blackoutsRef = useRef(0);
   const lastBlackoutRef = useRef(0);
+  const lastLightOnRef = useRef(0);
   const lastDropRef = useRef(0);
   const lastProgressRef = useRef(0);
   const dragRef = useRef<Drag | null>(null);
@@ -131,6 +157,11 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
 
   const total = level.objects.length;
   const step = tidy?.steps[placed.length];
+  // the possessed hint only makes sense once its scripted blackout has started
+  const hint =
+    step?.role === "possessed" && !poss
+      ? (tidy?.steps.find((s) => s.role === "plain")?.hint ?? "")
+      : step?.hint;
 
   // start the role for the next toy
   useEffect(() => {
@@ -239,11 +270,20 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
     const t = setInterval(() => {
       const now = Date.now();
       const l = lightsRef.current;
+      const cur = possRef.current;
       if (
-        blackoutsRef.current < P.maxBlackouts &&
-        (l.main || l.lamp) &&
-        now - lastBlackoutRef.current >= P.safeWindowMs &&
-        now - lastDropRef.current >= P.safeWindowMs
+        shouldAutoBlackout({
+          now,
+          blackouts: blackoutsRef.current,
+          maxBlackouts: P.maxBlackouts,
+          safeWindowMs: P.safeWindowMs,
+          lightOn: l.main || l.lamp,
+          possessedLit: !!cur && litAt(P.slots[cur.slot]!, l),
+          draggingPossessed: !!cur && dragRef.current?.id === cur.toyId,
+          lastBlackout: lastBlackoutRef.current,
+          lastLightOn: lastLightOnRef.current,
+          lastDrop: lastDropRef.current,
+        })
       ) {
         blackout(false);
         return;
@@ -251,11 +291,14 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
       if (now - lastProgressRef.current >= P.hintAfterMs) setPossHint(true);
     }, 500);
     return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [possActive, P, blackout]);
 
   const toggleLight = (k: "main" | "lamp") => {
     sfx.lightSwitch();
-    setLights((l) => ({ ...l, [k]: !l[k] }));
+    const on = !lightsRef.current[k];
+    if (on) lastLightOnRef.current = Date.now();
+    setLights((l) => ({ ...l, [k]: on }));
   };
 
   // ── hide and seek logic ──
@@ -395,13 +438,13 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
       <SceneBackdrop theme={level.theme} dark={dark} />
 
       {/* hint for the current step */}
-      {!done && step?.hint && (
+      {!done && hint && (
         <p
           className={`pointer-events-none absolute inset-x-0 top-2 z-40 px-3 text-center font-serif text-sm italic drop-shadow-[0_1px_0_rgba(255,255,255,0.6)] ${
             possActive ? "text-neutral-200 drop-shadow-none" : "text-amber-950"
           }`}
         >
-          {step.hint}
+          {hint}
         </p>
       )}
 

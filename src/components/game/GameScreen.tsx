@@ -109,6 +109,8 @@ function GameScreenInner() {
     return (
       <EndingScreen
         lastedMs={lastedMs}
+        colorText={colorLabel(state)}
+        toyText={toyLabel(state)}
         onReplay={replay}
       />
     );
@@ -137,6 +139,7 @@ function GameScreenInner() {
         memory={state.memory}
         toyText={toyLabel(state)}
         colorText={colorLabel(state)}
+        onSkip={advance}
       />
     );
   }

@@ -140,3 +140,12 @@ Demo phone: open `/editor` on it → Import profile → ▶ Play full story (or 
 ## Iteration 10 — the team's ending
 
 Stage machine after the bedtime level is now: `blackout_three` → `goodnight_whisper` (black screen + drone; "Good night, [name]." typed letter by letter, name = `GameMemory.playerName`, locally validated, falls back to "sweetie") → `mom_returns` (lights on, cozy living room, front door swings open, door sound, "I'm home, [name]! Did you tidy up?") → `unsettling_detail` (cozy dining room; the favorite toy `TOY_ASSET[memory.favoriteToy]` sits on the dinner table and the stolen `memory.favoriteColor` flag is missing from the wall bunting) → `ending` ("You lasted m:ss alone", Play again, "Play again and answer differently"). Timings live in `TIMED_STAGES` (GameController). The impostor-mother sequence (`knock` / `mother_voice` / `final_dark`, `MotherSequence.tsx`) and the monster quote on the ending screen were removed. No raw answer text is rendered; only screen-reader text uses `displayAnswer`/category labels.
+
+## Iteration 11 — possessed fixes + ending payoff (Unai + Claude Code, branch `unai/possessed-fix-ending`)
+
+- **Possessed blackouts** (`shouldAutoBlackout` in `TidyRolesMinigame.tsx`): the safe window is now measured from the latest of last blackout, last light switched ON, last drop. A blackout only fires when a light has been on for a full `safeWindowMs` without freezing the toy; never while the toy is lit or being dragged. Before, a player who took >9 s to find the switch got an instant new blackout every time they turned a light on. Unit test: `src/test/possessed-blackouts.test.ts`.
+- **Possessed hint**: step 4's hint ("Turn on a light…") only shows after the scripted blackout; before the 4th toy is touched the plain hint stays.
+- **Color memory line**: unrecognized colors no longer show "You like other… I took it." (now "that color").
+- **Ending payoff** (no extra AI call, only `colorLabel`/`toyLabel`): `unsettling_detail` types The Guest's goodbye "I'll keep [toy] safe for you. And [color]… that's mine now." after 1.5 s; the stage lasts 6.5 s and a tap skips to the ending. The ending screen shows "The Guest remembers: [color] · [toy]".
+
+**Verified** (local, mock AI fallback): full run name → 5 toys → color → table → toy → flashlight → ending; 12 s in the dark then main light on stays on; hint before/after possession; goodbye line and "remembers" line render with cleaned labels. tsc + vitest (5 tests) pass.
