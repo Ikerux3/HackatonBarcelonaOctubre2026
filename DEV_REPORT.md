@@ -89,3 +89,12 @@ All in `/editor` (still unlinked from the player flow). Logic: `src/game/demoPro
 - **▶ Play full story**: saves the current story and opens `/?ai=<mode>` in a new tab.
 
 Demo phone: open `/editor` on it → Import profile → ▶ Play full story (or just open `/`).
+
+## Iteration 6 — Phone demo polish (no game-logic / editor changes)
+
+- **Haptics** (`haptic()` in `src/game/audio.ts`, guarded `navigator.vibrate`, no-op if unsupported — iPhone Safari has no Vibration API): blackout (inside `sfx.blackout`), wrong drop (inside `sfx.wrong`), monster appearance (question stages + mother's voice, from `GameScreen`).
+- **Audio** (WebAudio only, no files): music-box loop (`startMusicBox`) starts on the first touch of the title screen and plays through task one; it detunes a bit more every bar and stays detuned for the rest of the run. Dark stages (everything after task one) play a low filtered drone (`startDrone`). Both stop on the ending; contexts are resumed on each call for iOS.
+- **Title**: hint "Do your chores before mommy gets back" under Play.
+- **Run timer**: in-memory (`useRef` in `GameScreen`), from Play to the ending; ending shows "You lasted m:ss alone".
+- **Mobile**: Restart button is now ≥48px; answer field uses 16px text (no iOS zoom), `enterKeyHint="send"`, scrolls itself into view on focus, and the page gets extra bottom space during questions so the keyboard can't cover it.
+- **Verified** (Playwright, full run, mock AI): 360px, 430px, iPhone 13 profile, Pixel 7 profile — no horizontal scroll, every visible tappable ≥48px, no errors; simulated keyboard (viewport 420px tall) keeps input + Answer button visible. Not yet tested on physical devices; Playwright's iPhone profile uses Chromium, not real Safari.
