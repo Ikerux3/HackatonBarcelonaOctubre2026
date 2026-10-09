@@ -10,9 +10,7 @@ import {
   type ScriptedLines,
 } from "@/ai/aiMode";
 import type { NormalizedColor, ToyCategory } from "@/ai/contracts";
-import {
-  DEFAULT_SCRIPTED,
-} from "@/ai/aiMode";
+import { DEFAULT_SCRIPTED } from "@/ai/aiMode";
 import {
   STORY_SLOTS,
   clearStoryConfig,
@@ -142,10 +140,16 @@ export function LevelEditor() {
 
   const buildStory = (): StoryConfig => {
     const pick = (slot: StorySlot) => {
-      const e = all.find((x) => x.key === storyKeys[slot]) ?? builtIns[Number(DEFAULT_KEYS[slot].slice(8))]!;
+      const e =
+        all.find((x) => x.key === storyKeys[slot]) ??
+        builtIns[Number(DEFAULT_KEYS[slot].slice(8))]!;
       return { source: e.key, level: e.level };
     };
-    return { task_one: pick("task_one"), task_two: pick("task_two"), task_three: pick("task_three") };
+    return {
+      task_one: pick("task_one"),
+      task_two: pick("task_two"),
+      task_three: pick("task_three"),
+    };
   };
   const storyChecks = STORY_SLOTS.map((slot) => {
     const e = all.find((x) => x.key === storyKeys[slot]);
@@ -184,7 +188,8 @@ export function LevelEditor() {
     const keys = { ...DEFAULT_KEYS };
     for (const slot of STORY_SLOTS) {
       const src = p.story[slot].source;
-      if (src.startsWith("builtin-") && Number(src.slice(8)) < BUILT_IN_LEVELS.length) keys[slot] = src;
+      if (src.startsWith("builtin-") && Number(src.slice(8)) < BUILT_IN_LEVELS.length)
+        keys[slot] = src;
       else if (merged.some((d) => d.key === src)) keys[slot] = src;
       else {
         const key = uid();
@@ -202,7 +207,9 @@ export function LevelEditor() {
     setProfileMsg(["Profile loaded."]);
   };
   const resetBuiltIn = () => {
-    if (!window.confirm("Reset the story, scripted lines and AI mode to built-in? Drafts are kept."))
+    if (
+      !window.confirm("Reset the story, scripted lines and AI mode to built-in? Drafts are kept.")
+    )
       return;
     clearStoryConfig();
     setStoryActive(false);
@@ -471,7 +478,10 @@ export function LevelEditor() {
           ))}
         </div>
         {profileMsg.length > 0 && (
-          <ul className="list-disc rounded bg-neutral-900 p-2 pl-6 text-xs text-neutral-300" role="status">
+          <ul
+            className="list-disc rounded bg-neutral-900 p-2 pl-6 text-xs text-neutral-300"
+            role="status"
+          >
             {profileMsg.map((m) => (
               <li key={m}>{m}</li>
             ))}

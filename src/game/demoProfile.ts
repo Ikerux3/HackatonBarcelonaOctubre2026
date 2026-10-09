@@ -30,8 +30,8 @@ export interface DemoProfile {
 
 export const STORY_KEY = "mwbb.demo.story.v1";
 
-const isObj = (v: unknown): v is Record<string, unknown> =>
-  typeof v === "object" && v !== null && !Array.isArray(v);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const isObj = (v: unknown): v is any => typeof v === "object" && v !== null && !Array.isArray(v);
 
 /** Validates a story object; returns usable levels + per-slot errors. */
 export function validateStory(input: unknown): {
@@ -48,7 +48,10 @@ export function validateStory(input: unknown): {
     const v = validateLevel(isObj(e) ? e.level : undefined);
     if (v.ok) {
       levels[slot] = v.level;
-      story[slot] = { source: isObj(e) && typeof e.source === "string" ? e.source : "", level: v.level };
+      story[slot] = {
+        source: isObj(e) && typeof e.source === "string" ? e.source : "",
+        level: v.level,
+      };
     } else {
       errors.push(`${slot}: ${v.errors.slice(0, 3).join(" ")}`);
     }
@@ -113,11 +116,16 @@ export function parseProfileJson(text: string): ProfileResult {
   const line = (k: keyof ScriptedLines) =>
     typeof sl[k] === "string" && sl[k] ? (sl[k] as string).slice(0, 140) : DEFAULT_SCRIPTED[k];
   const drafts: DemoProfile["drafts"] = [];
-  if (data.drafts !== undefined && !Array.isArray(data.drafts)) errors.push("drafts must be a list.");
+  if (data.drafts !== undefined && !Array.isArray(data.drafts))
+    errors.push("drafts must be a list.");
   (Array.isArray(data.drafts) ? data.drafts : []).forEach((d, i) => {
     const v = validateLevel(isObj(d) ? d.level : undefined);
     if (!v.ok) errors.push(`draft #${i + 1}: ${v.errors.slice(0, 2).join(" ")}`);
-    else drafts.push({ key: isObj(d) && typeof d.key === "string" ? d.key : `imp${i}`, level: v.level });
+    else
+      drafts.push({
+        key: isObj(d) && typeof d.key === "string" ? d.key : `imp${i}`,
+        level: v.level,
+      });
   });
   if (errors.length || !s.story || !aiMode) return { ok: false, errors };
   return {

@@ -1,7 +1,7 @@
 import { useGameController } from "@/game/GameController";
 import { useEffect, useState } from "react";
 
-import { loadStoryLevels } from "@/game/demoProfile";
+import { loadStoryLevels, type StoryLevels } from "@/game/demoProfile";
 import { STORY_LEVELS } from "@/game/levels/defaultLevels";
 import { MinigameHost } from "@/components/minigames/MinigameHost";
 import { EndingScreen } from "./EndingScreen";
@@ -17,7 +17,7 @@ const QUESTIONS = {
 export function GameScreen() {
   const { state, start, completeTask, submitAnswer, advance, replay } = useGameController();
   // saved demo story (validated, per-slot fallback to built-in); read after hydration
-  const [story, setStory] = useState(STORY_LEVELS);
+  const [story, setStory] = useState<StoryLevels>(STORY_LEVELS);
   useEffect(() => setStory(loadStoryLevels()), []);
 
   if (state.stage === "intro") {

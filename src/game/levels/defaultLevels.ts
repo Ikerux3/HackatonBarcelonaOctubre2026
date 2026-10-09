@@ -120,9 +120,36 @@ export const BEDTIME: LevelConfig = {
   instructions: "Drag the flashlight. Tap what you find.",
   theme: "bedroom",
   objects: [
-    { id: "pajamas", label: "Pajamas", asset: "pajamas", color: "pink", x: 20, y: 30, size: 16, targetId: "" },
-    { id: "toothbrush", label: "Toothbrush", asset: "toothbrush", color: "blue", x: 80, y: 74, size: 16, targetId: "" },
-    { id: "toy", label: "Your toy", asset: "teddy", color: "orange", x: 72, y: 28, size: 18, targetId: "" },
+    {
+      id: "pajamas",
+      label: "Pajamas",
+      asset: "pajamas",
+      color: "pink",
+      x: 20,
+      y: 30,
+      size: 16,
+      targetId: "",
+    },
+    {
+      id: "toothbrush",
+      label: "Toothbrush",
+      asset: "toothbrush",
+      color: "blue",
+      x: 80,
+      y: 74,
+      size: 16,
+      targetId: "",
+    },
+    {
+      id: "toy",
+      label: "Your toy",
+      asset: "teddy",
+      color: "orange",
+      x: 72,
+      y: 28,
+      size: 18,
+      targetId: "",
+    },
   ],
   targets: [],
   success: { kind: "all_placed" },
@@ -145,4 +172,8 @@ export const BEDTIME: LevelConfig = {
 export const BUILT_IN_LEVELS: LevelConfig[] = [TIDY_TOYS, SET_TABLE, BEDTIME];
 
 /** Which level plays at each task stage of the main story. */
-export const STORY_LEVELS = { task_one: TIDY_TOYS, task_two: SET_TABLE, task_three: BEDTIME } as const;
+export const STORY_LEVELS = {
+  task_one: TIDY_TOYS,
+  task_two: SET_TABLE,
+  task_three: BEDTIME,
+} as const;
