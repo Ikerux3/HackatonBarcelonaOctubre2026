@@ -41,6 +41,7 @@ import type {
   SceneObject,
   TargetZone,
 } from "@/game/levels/types";
+import { TidyExtrasEditor, TidyExtrasMarkers } from "./TidyExtrasEditor";
 import { MINIGAME_TYPES, SCENE_THEMES, TIDY_ROLES } from "@/game/levels/types";
 import { parseLevelJson, validateLevel } from "@/game/levels/validate";
 
@@ -903,6 +904,7 @@ export function LevelEditor() {
                   ))}
                 </div>
               ))}
+              <TidyExtrasEditor tidy={tidy} setTidy={setTidy} />
               <p className="col-span-2 text-xs text-neutral-500">
                 Objects are toy slots (position + color); sprites come from the pool. All go into
                 the box target.
@@ -1436,6 +1438,7 @@ export function LevelEditor() {
                       {k}
                     </div>
                   ))}
+                {tidy && <TidyExtrasMarkers tidy={tidy} />}
                 {flash?.evasive?.positions.map((p, i) => (
                   <div
                     key={`spot-${i}`}
