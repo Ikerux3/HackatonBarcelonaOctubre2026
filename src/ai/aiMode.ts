@@ -43,10 +43,18 @@ export function setAIMode(mode: AIMode): void {
 
 export function getScriptedLines(): ScriptedLines {
   try {
-    const raw = JSON.parse(localStorage.getItem(SCRIPT_KEY) ?? "null") as Partial<ScriptedLines> | null;
+    const raw = JSON.parse(
+      localStorage.getItem(SCRIPT_KEY) ?? "null",
+    ) as Partial<ScriptedLines> | null;
     return {
-      favorite_color: typeof raw?.favorite_color === "string" && raw.favorite_color ? raw.favorite_color : DEFAULT_SCRIPTED.favorite_color,
-      favorite_toy: typeof raw?.favorite_toy === "string" && raw.favorite_toy ? raw.favorite_toy : DEFAULT_SCRIPTED.favorite_toy,
+      favorite_color:
+        typeof raw?.favorite_color === "string" && raw.favorite_color
+          ? raw.favorite_color
+          : DEFAULT_SCRIPTED.favorite_color,
+      favorite_toy:
+        typeof raw?.favorite_toy === "string" && raw.favorite_toy
+          ? raw.favorite_toy
+          : DEFAULT_SCRIPTED.favorite_toy,
     };
   } catch {
     return DEFAULT_SCRIPTED;

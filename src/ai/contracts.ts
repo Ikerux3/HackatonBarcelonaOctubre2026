@@ -4,23 +4,9 @@
 export type QuestionType = "favorite_color" | "favorite_toy";
 
 export type NormalizedColor =
-  | "red"
-  | "blue"
-  | "yellow"
-  | "green"
-  | "purple"
-  | "pink"
-  | "orange"
-  | "other";
+  "red" | "blue" | "yellow" | "green" | "purple" | "pink" | "orange" | "other";
 
-export type ToyCategory =
-  | "doll"
-  | "teddy"
-  | "dinosaur"
-  | "car"
-  | "robot"
-  | "ball"
-  | "other";
+export type ToyCategory = "doll" | "teddy" | "dinosaur" | "car" | "robot" | "ball" | "other";
 
 export type PuzzleVariant = "color_removed" | "toy_shadow";
 

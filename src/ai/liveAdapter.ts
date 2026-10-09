@@ -7,7 +7,9 @@ export const LIVE_TIMEOUT_MS = 4000;
 
 const responseSchema = z.object({
   questionType: z.enum(["favorite_color", "favorite_toy"]),
-  normalizedColor: z.enum(["red", "blue", "yellow", "green", "purple", "pink", "orange", "other"]).optional(),
+  normalizedColor: z
+    .enum(["red", "blue", "yellow", "green", "purple", "pink", "orange", "other"])
+    .optional(),
   normalizedToy: z.enum(["doll", "teddy", "dinosaur", "car", "robot", "ball", "other"]).optional(),
   monsterLine: z.string().min(1),
   puzzleVariant: z.enum(["color_removed", "toy_shadow"]),
@@ -22,7 +24,8 @@ export const liveAdapter: AIAdapter = {
     );
     const raw = await Promise.race([interpretAnswerAI({ data: request }), timeout]);
     const parsed = responseSchema.parse(raw);
-    if (parsed.questionType !== request.questionType) throw new Error("AI answered the wrong question");
+    if (parsed.questionType !== request.questionType)
+      throw new Error("AI answered the wrong question");
     return parsed as AIResponse;
   },
 };

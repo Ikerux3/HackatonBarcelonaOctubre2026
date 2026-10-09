@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import {
+  AI_MODES,
+  getAIMode,
+  getScriptedLines,
+  setAIMode,
+  setScriptedLines,
+  type AIMode,
+  type ScriptedLines,
+} from "@/ai/aiMode";
 import type { NormalizedColor, ToyCategory } from "@/ai/contracts";
 import { MinigameHost } from "@/components/minigames/MinigameHost";
 import { SceneBackdrop } from "@/components/minigames/SceneBackdrop";
@@ -67,7 +76,11 @@ export function LevelEditor() {
   const [playRound, setPlayRound] = useState(0);
   const [playDone, setPlayDone] = useState(false);
 
+  const [aiMode, setAiModeState] = useState<AIMode>("live");
+  const [scripted, setScripted] = useState<ScriptedLines | null>(null);
   useEffect(() => {
+    setAiModeState(getAIMode());
+    setScripted(getScriptedLines());
     setLocal(loadLocal());
     setLoaded(true);
   }, []);
@@ -240,6 +253,42 @@ export function LevelEditor() {
           </span>
         </h1>
       </header>
+
+      <section className="mb-4 grid gap-3 rounded border border-neutral-800 p-3 md:grid-cols-[180px_1fr_1fr]">
+        <label className={label}>
+          AI mode (demo switch)
+          <select
+            aria-label="AI mode"
+            className={input}
+            value={aiMode}
+            onChange={(e) => {
+              const m = e.target.value as AIMode;
+              setAIMode(m);
+              setAiModeState(m);
+            }}
+          >
+            {AI_MODES.map((m) => (
+              <option key={m}>{m}</option>
+            ))}
+          </select>
+        </label>
+        {scripted &&
+          (["favorite_color", "favorite_toy"] as const).map((q) => (
+            <label key={q} className={label}>
+              Scripted line — {q}
+              <input
+                className={input}
+                maxLength={140}
+                value={scripted[q]}
+                onChange={(e) => {
+                  const next = { ...scripted, [q]: e.target.value };
+                  setScripted(next);
+                  setScriptedLines(next);
+                }}
+              />
+            </label>
+          ))}
+      </section>
 
       <div className="grid gap-4 lg:grid-cols-[220px_1fr_380px]">
         {/* ---- level list ---- */}

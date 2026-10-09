@@ -8,7 +8,10 @@ const TOYS = ["doll", "teddy", "dinosaur", "car", "robot", "ball", "other"] as c
 
 const requestSchema = z.object({
   questionType: z.enum(["favorite_color", "favorite_toy"]),
-  answer: z.string().max(200).transform((s) => s.slice(0, 60)),
+  answer: z
+    .string()
+    .max(200)
+    .transform((s) => s.slice(0, 60)),
   memory: z.object({
     favoriteColor: z.enum(COLORS).optional(),
     favoriteToy: z.enum(TOYS).optional(),
@@ -33,7 +36,11 @@ export const interpretAnswerAI = createServerFn({ method: "POST" })
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "fetch" },
+      headers: {
+        "Content-Type": "application/json",
+        "Lovable-API-Key": apiKey,
+        "X-Lovable-AIG-SDK": "fetch",
+      },
       body: JSON.stringify({
         model: "openai/gpt-6-astra",
         stream: true,
@@ -93,7 +100,10 @@ Child's answer: """${data.answer}"""`,
     }
 
     const parsed = z
-      .object({ category: z.enum(categories as unknown as [string, ...string[]]), monsterLine: z.string().min(1).max(200) })
+      .object({
+        category: z.enum(categories as unknown as [string, ...string[]]),
+        monsterLine: z.string().min(1).max(200),
+      })
       .parse(JSON.parse(text));
     return isColor
       ? {

@@ -45,3 +45,15 @@ Automated full playthrough in a mobile viewport (390×844, Playwright): Play →
 - Monster interventions (`src/game/interventions.ts`): COLOR_THEFT (every normalized color maps to a visible stolen color), TOY_ECHO (also in the ending), PERSONAL_MEMORY whisper, LIGHT_DISTURBANCE, disturb_item wobble, FALSE_HINT. AI contract untouched; AI still the mock.
 - `/editor` (dev only, not linked): levels list, templates, duplicate, delete w/ confirm, form editing, add/remove objects and zones, drag positioning, rules, simulated memory, playtest + restart, live validation, localStorage drafts, JSON export/import (text or file).
 - Not done: switch_sequence minigame (optional), physical device testing.
+
+# Iteration 3 — Real AI
+- `src/ai/interpret.functions.ts`: server function (TanStack `createServerFn`) calling Lovable AI (`openai/gpt-6-astra`, Responses API, streamed, strict JSON schema). `LOVABLE_API_KEY` is read server-side only. Any language, vague answers mapped to the closest category, one English creepy line ≤20 words reusing the player's wording; offensive/nonsense → "other" + cold line.
+- `src/ai/liveAdapter.ts`: calls it, 4 s timeout, zod-validates the `AIResponse`. `src/ai/aiAdapter.ts`: picks the adapter by mode and falls back to `mockAdapter` on any error/timeout/invalid data (`fallbackUsed: true`). `contracts.ts` unchanged.
+- Answers capped at 60 chars (input + adapter + server). Hum/blackout keep playing while waiting.
+
+## Switching AI modes
+- `?ai=live` (default, real AI), `?ai=mock` (offline keywords), `?ai=scripted` (fixed lines, keyword categories so color theft still works). The URL choice is remembered in localStorage (`mwbb.ai.mode.v1`).
+- Or use the "AI mode" selector at the top of `/editor`. Scripted lines are edited there too (`mwbb.editor.scripted.v1`). The player UI never shows the mode.
+
+## Switching providers / models
+- Change `model` in `interpret.functions.ts` (any Lovable AI Gateway model). To use another provider, implement `AIAdapter` in a new file (keep keys server-side in a server function) and return it from `currentAdapter()` in `aiAdapter.ts`.
