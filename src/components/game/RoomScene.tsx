@@ -134,7 +134,7 @@ export function RoomScene({
             onClick={() => onTidyToy(toy.id)}
             className={`absolute z-10 flex h-16 w-16 flex-col items-center justify-center rounded-full border-2 transition-all duration-500 active:scale-90 ${
               tidied
-                ? "translate-y-1 scale-75 opacity-40"
+                ? "pointer-events-none translate-y-1 scale-75 opacity-40"
                 : dark
                   ? "border-neutral-600 bg-neutral-800"
                   : "border-white/60 shadow-lg"
