@@ -6,7 +6,8 @@ import { gameReducer, initialGameState } from "./GameState";
 import { TABLE_ITEMS, TOYS } from "./PuzzleData";
 import { initAudio, sfx } from "./audio";
 
-const BLACKOUT_MS = 3200;
+/** how long a blackout lingers before the question appears */
+export const BLACKOUT_MS = 3200;
 
 export function useGameController() {
   const [state, dispatch] = useReducer(gameReducer, initialGameState);
@@ -35,28 +36,32 @@ export function useGameController() {
     [state.stage, state.tableSet],
   );
 
-  // Task completion -> blackout. Blackout -> question (timed).
+  // Task completion -> success sting -> blackout.
   useEffect(() => {
     if (state.stage === "task_one" && state.toysTidied.length === TOYS.length) {
       sfx.success();
       const t = setTimeout(() => {
         sfx.blackout();
-        dispatch({ type: "ADVANCE" });
-        // task_one has no ADVANCE handler; go straight to blackout_one
-      }, 700);
-      // ADVANCE is a no-op on task_one, so force the stage directly:
-      const t2 = setTimeout(() => dispatch({ type: "ADVANCE" }), 700);
-      return () => {
-        clearTimeout(t);
-        clearTimeout(t2);
-      };
+        dispatch({ type: "TASK_ONE_DONE" });
+      }, 800);
+      return () => clearTimeout(t);
     }
     if (state.stage === "task_two" && state.tableSet.length === TABLE_ITEMS.length) {
       sfx.success();
-      const t = setTimeout(() => sfx.blackout(), 700);
+      const t = setTimeout(() => {
+        sfx.blackout();
+        dispatch({ type: "TASK_TWO_DONE" });
+      }, 800);
       return () => clearTimeout(t);
     }
   }, [state.stage, state.toysTidied.length, state.tableSet.length]);
+
+  // Blackout lingers, then the monster asks its question.
+  useEffect(() => {
+    if (state.stage !== "blackout_one" && state.stage !== "blackout_two") return;
+    const t = setTimeout(() => dispatch({ type: "ADVANCE" }), BLACKOUT_MS);
+    return () => clearTimeout(t);
+  }, [state.stage]);
 
   const submitAnswer = useCallback(
     async (questionType: QuestionType, answer: string) => {
@@ -78,6 +83,7 @@ export function useGameController() {
     [state.memory],
   );
 
+  // After the monster speaks, the player taps to continue.
   const advance = useCallback(() => {
     sfx.click();
     dispatch({ type: "ADVANCE" });
@@ -90,5 +96,3 @@ export function useGameController() {
 
   return { state, start, tidyToy, placeItem, submitAnswer, advance, replay };
 }
-
-export { BLACKOUT_MS };
