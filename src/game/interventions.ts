@@ -20,6 +20,8 @@ export interface ActiveInterventions {
   /** FALSE_HINT: a wrong spot glows briefly, then the true hints return */
   falseHint: boolean;
   afterHalf: boolean;
+  /** flashlight_find + toy_shadow: the evasive object becomes the player's own toy */
+  evasiveAsset: AssetId | null;
 }
 
 /** Colors the stock objects use; other answers map onto one so theft is always visible. */
@@ -61,5 +63,6 @@ export function resolveInterventions(
     disturbItem: iv === "disturb_item",
     falseHint: iv === "false_hint",
     afterHalf: level.monster.trigger === "after_half",
+    evasiveAsset: level.type === "flashlight_find" && level.flashlight.evasive ? toyEcho : null,
   };
 }

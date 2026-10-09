@@ -9,6 +9,11 @@ export type GameStage =
   | "task_two"
   | "blackout_two"
   | "question_two"
+  | "task_three" // bedtime: flashlight, favorite toy evades
+  | "blackout_three" // final blackout
+  | "knock" // knocking at the door
+  | "mother_voice" // the "mother" repeats what only the monster heard
+  | "final_dark" // black screen
   | "ending";
 
 export interface GameMemory {
@@ -38,8 +43,7 @@ export const initialGameState: GameState = {
 
 export type GameAction =
   | { type: "START" }
-  | { type: "TASK_ONE_DONE" }
-  | { type: "TASK_TWO_DONE" }
+  | { type: "TASK_DONE" }
   | { type: "ADVANCE" } // blackout timers / monster dialogue continue
   | { type: "AI_REQUEST" }
   | {
@@ -56,11 +60,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case "START":
       return { ...initialGameState, stage: "task_one" };
 
-    case "TASK_ONE_DONE":
-      return state.stage === "task_one" ? { ...state, stage: "blackout_one" } : state;
-
-    case "TASK_TWO_DONE":
-      return state.stage === "task_two" ? { ...state, stage: "blackout_two" } : state;
+    case "TASK_DONE": {
+      const next: Partial<Record<GameStage, GameStage>> = {
+        task_one: "blackout_one",
+        task_two: "blackout_two",
+        task_three: "blackout_three",
+      };
+      const stage = next[state.stage];
+      return stage ? { ...state, stage } : state;
+    }
 
     case "ADVANCE": {
       switch (state.stage) {
@@ -72,7 +80,17 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           // only reachable after AI_RESULT stored the color
           return state.memory.favoriteColor ? { ...state, stage: "task_two" } : state;
         case "question_two":
-          return state.memory.favoriteToy ? { ...state, stage: "ending" } : state;
+          return state.memory.favoriteToy
+            ? { ...state, stage: "task_three", monsterLine: null }
+            : state;
+        case "blackout_three":
+          return { ...state, stage: "knock" };
+        case "knock":
+          return { ...state, stage: "mother_voice" };
+        case "mother_voice":
+          return { ...state, stage: "final_dark" };
+        case "final_dark":
+          return { ...state, stage: "ending" };
         default:
           return state;
       }

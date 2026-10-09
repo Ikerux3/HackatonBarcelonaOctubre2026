@@ -58,6 +58,7 @@ export function EndingScreen({
       >
         Play again
       </button>
+      <p className="-mt-3 text-xs italic text-neutral-500">Play again and answer differently</p>
     </div>
   );
 }

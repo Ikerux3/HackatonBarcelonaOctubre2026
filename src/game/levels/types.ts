@@ -49,7 +49,8 @@ export interface Personalization {
   transform: PuzzleVariant | "none";
 }
 
-export type SceneTheme = "living_room" | "dining_room";
+export type SceneTheme = "living_room" | "dining_room" | "bedroom";
+export const SCENE_THEMES: SceneTheme[] = ["living_room", "dining_room", "bedroom"];
 
 interface LevelBase {
   id: string;
@@ -73,6 +74,36 @@ export interface PlaceItemsLevel extends LevelBase {
   type: "place_items";
 }
 
-export type LevelConfig = DragToTargetLevel | PlaceItemsLevel;
+export interface Point {
+  x: number;
+  y: number;
+}
+
+/** Optional object that flees the first time the light touches it. */
+export interface EvasiveRule {
+  objectId: string;
+  /** candidate hiding spots, % of the scene; the farthest from the light is used */
+  positions: Point[];
+  /** monster whisper shown when it flees */
+  whisper: string;
+}
+
+export interface FlashlightOptions {
+  /** light radius, % of scene width */
+  radius: number;
+  evasive?: EvasiveRule;
+}
+
+/**
+ * Dark scene + draggable flashlight; tap lit objects to collect them.
+ * Has no target zones (targets: [], objects' targetId: "").
+ * "placed" in success conditions means "collected".
+ */
+export interface FlashlightFindLevel extends LevelBase {
+  type: "flashlight_find";
+  flashlight: FlashlightOptions;
+}
+
+export type LevelConfig = DragToTargetLevel | PlaceItemsLevel | FlashlightFindLevel;
 export type MinigameType = LevelConfig["type"];
-export const MINIGAME_TYPES: MinigameType[] = ["drag_to_target", "place_items"];
+export const MINIGAME_TYPES: MinigameType[] = ["drag_to_target", "place_items", "flashlight_find"];

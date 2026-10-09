@@ -57,3 +57,23 @@ Automated full playthrough in a mobile viewport (390×844, Playwright): Play →
 
 ## Switching providers / models
 - Change `model` in `interpret.functions.ts` (any Lovable AI Gateway model). To use another provider, implement `AIAdapter` in a new file (keep keys server-side in a server function) and return it from `currentAdapter()` in `aiAdapter.ts`.
+
+## Iteration 4 — Bedtime flashlight + new ending
+
+**Story flow (explicit `GameStage`s):**
+`intro → task_one (tidy toys) → blackout_one → question_one (color) → task_two (set table, color stolen) → blackout_two → question_two (toy) → task_three (bedtime, flashlight) → blackout_three → knock → mother_voice → final_dark → ending`.
+`TASK_DONE` replaces the old per-task actions; timed stages auto-advance via `TIMED_STAGES` in `GameController.ts` (`mother_voice` also continues on tap).
+
+**New minigame `flashlight_find`** (`src/components/minigames/FlashlightMinigame.tsx`, registered in `MINIGAME_REGISTRY`):
+- Room is dark; drag anywhere to move a radial light mask. Tap an object that was already lit to collect it. Success = all collected (`success.kind` "placed" means "collected"). No timers, no fail state.
+- Level JSON: `targets: []`, objects use `targetId: ""`, plus `flashlight: { radius, evasive? }`.
+  `evasive = { objectId, positions[1–8], whisper }` — the first time the light touches it, it moves to the hiding spot farthest from the light, the whisper shows, and the next time it can be collected.
+- Personalization `favorite_toy` + `toy_shadow` replaces the evasive object's sprite with `TOY_ASSET[memory.favoriteToy]` (`evasiveAsset` in `interventions.ts`).
+- Validated in `validate.ts` (radius 10–50, evasive object must exist, positions 0–100).
+
+**New theme** `bedroom` (`SCENE_THEMES`, `SceneBackdrop`). **New assets:** pajamas, toothbrush, slippers.
+**New built-in level** `bedtime` in `defaultLevels.ts` (`STORY_LEVELS.task_three`).
+
+**Editor:** "+ Flashlight find" template; switching type to `flashlight_find` clears targets; Flashlight panel edits radius, evasive object, whisper and hiding spots (shown as numbered markers in the preview). Playtest uses the simulated toy.
+
+**Ending:** knock → the mother's voice repeats the raw toy and color answers (things only the monster heard) → black screen → existing ending text, plus "Play again and answer differently" under the replay button (`MotherSequence.tsx`, `EndingScreen.tsx`).

@@ -14,9 +14,9 @@ import { MinigameHost } from "@/components/minigames/MinigameHost";
 import { SceneBackdrop } from "@/components/minigames/SceneBackdrop";
 import type { GameMemory } from "@/game/GameState";
 import { ASSETS, ASSET_IDS, COLORS, COLOR_HEX, type AssetId } from "@/game/levels/assets";
-import { BUILT_IN_LEVELS, SET_TABLE, TIDY_TOYS } from "@/game/levels/defaultLevels";
-import type { LevelConfig, SceneObject, TargetZone } from "@/game/levels/types";
-import { MINIGAME_TYPES } from "@/game/levels/types";
+import { BEDTIME, BUILT_IN_LEVELS, SET_TABLE, TIDY_TOYS } from "@/game/levels/defaultLevels";
+import type { FlashlightOptions, LevelConfig, SceneObject, TargetZone } from "@/game/levels/types";
+import { MINIGAME_TYPES, SCENE_THEMES } from "@/game/levels/types";
 import { parseLevelJson, validateLevel } from "@/game/levels/validate";
 
 const STORAGE_KEY = "mwbb.editor.levels.v1";
@@ -222,7 +222,7 @@ export function LevelEditor() {
         x: 50,
         y: 80,
         size: 18,
-        targetId: l.targets[0]?.id ?? "",
+        targetId: l.type === "flashlight_find" ? "" : (l.targets[0]?.id ?? ""),
       });
     });
     setSel({ kind: "object", id });
@@ -242,6 +242,13 @@ export function LevelEditor() {
     });
     setSel({ kind: "target", id });
   };
+
+  const isFlash = level.type === "flashlight_find";
+  const flash = level.type === "flashlight_find" ? level.flashlight : null;
+  const setFlash = (fn: (f: FlashlightOptions) => void) =>
+    update((l) => {
+      if (l.type === "flashlight_find") fn(l.flashlight);
+    });
 
   return (
     <div className="min-h-dvh bg-neutral-950 p-4 text-neutral-100">
@@ -317,6 +324,9 @@ export function LevelEditor() {
           <button type="button" className={btn} onClick={() => newFrom(SET_TABLE)}>
             + Place items
           </button>
+          <button type="button" className={btn} onClick={() => newFrom(BEDTIME)}>
+            + Flashlight find
+          </button>
           <button type="button" className={btn} onClick={duplicate}>
             Duplicate current
           </button>
@@ -385,7 +395,15 @@ export function LevelEditor() {
                 value={level.type}
                 onChange={(e) =>
                   update((l) => {
-                    l.type = e.target.value as LevelConfig["type"];
+                    const t = e.target.value as LevelConfig["type"];
+                    l.type = t;
+                    if (l.type === "flashlight_find") {
+                      l.flashlight ??= { radius: 24 };
+                      l.targets = [];
+                      l.objects.forEach((o) => (o.targetId = ""));
+                    } else {
+                      delete (l as { flashlight?: unknown }).flashlight;
+                    }
                   })
                 }
               >
@@ -405,8 +423,9 @@ export function LevelEditor() {
                   })
                 }
               >
-                <option>living_room</option>
-                <option>dining_room</option>
+                {SCENE_THEMES.map((t) => (
+                  <option key={t}>{t}</option>
+                ))}
               </select>
             </label>
           </fieldset>
@@ -515,6 +534,123 @@ export function LevelEditor() {
             </label>
           </fieldset>
 
+          {flash && (
+            <fieldset
+              disabled={readOnly}
+              className="grid grid-cols-2 gap-3 rounded border border-neutral-800 p-3"
+            >
+              <legend className="px-1 text-xs uppercase text-neutral-500">Flashlight</legend>
+              <label className={label}>
+                Light radius (% of width, 10–50)
+                <input
+                  type="number"
+                  className={input}
+                  value={flash.radius}
+                  onChange={(e) =>
+                    setFlash((f) => {
+                      f.radius = Number(e.target.value);
+                    })
+                  }
+                />
+              </label>
+              <label className={label}>
+                Evasive object
+                <select
+                  className={input}
+                  value={flash.evasive?.objectId ?? ""}
+                  onChange={(e) =>
+                    setFlash((f) => {
+                      const id = e.target.value;
+                      if (!id) delete f.evasive;
+                      else
+                        f.evasive = {
+                          objectId: id,
+                          positions: f.evasive?.positions ?? [{ x: 50, y: 80 }],
+                          whisper: f.evasive?.whisper ?? "Not there…",
+                        };
+                    })
+                  }
+                >
+                  <option value="">— none —</option>
+                  {level.objects.map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {o.id}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {flash.evasive && (
+                <>
+                  <label className={`${label} col-span-2`}>
+                    Monster whisper when it flees
+                    <input
+                      className={input}
+                      maxLength={140}
+                      value={flash.evasive.whisper}
+                      onChange={(e) =>
+                        setFlash((f) => {
+                          if (f.evasive) f.evasive.whisper = e.target.value;
+                        })
+                      }
+                    />
+                  </label>
+                  <div className="col-span-2 flex flex-col gap-1">
+                    <p className="text-xs text-neutral-400">
+                      Hiding spots (the farthest from the light is used)
+                    </p>
+                    {flash.evasive.positions.map((p, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <span className="w-6 text-xs text-neutral-500">#{i + 1}</span>
+                        {(["x", "y"] as const).map((k) => (
+                          <input
+                            key={k}
+                            type="number"
+                            aria-label={`Spot ${i + 1} ${k}`}
+                            className={`${input} w-20`}
+                            value={p[k]}
+                            onChange={(e) =>
+                              setFlash((f) => {
+                                const pos = f.evasive?.positions[i];
+                                if (pos) pos[k] = Number(e.target.value);
+                              })
+                            }
+                          />
+                        ))}
+                        <button
+                          type="button"
+                          className={`${btn} text-red-300`}
+                          disabled={flash.evasive!.positions.length <= 1}
+                          onClick={() =>
+                            setFlash((f) => {
+                              f.evasive?.positions.splice(i, 1);
+                            })
+                          }
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      className={`${btn} self-start`}
+                      disabled={flash.evasive.positions.length >= 8}
+                      onClick={() =>
+                        setFlash((f) => {
+                          f.evasive?.positions.push({ x: 50, y: 50 });
+                        })
+                      }
+                    >
+                      + Add hiding spot
+                    </button>
+                  </div>
+                </>
+              )}
+              <p className="col-span-2 text-xs text-neutral-500">
+                With “favorite_toy” personalization, the evasive object shows the player's toy.
+              </p>
+            </fieldset>
+          )}
+
           <fieldset
             disabled={readOnly}
             className="flex flex-col gap-2 rounded border border-neutral-800 p-3"
@@ -533,9 +669,11 @@ export function LevelEditor() {
                   </option>
                 ))}
               </select>
-              <button type="button" className={btn} onClick={addTarget}>
-                + Add target zone
-              </button>
+              {!isFlash && (
+                <button type="button" className={btn} onClick={addTarget}>
+                  + Add target zone
+                </button>
+              )}
             </div>
             <div className="flex flex-wrap gap-1">
               {level.objects.map((o) => (
@@ -609,7 +747,7 @@ export function LevelEditor() {
                     ))}
                   </select>
                 </label>
-                <label className={label}>
+                <label className={`${label} ${isFlash ? "hidden" : ""}`}>
                   Goes into
                   <select
                     className={input}
@@ -910,6 +1048,15 @@ export function LevelEditor() {
                     }}
                   >
                     {t.label}
+                  </div>
+                ))}
+                {flash?.evasive?.positions.map((p, i) => (
+                  <div
+                    key={`spot-${i}`}
+                    className="pointer-events-none absolute flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-dashed border-amber-300 text-[10px] font-bold text-amber-200"
+                    style={{ left: `${p.x}%`, top: `${p.y}%` }}
+                  >
+                    {i + 1}
                   </div>
                 ))}
                 {level.objects.map((o) => (
