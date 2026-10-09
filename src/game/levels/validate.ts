@@ -58,7 +58,7 @@ export function validateLevel(input: unknown): ValidationResult {
 
   if (l.type === "place_items") {
     const used = objects.filter(isObj).map((o: Loose) => o.targetId);
-    const dup = used.find((t, i) => used.indexOf(t) !== i);
+    const dup = used.find((t: unknown, i: number) => used.indexOf(t) !== i);
     if (dup) e.push(`place_items: target "${String(dup)}" is used by more than one object.`);
   }
 
