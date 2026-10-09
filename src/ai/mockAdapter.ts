@@ -1,10 +1,4 @@
-import type {
-  AIAdapter,
-  AIRequest,
-  AIResponse,
-  NormalizedColor,
-  ToyCategory,
-} from "./contracts";
+import type { AIAdapter, AIRequest, AIResponse, NormalizedColor, ToyCategory } from "./contracts";
 
 // Deterministic mock adapter. Stands in for the real AI interpretation
 // service being built by another developer. Never blocks the game:
