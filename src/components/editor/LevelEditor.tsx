@@ -1,0 +1,410 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import type { NormalizedColor, ToyCategory } from "@/ai/contracts";
+import { MinigameHost } from "@/components/minigames/MinigameHost";
+import { SceneBackdrop } from "@/components/minigames/SceneBackdrop";
+import type { GameMemory } from "@/game/GameState";
+import { ASSETS, ASSET_IDS, COLORS, COLOR_HEX, type AssetId } from "@/game/levels/assets";
+import { BUILT_IN_LEVELS, SET_TABLE, TIDY_TOYS } from "@/game/levels/defaultLevels";
+import type { LevelConfig, SceneObject, TargetZone } from "@/game/levels/types";
+import { MINIGAME_TYPES } from "@/game/levels/types";
+import { parseLevelJson, validateLevel } from "@/game/levels/validate";
+
+const STORAGE_KEY = "mwbb.editor.levels.v1";
+const TOYS: ToyCategory[] = ["doll", "teddy", "dinosaur", "car", "robot", "ball", "other"];
+
+interface Entry {
+  key: string;
+  level: LevelConfig;
+  builtIn: boolean;
+}
+
+const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
+const uid = () => Math.random().toString(36).slice(2, 9);
+const clamp = (n: number, a: number, b: number) => Math.max(a, Math.min(b, Math.round(n * 10) / 10));
+
+function loadLocal(): Entry[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]") as unknown;
+    if (!Array.isArray(raw)) return [];
+    return raw.flatMap((r: { key?: string; level?: unknown }) => {
+      const v = validateLevel(r?.level);
+      // keep invalid drafts too — editor shows their errors; skip only non-objects
+      return r && typeof r.level === "object" && r.level
+        ? [{ key: r.key ?? uid(), level: (v.ok ? v.level : r.level) as LevelConfig, builtIn: false }]
+        : [];
+    });
+  } catch {
+    return [];
+  }
+}
+
+type Sel = { kind: "object" | "target"; id: string } | null;
+
+const input = "w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-sm text-neutral-100";
+const btn = "rounded bg-neutral-800 px-3 py-1.5 text-sm font-medium text-neutral-100 hover:bg-neutral-700 disabled:opacity-40";
+const label = "flex flex-col gap-1 text-xs text-neutral-400";
+
+export function LevelEditor() {
+  const [local, setLocal] = useState<Entry[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [activeKey, setActiveKey] = useState<string>("builtin-0");
+  const [mode, setMode] = useState<"edit" | "play">("edit");
+  const [sel, setSel] = useState<Sel>(null);
+  const [mem, setMem] = useState<GameMemory>({ favoriteColor: "red", favoriteToy: "teddy" });
+  const [dark, setDark] = useState(true);
+  const [io, setIo] = useState("");
+  const [ioErrors, setIoErrors] = useState<string[]>([]);
+  const [playRound, setPlayRound] = useState(0);
+  const [playDone, setPlayDone] = useState(false);
+
+  useEffect(() => {
+    setLocal(loadLocal());
+    setLoaded(true);
+  }, []);
+  useEffect(() => {
+    if (loaded) localStorage.setItem(STORAGE_KEY, JSON.stringify(local.map(({ key, level }) => ({ key, level }))));
+  }, [local, loaded]);
+
+  const builtIns: Entry[] = BUILT_IN_LEVELS.map((level, i) => ({ key: `builtin-${i}`, level, builtIn: true }));
+  const all = [...builtIns, ...local];
+  const active = all.find((e) => e.key === activeKey) ?? builtIns[0]!;
+  const level = active.level;
+  const check = useMemo(() => validateLevel(level), [level]);
+  const readOnly = active.builtIn;
+
+  const update = (fn: (l: LevelConfig) => void) => {
+    if (readOnly) return;
+    setLocal((ls) => ls.map((e) => (e.key === active.key ? { ...e, level: (() => { const c = clone(e.level); fn(c); return c; })() } : e)));
+  };
+  const addLocal = (lvl: LevelConfig) => {
+    const key = uid();
+    setLocal((ls) => [...ls, { key, level: lvl, builtIn: false }]);
+    setActiveKey(key);
+    setSel(null);
+    setMode("edit");
+  };
+
+  const newFrom = (tpl: LevelConfig) => addLocal({ ...clone(tpl), id: `${tpl.id}_${uid().slice(0, 4)}`, title: `${tpl.title} (new)` });
+  const duplicate = () => addLocal({ ...clone(level), id: `${level.id}_copy`, title: `${level.title} (copy)` });
+  const remove = () => {
+    if (readOnly || !window.confirm(`Delete "${level.title}"? This cannot be undone.`)) return;
+    setLocal((ls) => ls.filter((e) => e.key !== active.key));
+    setActiveKey("builtin-0");
+  };
+
+  const exportJson = () => {
+    const text = JSON.stringify(level, null, 2);
+    setIo(text);
+    const blob = new Blob([text], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `${level.id}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+  const importJson = (text: string) => {
+    const r = parseLevelJson(text);
+    if (!r.ok) return setIoErrors(r.errors);
+    setIoErrors([]);
+    addLocal(r.level);
+  };
+
+  // ---- drag-to-position in edit mode ----
+  const sceneRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{ kind: "object" | "target"; id: string; dx: number; dy: number } | null>(null);
+  const pct = (e: React.PointerEvent) => {
+    const r = sceneRef.current!.getBoundingClientRect();
+    return { x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 };
+  };
+  const startDrag = (e: React.PointerEvent, kind: "object" | "target", item: { id: string; x: number; y: number }) => {
+    e.stopPropagation();
+    setSel({ kind, id: item.id });
+    if (readOnly) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const p = pct(e);
+    dragRef.current = { kind, id: item.id, dx: p.x - item.x, dy: p.y - item.y };
+  };
+  const moveDrag = (e: React.PointerEvent) => {
+    const d = dragRef.current;
+    if (!d) return;
+    const p = pct(e);
+    update((l) => {
+      const list = (d.kind === "object" ? l.objects : l.targets) as Array<{ id: string; x: number; y: number }>;
+      const it = list.find((o) => o.id === d.id);
+      if (it) {
+        it.x = clamp(p.x - d.dx, 0, 100);
+        it.y = clamp(p.y - d.dy, 0, 100);
+      }
+    });
+  };
+
+  const selObj = sel?.kind === "object" ? level.objects.find((o) => o.id === sel.id) : undefined;
+  const selTarget = sel?.kind === "target" ? level.targets.find((t) => t.id === sel.id) : undefined;
+
+  const setObj = (id: string, patch: Partial<SceneObject>) =>
+    update((l) => {
+      const o = l.objects.find((x) => x.id === id);
+      if (o) Object.assign(o, patch);
+    });
+  const setTarget = (id: string, patch: Partial<TargetZone>) =>
+    update((l) => {
+      const t = l.targets.find((x) => x.id === id);
+      if (!t) return;
+      if (patch.id && patch.id !== id) l.objects.forEach((o) => o.targetId === id && (o.targetId = patch.id!));
+      Object.assign(t, patch);
+    });
+
+  const addObject = (asset: AssetId) => {
+    const id = `${asset}_${uid().slice(0, 3)}`;
+    update((l) => {
+      l.objects.push({ id, label: ASSETS[asset].label, asset, color: "red", x: 50, y: 80, size: 18, targetId: l.targets[0]?.id ?? "" });
+    });
+    setSel({ kind: "object", id });
+  };
+  const addTarget = () => {
+    const id = `zone_${uid().slice(0, 3)}`;
+    update((l) => {
+      l.targets.push({ id, label: "Spot", shape: l.type === "drag_to_target" ? "box" : "rect", x: 50, y: 40, w: 18, h: 16 });
+    });
+    setSel({ kind: "target", id });
+  };
+
+  return (
+    <div className="min-h-dvh bg-neutral-950 p-4 text-neutral-100">
+      <header className="mb-4 flex flex-wrap items-center gap-3">
+        <h1 className="text-lg font-bold">Level Editor <span className="text-xs font-normal text-neutral-500">— dev only, saved in this browser</span></h1>
+      </header>
+
+      <div className="grid gap-4 lg:grid-cols-[220px_1fr_380px]">
+        {/* ---- level list ---- */}
+        <aside className="flex flex-col gap-2">
+          <p className="text-xs uppercase text-neutral-500">Levels</p>
+          {all.map((e) => (
+            <button
+              key={e.key}
+              type="button"
+              onClick={() => { setActiveKey(e.key); setSel(null); }}
+              className={`rounded px-3 py-2 text-left text-sm ${e.key === active.key ? "bg-amber-800" : "bg-neutral-900 hover:bg-neutral-800"}`}
+            >
+              {e.level.title || e.level.id}
+              <span className="block text-[10px] text-neutral-400">{e.builtIn ? "built-in (read-only)" : "local draft"} · {e.level.type}</span>
+            </button>
+          ))}
+          <p className="mt-2 text-xs uppercase text-neutral-500">New from template</p>
+          <button type="button" className={btn} onClick={() => newFrom(TIDY_TOYS)}>+ Drag to box</button>
+          <button type="button" className={btn} onClick={() => newFrom(SET_TABLE)}>+ Place items</button>
+          <button type="button" className={btn} onClick={duplicate}>Duplicate current</button>
+          <button type="button" className={`${btn} text-red-300`} onClick={remove} disabled={readOnly}>Delete current</button>
+        </aside>
+
+        {/* ---- forms ---- */}
+        <section className="flex flex-col gap-4">
+          {readOnly && (
+            <p className="rounded bg-amber-950 px-3 py-2 text-sm text-amber-200">Built-in levels are read-only. Press “Duplicate current” to edit a copy.</p>
+          )}
+          <fieldset disabled={readOnly} className="grid grid-cols-2 gap-3 rounded border border-neutral-800 p-3">
+            <legend className="px-1 text-xs uppercase text-neutral-500">Level</legend>
+            <label className={label}>ID<input className={input} value={level.id} onChange={(e) => update((l) => { l.id = e.target.value; })} /></label>
+            <label className={label}>Title<input className={input} value={level.title} onChange={(e) => update((l) => { l.title = e.target.value; })} /></label>
+            <label className={`${label} col-span-2`}>Instructions<input className={input} value={level.instructions} onChange={(e) => update((l) => { l.instructions = e.target.value; })} /></label>
+            <label className={label}>Minigame type
+              <select className={input} value={level.type} onChange={(e) => update((l) => { l.type = e.target.value as LevelConfig["type"]; })}>
+                {MINIGAME_TYPES.map((t) => <option key={t}>{t}</option>)}
+              </select>
+            </label>
+            <label className={label}>Scene theme
+              <select className={input} value={level.theme} onChange={(e) => update((l) => { l.theme = e.target.value as LevelConfig["theme"]; })}>
+                <option>living_room</option><option>dining_room</option>
+              </select>
+            </label>
+          </fieldset>
+
+          <fieldset disabled={readOnly} className="grid grid-cols-2 gap-3 rounded border border-neutral-800 p-3">
+            <legend className="px-1 text-xs uppercase text-neutral-500">Rules</legend>
+            <label className={label}>Success
+              <select className={input} value={level.success.kind} onChange={(e) => update((l) => { l.success = e.target.value === "all_placed" ? { kind: "all_placed" } : { kind: "min_placed", count: Math.max(1, l.objects.length - 1) }; })}>
+                <option value="all_placed">All objects placed</option>
+                <option value="min_placed">At least N placed</option>
+              </select>
+            </label>
+            {level.success.kind === "min_placed" ? (
+              <label className={label}>N<input type="number" className={input} value={level.success.count} onChange={(e) => update((l) => { l.success = { kind: "min_placed", count: Number(e.target.value) }; })} /></label>
+            ) : <span />}
+            <label className={label}>Monster interrupts
+              <select className={input} value={level.monster.trigger} onChange={(e) => update((l) => { l.monster.trigger = e.target.value as LevelConfig["monster"]["trigger"]; })}>
+                <option value="after_half">Halfway through</option>
+                <option value="on_complete">From the start / at end</option>
+              </select>
+            </label>
+            <label className={label}>Intervention
+              <select className={input} value={level.monster.intervention} onChange={(e) => update((l) => { l.monster.intervention = e.target.value as LevelConfig["monster"]["intervention"]; })}>
+                <option value="none">none</option><option value="disturb_item">disturb_item (wobble placed item)</option>
+                <option value="light_disturbance">light_disturbance</option><option value="false_hint">false_hint</option>
+              </select>
+            </label>
+            <label className={label}>Uses player answer
+              <select className={input} value={level.personalization.source} onChange={(e) => update((l) => {
+                const s = e.target.value as LevelConfig["personalization"]["source"];
+                l.personalization = { source: s, transform: s === "favorite_color" ? "color_removed" : s === "favorite_toy" ? "toy_shadow" : "none" };
+              })}>
+                <option value="none">none</option><option value="favorite_color">favorite_color</option><option value="favorite_toy">favorite_toy</option>
+              </select>
+            </label>
+            <label className={label}>Transformation<input className={input} value={level.personalization.transform} readOnly /></label>
+          </fieldset>
+
+          <fieldset disabled={readOnly} className="flex flex-col gap-2 rounded border border-neutral-800 p-3">
+            <legend className="px-1 text-xs uppercase text-neutral-500">Objects & targets</legend>
+            <div className="flex flex-wrap gap-2">
+              <select className={`${input} w-auto`} value="" onChange={(e) => e.target.value && addObject(e.target.value as AssetId)}>
+                <option value="">+ Add object…</option>
+                {ASSET_IDS.map((a) => <option key={a} value={a}>{ASSETS[a].emoji} {ASSETS[a].label}</option>)}
+              </select>
+              <button type="button" className={btn} onClick={addTarget}>+ Add target zone</button>
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {level.objects.map((o) => (
+                <button key={o.id} type="button" onClick={() => setSel({ kind: "object", id: o.id })} className={`rounded px-2 py-1 text-xs ${sel?.id === o.id ? "bg-amber-700" : "bg-neutral-800"}`}>{ASSETS[o.asset]?.emoji} {o.id}</button>
+              ))}
+              {level.targets.map((t) => (
+                <button key={t.id} type="button" onClick={() => setSel({ kind: "target", id: t.id })} className={`rounded border border-dashed border-neutral-500 px-2 py-1 text-xs ${sel?.id === t.id ? "bg-amber-700" : ""}`}>◻ {t.id}</button>
+              ))}
+            </div>
+
+            {selObj && (
+              <div className="grid grid-cols-3 gap-2 rounded bg-neutral-900 p-2">
+                <label className={label}>ID<input className={input} value={selObj.id} onChange={(e) => { setObj(selObj.id, { id: e.target.value }); setSel({ kind: "object", id: e.target.value }); }} /></label>
+                <label className={label}>Label<input className={input} value={selObj.label} onChange={(e) => setObj(selObj.id, { label: e.target.value })} /></label>
+                <label className={label}>Sprite
+                  <select className={input} value={selObj.asset} onChange={(e) => setObj(selObj.id, { asset: e.target.value as AssetId })}>
+                    {ASSET_IDS.map((a) => <option key={a} value={a}>{ASSETS[a].emoji} {a}</option>)}
+                  </select>
+                </label>
+                <label className={label}>Color
+                  <select className={input} value={selObj.color} onChange={(e) => setObj(selObj.id, { color: e.target.value as NormalizedColor })}>
+                    {COLORS.map((c) => <option key={c}>{c}</option>)}
+                  </select>
+                </label>
+                <label className={label}>Goes into
+                  <select className={input} value={selObj.targetId} onChange={(e) => setObj(selObj.id, { targetId: e.target.value })}>
+                    <option value="">— none —</option>
+                    {level.targets.map((t) => <option key={t.id}>{t.id}</option>)}
+                  </select>
+                </label>
+                <label className={label}>Size<input type="number" className={input} value={selObj.size} onChange={(e) => setObj(selObj.id, { size: Number(e.target.value) })} /></label>
+                <label className={label}>X %<input type="number" className={input} value={selObj.x} onChange={(e) => setObj(selObj.id, { x: Number(e.target.value) })} /></label>
+                <label className={label}>Y %<input type="number" className={input} value={selObj.y} onChange={(e) => setObj(selObj.id, { y: Number(e.target.value) })} /></label>
+                <button type="button" className={`${btn} self-end text-red-300`} onClick={() => { update((l) => { l.objects = l.objects.filter((o) => o.id !== selObj.id); }); setSel(null); }}>Remove</button>
+              </div>
+            )}
+            {selTarget && (
+              <div className="grid grid-cols-3 gap-2 rounded bg-neutral-900 p-2">
+                <label className={label}>ID<input className={input} value={selTarget.id} onChange={(e) => { setTarget(selTarget.id, { id: e.target.value }); setSel({ kind: "target", id: e.target.value }); }} /></label>
+                <label className={label}>Label<input className={input} value={selTarget.label} onChange={(e) => setTarget(selTarget.id, { label: e.target.value })} /></label>
+                <label className={label}>Shape
+                  <select className={input} value={selTarget.shape} onChange={(e) => setTarget(selTarget.id, { shape: e.target.value as TargetZone["shape"] })}>
+                    <option>box</option><option>circle</option><option>rect</option>
+                  </select>
+                </label>
+                <label className={label}>X %<input type="number" className={input} value={selTarget.x} onChange={(e) => setTarget(selTarget.id, { x: Number(e.target.value) })} /></label>
+                <label className={label}>Y %<input type="number" className={input} value={selTarget.y} onChange={(e) => setTarget(selTarget.id, { y: Number(e.target.value) })} /></label>
+                <label className={label}>W %<input type="number" className={input} value={selTarget.w} onChange={(e) => setTarget(selTarget.id, { w: Number(e.target.value) })} /></label>
+                <label className={label}>H %<input type="number" className={input} value={selTarget.h} onChange={(e) => setTarget(selTarget.id, { h: Number(e.target.value) })} /></label>
+                <button type="button" className={`${btn} self-end text-red-300`} onClick={() => { update((l) => { l.targets = l.targets.filter((t) => t.id !== selTarget.id); }); setSel(null); }}>Remove</button>
+              </div>
+            )}
+          </fieldset>
+
+          <div className="flex flex-col gap-2 rounded border border-neutral-800 p-3">
+            <p className="text-xs uppercase text-neutral-500">Import / export JSON</p>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" className={btn} onClick={exportJson}>Export JSON</button>
+              <button type="button" className={btn} onClick={() => importJson(io)}>Import from text box</button>
+              <label className={`${btn} cursor-pointer`}>
+                Import file
+                <input type="file" accept="application/json,.json" className="hidden" onChange={async (e) => { const f = e.target.files?.[0]; if (f) importJson(await f.text()); e.target.value = ""; }} />
+              </label>
+            </div>
+            <textarea aria-label="Level JSON" className={`${input} h-40 font-mono text-xs`} value={io} onChange={(e) => setIo(e.target.value)} placeholder="Paste level JSON here…" />
+            {ioErrors.length > 0 && (
+              <ul className="list-disc rounded bg-red-950 p-2 pl-6 text-xs text-red-200" role="alert">
+                {ioErrors.map((er) => <li key={er}>{er}</li>)}
+              </ul>
+            )}
+          </div>
+        </section>
+
+        {/* ---- phone preview ---- */}
+        <section className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" className={`${btn} ${mode === "edit" ? "bg-amber-700" : ""}`} onClick={() => setMode("edit")}>Edit</button>
+            <button type="button" className={`${btn} ${mode === "play" ? "bg-amber-700" : ""}`} onClick={() => { setMode("play"); setPlayDone(false); setPlayRound((r) => r + 1); }} disabled={!check.ok}>Playtest</button>
+            {mode === "play" && <button type="button" className={btn} onClick={() => { setPlayDone(false); setPlayRound((r) => r + 1); }}>Restart</button>}
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-xs">
+            <label className={label}>Sim. color
+              <select className={input} value={mem.favoriteColor} onChange={(e) => setMem({ ...mem, favoriteColor: e.target.value as NormalizedColor })}>
+                {COLORS.map((c) => <option key={c}>{c}</option>)}
+              </select>
+            </label>
+            <label className={label}>Sim. toy
+              <select className={input} value={mem.favoriteToy} onChange={(e) => setMem({ ...mem, favoriteToy: e.target.value as ToyCategory })}>
+                {TOYS.map((c) => <option key={c}>{c}</option>)}
+              </select>
+            </label>
+            <label className="flex items-center gap-2 text-neutral-300"><input type="checkbox" checked={dark} onChange={(e) => setDark(e.target.checked)} /> Lights out</label>
+          </div>
+
+          {!check.ok && (
+            <ul className="list-disc rounded bg-red-950 p-2 pl-6 text-xs text-red-200" role="alert">
+              {check.errors.map((er) => <li key={er}>{er}</li>)}
+            </ul>
+          )}
+
+          <div className={`mx-auto w-[360px] max-w-full rounded-[2rem] border-8 border-neutral-800 p-2 ${dark ? "bg-neutral-950" : "game-room-cozy"}`}>
+            {mode === "play" && check.ok ? (
+              <>
+                <MinigameHost key={playRound} level={check.level} memory={mem} dark={dark} onComplete={() => setPlayDone(true)} />
+                {playDone && <p className="mt-2 text-center text-sm font-bold text-emerald-400">✓ Level complete</p>}
+              </>
+            ) : (
+              <div
+                ref={sceneRef}
+                onPointerMove={moveDrag}
+                onPointerUp={() => (dragRef.current = null)}
+                onPointerDown={() => setSel(null)}
+                className="relative w-full touch-none select-none overflow-hidden rounded-2xl"
+                style={{ aspectRatio: "3 / 4" }}
+              >
+                <SceneBackdrop theme={level.theme} dark={dark} />
+                {level.targets.map((t) => (
+                  <div
+                    key={t.id}
+                    onPointerDown={(e) => startDrag(e, "target", t)}
+                    className={`absolute flex cursor-move items-center justify-center border-2 border-dashed text-[10px] text-neutral-200 ${t.shape === "circle" ? "rounded-full" : "rounded-lg"} ${t.shape === "box" ? "bg-amber-700/60" : "bg-black/30"} ${sel?.id === t.id ? "border-amber-300 ring-2 ring-amber-300" : "border-neutral-400"}`}
+                    style={{ left: `${t.x - t.w / 2}%`, top: `${t.y - t.h / 2}%`, width: `${t.w}%`, height: `${t.h}%` }}
+                  >
+                    {t.label}
+                  </div>
+                ))}
+                {level.objects.map((o) => (
+                  <div
+                    key={o.id}
+                    onPointerDown={(e) => startDrag(e, "object", o)}
+                    className={`absolute flex cursor-move flex-col items-center justify-center rounded-2xl border-2 ${sel?.id === o.id ? "border-amber-300 ring-4 ring-amber-300" : "border-white/60"}`}
+                    style={{ left: `${o.x}%`, top: `${o.y}%`, width: `${o.size}%`, aspectRatio: "1", transform: "translate(-50%,-50%)", backgroundColor: COLOR_HEX[o.color] ?? "#888" }}
+                  >
+                    <span className="pointer-events-none text-2xl">{ASSETS[o.asset]?.emoji ?? "?"}</span>
+                    <span className="pointer-events-none text-[9px] font-bold text-white">{o.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <p className="text-center text-xs text-neutral-500">{mode === "edit" ? (readOnly ? "Read-only preview" : "Drag objects and zones to position them") : "Playtest with simulated answers"}</p>
+        </section>
+      </div>
+    </div>
+  );
+}
