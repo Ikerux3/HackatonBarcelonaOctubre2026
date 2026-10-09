@@ -27,6 +27,8 @@ export interface AIDiagnostics {
   fallbackUsed: boolean;
   latencyMs: number;
   error?: string;
+  /** e.g. "guest → false_hint" for The Guest's decisions */
+  detail?: string;
 }
 let lastDiag: AIDiagnostics | null = null;
 const listeners = new Set<(d: AIDiagnostics) => void>();
@@ -34,6 +36,11 @@ export const getLastAIDiagnostics = () => lastDiag;
 export function onAIDiagnostics(fn: (d: AIDiagnostics) => void): () => void {
   listeners.add(fn);
   return () => listeners.delete(fn);
+}
+/** Lets other AI calls (The Guest) show up in the ?debug=1 badge. */
+export function reportAIDiagnostics(diag: AIDiagnostics) {
+  lastDiag = diag;
+  listeners.forEach((l) => l(diag));
 }
 
 export async function interpretWithDiagnostics(

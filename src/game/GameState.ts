@@ -1,4 +1,4 @@
-import type { NormalizedColor, ToyCategory } from "@/ai/contracts";
+import type { GuestDecision, NormalizedColor, ToyCategory } from "@/ai/contracts";
 
 // Explicit game stages — one active stage at a time, no loose boolean flags.
 export type GameStage =
@@ -34,7 +34,12 @@ export interface GameState {
   displayColor: string | null;
   displayToy: string | null;
   aiBusy: boolean;
+  /** what The Guest decided to do in each later task (first decision wins) */
+  guest: Partial<Record<GuestSlot, GuestDecision>>;
 }
+
+/** Tasks The Guest plans for, during the blackout before them. */
+export type GuestSlot = "task_two" | "task_three";
 
 export const initialGameState: GameState = {
   stage: "intro",
@@ -43,6 +48,7 @@ export const initialGameState: GameState = {
   displayColor: null,
   displayToy: null,
   aiBusy: false,
+  guest: {},
 };
 
 export type GameAction =
@@ -58,6 +64,7 @@ export type GameAction =
       normalizedToy?: ToyCategory;
       displayAnswer?: string;
     }
+  | { type: "GUEST_DECISION"; slot: GuestSlot; decision: GuestDecision }
   | { type: "REPLAY" };
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
@@ -125,12 +132,25 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       };
     }
 
+    case "GUEST_DECISION":
+      // a late live answer must not change a task that already started with the fallback
+      return state.guest[action.slot]
+        ? state
+        : { ...state, guest: { ...state.guest, [action.slot]: action.decision } };
+
     case "REPLAY":
       return initialGameState;
 
     default:
       return state;
   }
+}
+
+/** What The Guest learned this run, for the ending screen. */
+export function guestNotes(state: Pick<GameState, "guest">): string[] {
+  return (["task_two", "task_three"] as const)
+    .map((s) => state.guest[s]?.noticed)
+    .filter((n): n is string => !!n);
 }
 
 /** What the UI may show for each answer: AI paraphrase, else the category label. */

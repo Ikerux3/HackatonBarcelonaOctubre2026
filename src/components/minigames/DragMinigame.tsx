@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { sfx } from "@/game/audio";
 import { resolveInterventions } from "@/game/interventions";
+import { observe } from "@/game/observer";
 import { ASSETS, COLOR_HEX } from "@/game/levels/assets";
 import type { SceneObject, TargetZone } from "@/game/levels/types";
 import type { MinigameProps } from "./types";
@@ -101,7 +102,10 @@ export function DragMinigame({ level, memory, dark, onComplete }: MinigameProps)
       setPop(target.id);
       setTimeout(() => setPop(null), 400);
     } else {
-      if (target) sfx.wrong();
+      if (target) {
+        sfx.wrong();
+        observe.wrongDrop();
+      }
       setShake(obj.id);
       setTimeout(() => setShake(null), 450);
     }

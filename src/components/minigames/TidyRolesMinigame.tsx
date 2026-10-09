@@ -2,6 +2,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 
 import { sfx } from "@/game/audio";
 import { ASSETS, COLOR_HEX, type AssetId } from "@/game/levels/assets";
+import { observe } from "@/game/observer";
 import { zoneCovers, type Point, type SceneObject, type TidyOptions } from "@/game/levels/types";
 import type { MinigameProps } from "./types";
 import { SceneBackdrop } from "./SceneBackdrop";
@@ -220,7 +221,10 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
       setLights({ main: false, lamp: false });
       setPossHint(false);
       if (first) sfx.possessed();
-      else sfx.blackout();
+      else {
+        sfx.blackout();
+        observe.blackout();
+      }
       setEyes(true);
       setTimeout(() => setEyes(false), 2600);
       // light out mid-drag: the toy slips back to the nearest valid slot
@@ -239,6 +243,7 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
     const from = pos[o.id] ?? { x: o.x, y: o.y };
     setSelected(null);
     setPoss({ toyId: o.id, slot: nearestSlot(P.slots, from) });
+    observe.possessStart();
     blackout(true);
     say(P.possessLine, 3600);
   };
@@ -297,7 +302,10 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
   const toggleLight = (k: "main" | "lamp") => {
     sfx.lightSwitch();
     const on = !lightsRef.current[k];
-    if (on) lastLightOnRef.current = Date.now();
+    if (on) {
+      lastLightOnRef.current = Date.now();
+      observe.light(k);
+    }
     setLights((l) => ({ ...l, [k]: on }));
   };
 
@@ -321,6 +329,7 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
 
   const tapSpot = (i: number) => {
     if (!hide || hide.revealed || !H) return;
+    observe.hideSpot(H.spots[i]?.label ?? "", i === hide.spot);
     if (i === hide.spot) {
       sfx.snap();
       setHide({ ...hide, revealed: true });
@@ -353,6 +362,7 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
     setSelected(null);
     if (cover?.toyId === id) setCover(null);
     if (poss?.toyId === id && P) {
+      observe.possessDone();
       setPossHint(false);
       setLights({ main: true, lamp: false });
       say(P.freezeLine, 3200);
@@ -416,6 +426,7 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
       setPoss({ ...poss, slot: nearestSlot(P.slots, d) });
       reject(o.id, false);
     } else {
+      observe.wrongDrop();
       // dropped elsewhere: toy stays where it was released (inside the scene)
       setPos((p) => ({
         ...p,

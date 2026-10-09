@@ -4,10 +4,18 @@ interface EndingScreenProps {
   /** cleaned labels only (displayAnswer or category) — never raw player text */
   colorText: string;
   toyText: string;
+  /** what The Guest's model concluded about this player, one note per decision */
+  noticed: string[];
   onReplay: () => void;
 }
 
-export function EndingScreen({ lastedMs, colorText, toyText, onReplay }: EndingScreenProps) {
+export function EndingScreen({
+  lastedMs,
+  colorText,
+  toyText,
+  noticed,
+  onReplay,
+}: EndingScreenProps) {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-neutral-950 px-6 text-center">
       <div className="game-glitch font-serif text-3xl font-bold text-neutral-100">
@@ -16,6 +24,18 @@ export function EndingScreen({ lastedMs, colorText, toyText, onReplay }: EndingS
       <p className="-mt-3 font-serif text-sm italic text-red-300/80">
         The Guest remembers: {colorText} · {toyText}
       </p>
+      {noticed.length > 0 && (
+        <div className="max-w-xs rounded-xl border border-red-900/50 bg-black/40 px-4 py-3">
+          <p className="text-xs uppercase tracking-[0.25em] text-neutral-500">
+            What The Guest noticed about you
+          </p>
+          <ul className="mt-2 space-y-1 font-serif text-base italic text-neutral-200">
+            {noticed.map((n) => (
+              <li key={n}>“{n}”</li>
+            ))}
+          </ul>
+        </div>
+      )}
       {lastedMs > 0 && (
         <p className="font-serif text-lg text-neutral-300">
           You lasted{" "}

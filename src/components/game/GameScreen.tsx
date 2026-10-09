@@ -1,6 +1,9 @@
 import { useGameController } from "@/game/GameController";
-import { colorLabel, toyLabel } from "@/game/GameState";
+import { colorLabel, guestNotes, toyLabel, type GuestSlot } from "@/game/GameState";
+import { applyGuestAction, guestOverlay } from "@/game/guestEffects";
+import { forgetGuestMemory, observe, rememberRun } from "@/game/observer";
 import { AIDebugBadge } from "./AIDebugBadge";
+import { GuestOverlay } from "./GuestOverlay";
 import { useEffect, useRef, useState } from "react";
 
 import {
@@ -36,10 +39,42 @@ export function GameScreen() {
 }
 
 function GameScreenInner() {
-  const { state, start, setName, completeTask, submitAnswer, advance, replay } = useGameController();
+  const {
+    state,
+    start,
+    setName,
+    completeTask,
+    submitAnswer,
+    advance,
+    replay,
+    requestGuest,
+    ensureGuest,
+  } = useGameController();
   // saved demo story (validated, per-slot fallback to built-in); read after hydration
   const [story, setStory] = useState<StoryLevels>(STORY_LEVELS);
-  useEffect(() => setStory(loadStoryLevels()), []);
+  useEffect(() => {
+    setStory(loadStoryLevels());
+    // demo phones: ?forget=1 makes The Guest forget earlier players on this device
+    if (new URLSearchParams(window.location.search).get("forget") === "1") forgetGuestMemory();
+  }, []);
+
+  // ---- The Guest: observe each task, plan the next one during the blackout ----
+  const storyRef = useRef(story);
+  storyRef.current = story;
+  useEffect(() => {
+    const st = state.stage;
+    const s = storyRef.current;
+    if (st === "task_one" || st === "task_two" || st === "task_three") observe.taskStart();
+    if (st === "blackout_one" || st === "blackout_two" || st === "blackout_three") observe.taskEnd();
+    // ask the model while the lights are out and the player answers the question
+    if (st === "blackout_one") requestGuest("task_two", s.task_two);
+    if (st === "blackout_two") requestGuest("task_three", s.task_three);
+    // never start a task without a plan: rules decide if the model is late
+    if (st === "task_two") ensureGuest("task_two", s.task_two);
+    if (st === "task_three") ensureGuest("task_three", s.task_three);
+    if (st === "ending") rememberRun(state.memory.favoriteColor, state.memory.favoriteToy);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.stage]);
 
   // ---- presentation only: run timer, ambience, haptics (no game logic) ----
   const startedAt = useRef<number | null>(null);
@@ -111,6 +146,7 @@ function GameScreenInner() {
         lastedMs={lastedMs}
         colorText={colorLabel(state)}
         toyText={toyLabel(state)}
+        noticed={guestNotes(state)}
         onReplay={replay}
       />
     );
@@ -149,12 +185,15 @@ function GameScreenInner() {
   const isBlackout =
     stage === "blackout_one" || stage === "blackout_two" || stage === "blackout_three";
   const isTask = stage === "task_one" || stage === "task_two" || stage === "task_three";
-  const level =
+  const slot: GuestSlot | "task_one" =
     stage === "task_one" || stage === "blackout_one" || stage === "question_one"
-      ? story.task_one
+      ? "task_one"
       : stage === "task_two" || stage === "blackout_two" || stage === "question_two"
-        ? story.task_two
-        : story.task_three;
+        ? "task_two"
+        : "task_three";
+  const plan = slot === "task_one" ? undefined : state.guest[slot];
+  const baseLevel = story[slot];
+  const level = plan ? applyGuestAction(baseLevel, plan.action) : baseLevel;
   const isQuestion = state.stage === "question_one" || state.stage === "question_two";
 
   return (
@@ -173,6 +212,10 @@ function GameScreenInner() {
           dark={dark}
           {...(isTask ? { onComplete: completeTask, onSkip: completeTask } : {})}
         />
+
+        {isTask && plan && (
+          <GuestOverlay key={slot} decision={plan} {...guestOverlay(level, plan.action)} />
+        )}
 
         {isBlackout && (
           <MonsterOverlay

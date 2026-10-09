@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { sfx } from "@/game/audio";
 import { resolveInterventions } from "@/game/interventions";
+import { observe } from "@/game/observer";
 import { ASSETS, COLOR_HEX } from "@/game/levels/assets";
 import type { Point, SceneObject } from "@/game/levels/types";
 import type { MinigameProps } from "./types";
@@ -109,6 +110,7 @@ export function FlashlightMinigame({ level, memory, onComplete }: MinigameProps)
     const litBefore = isLit(hit, d.light);
     const isEvasive = evasive?.objectId === hit.id;
     if (!litBefore || (isEvasive && !fled)) {
+      if (!litBefore) observe.flashlightMiss();
       setMiss(hit.id);
       setTimeout(() => setMiss(null), 450);
       return;

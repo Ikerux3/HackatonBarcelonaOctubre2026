@@ -27,6 +27,7 @@ export function AIDebugBadge() {
       <div>adapter: {diag?.adapterUsed ?? "—"}</div>
       <div>fallback: {diag ? String(diag.fallbackUsed) : "—"}</div>
       <div>latency: {diag ? `${diag.latencyMs} ms` : "—"}</div>
+      {diag?.detail && <div>{diag.detail}</div>}
       {diag?.error && <div className="max-w-[60vw] truncate text-red-300">err: {diag.error}</div>}
     </div>
   );

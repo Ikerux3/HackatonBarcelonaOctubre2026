@@ -1,9 +1,37 @@
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useEffect, useReducer, useRef } from "react";
 
 import { interpretAnswerSafe } from "@/ai/aiAdapter";
-import type { QuestionType } from "@/ai/contracts";
-import { gameReducer, initialGameState, type GameStage } from "./GameState";
+import type { GuestRequest, QuestionType } from "@/ai/contracts";
+import { decideGuest } from "@/ai/guestAdapter";
+import { ruleGuestDecision } from "@/ai/guestFacts";
+import {
+  gameReducer,
+  guestNotes,
+  initialGameState,
+  type GameStage,
+  type GameState,
+  type GuestSlot,
+} from "./GameState";
 import { initAudio, sfx } from "./audio";
+import { allowedGuestActions } from "./guestEffects";
+import type { LevelConfig } from "./levels/types";
+import { loadGuestMemory, observe } from "./observer";
+
+/** Everything The Guest may know: observations, validated answers, last run on this device. */
+function buildGuestRequest(s: GameState, level: LevelConfig): GuestRequest {
+  const prev = loadGuestMemory();
+  return {
+    allowedActions: allowedGuestActions(level),
+    observations: observe.snapshot(),
+    memory: {
+      ...(s.memory.favoriteColor ? { favoriteColor: s.memory.favoriteColor } : {}),
+      ...(s.memory.favoriteToy ? { favoriteToy: s.memory.favoriteToy } : {}),
+      ...(prev.lastColor ? { lastRunColor: prev.lastColor } : {}),
+      ...(prev.lastToy ? { lastRunToy: prev.lastToy } : {}),
+    },
+    alreadyNoticed: guestNotes(s),
+  };
+}
 
 /** how long a blackout lingers before the question appears */
 export const BLACKOUT_MS = 3200;
@@ -21,11 +49,28 @@ const TIMED_STAGES: Partial<Record<GameStage, number>> = {
 
 export function useGameController() {
   const [state, dispatch] = useReducer(gameReducer, initialGameState);
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   const start = useCallback(() => {
     initAudio();
     sfx.click();
+    observe.reset();
     dispatch({ type: "START" });
+  }, []);
+
+  /** During a blackout: ask The Guest (real model) what it does in the next task. */
+  const requestGuest = useCallback((slot: GuestSlot, level: LevelConfig) => {
+    void decideGuest(buildGuestRequest(stateRef.current, level)).then((decision) =>
+      dispatch({ type: "GUEST_DECISION", slot, decision }),
+    );
+  }, []);
+
+  /** At task start: if the model hasn't answered yet, decide with the rules now. */
+  const ensureGuest = useCallback((slot: GuestSlot, level: LevelConfig) => {
+    if (stateRef.current.guest[slot]) return;
+    const decision = ruleGuestDecision(buildGuestRequest(stateRef.current, level));
+    dispatch({ type: "GUEST_DECISION", slot, decision });
   }, []);
 
   /** Called by the active minigame when its success condition is met. */
@@ -91,5 +136,15 @@ export function useGameController() {
     dispatch({ type: "REPLAY" });
   }, []);
 
-  return { state, start, setName, completeTask, submitAnswer, advance, replay };
+  return {
+    state,
+    start,
+    setName,
+    completeTask,
+    submitAnswer,
+    advance,
+    replay,
+    requestGuest,
+    ensureGuest,
+  };
 }

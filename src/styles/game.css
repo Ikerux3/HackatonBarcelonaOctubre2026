@@ -208,3 +208,15 @@
 }
 .game-door-open { animation: game-door-open 1.6s ease-out 0.3s both; }
 @media (prefers-reduced-motion: reduce) { .game-door-open { animation: none; } }
+
+/* The Guest crossing the room once, left to right, slightly blurred */
+@keyframes game-shadow-pass {
+  0% { left: -25%; opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { left: 105%; opacity: 0; }
+}
+.game-shadow-pass { filter: blur(1.5px); animation: game-shadow-pass 2.8s ease-in-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .game-shadow-pass { animation: none; left: 70%; opacity: 0.6; }
+}

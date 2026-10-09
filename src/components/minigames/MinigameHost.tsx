@@ -1,6 +1,7 @@
 import { useState, type ComponentType } from "react";
 
 import { validateLevel } from "@/game/levels/validate";
+import { observe } from "@/game/observer";
 import type { MinigameType } from "@/game/levels/types";
 import { DragMinigame } from "./DragMinigame";
 import { FlashlightMinigame } from "./FlashlightMinigame";
@@ -56,7 +57,10 @@ export function MinigameHost({ level, memory, dark, onComplete, onSkip }: HostPr
         </p>
         <button
           type="button"
-          onClick={() => setRound((r) => r + 1)}
+          onClick={() => {
+            observe.restart();
+            setRound((r) => r + 1);
+          }}
           aria-label="Restart this task"
           className="min-h-12 min-w-12 shrink-0 rounded-full bg-black/60 px-3 text-sm font-semibold text-neutral-100 active:scale-95"
         >
