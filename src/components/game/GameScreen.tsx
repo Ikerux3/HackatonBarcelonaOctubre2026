@@ -1,4 +1,7 @@
 import { useGameController } from "@/game/GameController";
+import { useEffect, useState } from "react";
+
+import { loadStoryLevels, type StoryLevels } from "@/game/demoProfile";
 import { STORY_LEVELS } from "@/game/levels/defaultLevels";
 import { MinigameHost } from "@/components/minigames/MinigameHost";
 import { EndingScreen } from "./EndingScreen";
@@ -13,6 +16,9 @@ const QUESTIONS = {
 
 export function GameScreen() {
   const { state, start, completeTask, submitAnswer, advance, replay } = useGameController();
+  // saved demo story (validated, per-slot fallback to built-in); read after hydration
+  const [story, setStory] = useState<StoryLevels>(STORY_LEVELS);
+  useEffect(() => setStory(loadStoryLevels()), []);
 
   if (state.stage === "intro") {
     return (
@@ -70,10 +76,10 @@ export function GameScreen() {
   const isTask = stage === "task_one" || stage === "task_two" || stage === "task_three";
   const level =
     stage === "task_one" || stage === "blackout_one" || stage === "question_one"
-      ? STORY_LEVELS.task_one
+      ? story.task_one
       : stage === "task_two" || stage === "blackout_two" || stage === "question_two"
-        ? STORY_LEVELS.task_two
-        : STORY_LEVELS.task_three;
+        ? story.task_two
+        : story.task_three;
   const isQuestion = state.stage === "question_one" || state.stage === "question_two";
 
   return (

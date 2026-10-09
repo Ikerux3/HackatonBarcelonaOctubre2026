@@ -88,7 +88,8 @@ export function validateLevel(input: unknown): ValidationResult {
         const ev = f.evasive;
         if (!isObj(ev)) e.push("flashlight.evasive must be an object.");
         else {
-          if (!objIds.has(ev.objectId)) e.push(`evasive object "${String(ev.objectId)}" does not exist.`);
+          if (!objIds.has(ev.objectId))
+            e.push(`evasive object "${String(ev.objectId)}" does not exist.`);
           if (!Array.isArray(ev.positions) || ev.positions.length < 1 || ev.positions.length > 8)
             e.push("evasive.positions needs 1–8 positions.");
           else
