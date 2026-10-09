@@ -6,8 +6,9 @@ import { ASSETS, TOY_ASSET } from "@/game/levels/assets";
 
 interface EndingScreenProps {
   memory: GameMemory;
-  rawColorAnswer: string | null;
-  rawToyAnswer: string | null;
+  /** cleaned labels only — never raw player text */
+  colorText: string;
+  toyText: string;
   /** in-memory run duration, ms */
   lastedMs: number;
   onReplay: () => void;
@@ -15,8 +16,8 @@ interface EndingScreenProps {
 
 export function EndingScreen({
   memory,
-  rawColorAnswer,
-  rawToyAnswer,
+  colorText,
+  toyText,
   lastedMs,
   onReplay,
 }: EndingScreenProps) {
@@ -26,7 +27,6 @@ export function EndingScreen({
   }, []);
 
   const color = memory.favoriteColor ?? "other";
-  const toy = rawToyAnswer ?? "your toy";
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-neutral-950 px-6 text-center">
@@ -40,8 +40,8 @@ export function EndingScreen({
 
       <p className="max-w-sm font-serif text-lg italic leading-relaxed text-neutral-300">
         “I know you love{" "}
-        <span className={`game-reveal-color game-color-${color}`}>{rawColorAnswer ?? color}</span>.
-        And I know about <span className="text-neutral-100">{toy}</span>. I'll keep them both… until
+        <span className={`game-reveal-color game-color-${color}`}>{colorText}</span>.
+        And I know about <span className="text-neutral-100">{toyText}</span>. I'll keep them both… until
         next time.”
       </p>
 

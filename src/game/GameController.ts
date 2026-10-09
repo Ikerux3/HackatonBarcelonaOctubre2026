@@ -60,7 +60,7 @@ export function useGameController() {
       dispatch({
         type: "AI_RESULT",
         monsterLine: response.monsterLine,
-        rawAnswer: answer,
+        ...(response.displayAnswer ? { displayAnswer: response.displayAnswer } : {}),
         ...(response.normalizedColor ? { normalizedColor: response.normalizedColor } : {}),
         ...(response.normalizedToy ? { normalizedToy: response.normalizedToy } : {}),
       });
