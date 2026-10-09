@@ -10,6 +10,19 @@ import {
   type ScriptedLines,
 } from "@/ai/aiMode";
 import type { NormalizedColor, ToyCategory } from "@/ai/contracts";
+import {
+  DEFAULT_SCRIPTED,
+} from "@/ai/aiMode";
+import {
+  STORY_SLOTS,
+  clearStoryConfig,
+  loadStoryConfig,
+  parseProfileJson,
+  saveStoryConfig,
+  type DemoProfile,
+  type StoryConfig,
+  type StorySlot,
+} from "@/game/demoProfile";
 import { MinigameHost } from "@/components/minigames/MinigameHost";
 import { SceneBackdrop } from "@/components/minigames/SceneBackdrop";
 import type { GameMemory } from "@/game/GameState";
@@ -78,11 +91,39 @@ export function LevelEditor() {
 
   const [aiMode, setAiModeState] = useState<AIMode>("live");
   const [scripted, setScripted] = useState<ScriptedLines | null>(null);
+  const DEFAULT_KEYS: Record<StorySlot, string> = {
+    task_one: "builtin-0",
+    task_two: "builtin-1",
+    task_three: "builtin-2",
+  };
+  const [storyKeys, setStoryKeys] = useState<Record<StorySlot, string>>(DEFAULT_KEYS);
+  const [storyActive, setStoryActive] = useState(false);
+  const [profileMsg, setProfileMsg] = useState<string[]>([]);
   useEffect(() => {
     setAiModeState(getAIMode());
     setScripted(getScriptedLines());
-    setLocal(loadLocal());
+    const drafts = loadLocal();
+    const saved = loadStoryConfig();
+    if (saved) {
+      const keys = { ...DEFAULT_KEYS };
+      const extra: Entry[] = [];
+      for (const slot of STORY_SLOTS) {
+        const src = saved[slot].source;
+        if (src.startsWith("builtin-") || drafts.some((d) => d.key === src)) keys[slot] = src;
+        else {
+          // the draft is gone: keep its snapshot as a new draft
+          const key = uid();
+          extra.push({ key, level: saved[slot].level, builtIn: false });
+          keys[slot] = key;
+        }
+      }
+      drafts.push(...extra);
+      setStoryKeys(keys);
+      setStoryActive(true);
+    }
+    setLocal(drafts);
     setLoaded(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
     if (loaded)
@@ -98,6 +139,84 @@ export function LevelEditor() {
     builtIn: true,
   }));
   const all = [...builtIns, ...local];
+
+  const buildStory = (): StoryConfig => {
+    const pick = (slot: StorySlot) => {
+      const e = all.find((x) => x.key === storyKeys[slot]) ?? builtIns[Number(DEFAULT_KEYS[slot].slice(8))]!;
+      return { source: e.key, level: e.level };
+    };
+    return { task_one: pick("task_one"), task_two: pick("task_two"), task_three: pick("task_three") };
+  };
+  const storyChecks = STORY_SLOTS.map((slot) => {
+    const e = all.find((x) => x.key === storyKeys[slot]);
+    return { slot, ok: !!e && validateLevel(e.level).ok };
+  });
+  // keep the saved story in sync with draft edits (only valid levels are used by the player)
+  useEffect(() => {
+    if (loaded && storyActive) saveStoryConfig(buildStory());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [local, storyKeys, storyActive, loaded]);
+
+  const exportProfile = () => {
+    const profile: DemoProfile = {
+      kind: "mwbb-demo-profile",
+      version: 1,
+      story: buildStory(),
+      aiMode,
+      scriptedLines: scripted ?? DEFAULT_SCRIPTED,
+      drafts: local.map(({ key, level }) => ({ key, level })),
+    };
+    const blob = new Blob([JSON.stringify(profile, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "mwbb-demo-profile.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+  const importProfile = (text: string) => {
+    const r = parseProfileJson(text);
+    if (!r.ok) return setProfileMsg(r.errors);
+    const p = r.profile;
+    const merged = [
+      ...local.filter((d) => !p.drafts.some((x) => x.key === d.key)),
+      ...p.drafts.map((d) => ({ ...d, builtIn: false })),
+    ];
+    const keys = { ...DEFAULT_KEYS };
+    for (const slot of STORY_SLOTS) {
+      const src = p.story[slot].source;
+      if (src.startsWith("builtin-") && Number(src.slice(8)) < BUILT_IN_LEVELS.length) keys[slot] = src;
+      else if (merged.some((d) => d.key === src)) keys[slot] = src;
+      else {
+        const key = uid();
+        merged.push({ key, level: p.story[slot].level, builtIn: false });
+        keys[slot] = key;
+      }
+    }
+    setLocal(merged);
+    setStoryKeys(keys);
+    setStoryActive(true);
+    setAIMode(p.aiMode);
+    setAiModeState(p.aiMode);
+    setScriptedLines(p.scriptedLines);
+    setScripted(p.scriptedLines);
+    setProfileMsg(["Profile loaded."]);
+  };
+  const resetBuiltIn = () => {
+    if (!window.confirm("Reset the story, scripted lines and AI mode to built-in? Drafts are kept."))
+      return;
+    clearStoryConfig();
+    setStoryActive(false);
+    setStoryKeys(DEFAULT_KEYS);
+    setScriptedLines(DEFAULT_SCRIPTED);
+    setScripted(DEFAULT_SCRIPTED);
+    setAIMode("live");
+    setAiModeState("live");
+    setProfileMsg(["Reset to built-in."]);
+  };
+  const playStory = () => {
+    if (storyActive) saveStoryConfig(buildStory());
+    window.open(`/?ai=${aiMode}`, "_blank", "noopener");
+  };
   const active = all.find((e) => e.key === activeKey) ?? builtIns[0]!;
   const level = active.level;
   const check = useMemo(() => validateLevel(level), [level]);
@@ -295,6 +414,69 @@ export function LevelEditor() {
               />
             </label>
           ))}
+      </section>
+
+      <section className="mb-4 flex flex-col gap-3 rounded border border-neutral-800 p-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="mr-2 text-xs uppercase text-neutral-500">
+            Story (demo profile){" "}
+            <span className="normal-case">
+              — {storyActive ? "custom, saved in this browser" : "built-in"}
+            </span>
+          </p>
+          <button type="button" className={`${btn} bg-amber-800`} onClick={playStory}>
+            ▶ Play full story
+          </button>
+          <button type="button" className={btn} onClick={exportProfile}>
+            Export profile
+          </button>
+          <label className={`${btn} cursor-pointer`}>
+            Import profile
+            <input
+              type="file"
+              accept="application/json,.json"
+              className="hidden"
+              onChange={async (e) => {
+                const f = e.target.files?.[0];
+                if (f) importProfile(await f.text());
+                e.target.value = "";
+              }}
+            />
+          </label>
+          <button type="button" className={`${btn} text-red-300`} onClick={resetBuiltIn}>
+            Reset to built-in
+          </button>
+        </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          {STORY_SLOTS.map((slot, i) => (
+            <label key={slot} className={label}>
+              {slot} {storyChecks[i]!.ok ? "" : "⚠ invalid — built-in will play"}
+              <select
+                aria-label={`Level for ${slot}`}
+                className={input}
+                value={storyKeys[slot]}
+                onChange={(e) => {
+                  setStoryKeys({ ...storyKeys, [slot]: e.target.value });
+                  setStoryActive(true);
+                }}
+              >
+                {all.map((e) => (
+                  <option key={e.key} value={e.key}>
+                    {e.builtIn ? "★ " : ""}
+                    {e.level.title || e.level.id} · {e.level.type}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ))}
+        </div>
+        {profileMsg.length > 0 && (
+          <ul className="list-disc rounded bg-neutral-900 p-2 pl-6 text-xs text-neutral-300" role="status">
+            {profileMsg.map((m) => (
+              <li key={m}>{m}</li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <div className="grid gap-4 lg:grid-cols-[220px_1fr_380px]">
