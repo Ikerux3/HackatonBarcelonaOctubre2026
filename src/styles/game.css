@@ -151,3 +151,53 @@
     animation-duration: 0.01s;
   }
 }
+
+/* --- Iteration 2: minigame feedback --- */
+@keyframes game-shake {
+  0%, 100% { translate: 0 0; }
+  25% { translate: -6px 0; }
+  75% { translate: 6px 0; }
+}
+.game-shake { animation: game-shake 0.4s ease; }
+
+@keyframes game-wobble {
+  0%, 100% { rotate: 0deg; }
+  20% { rotate: -14deg; }
+  40% { rotate: 10deg; }
+  60% { rotate: -8deg; }
+  80% { rotate: 4deg; }
+}
+.game-wobble { animation: game-wobble 1.3s ease; }
+
+@keyframes game-pop {
+  0% { scale: 1; }
+  50% { scale: 1.08; box-shadow: 0 0 24px 6px rgba(255, 230, 150, 0.55); }
+  100% { scale: 1; }
+}
+.game-pop { animation: game-pop 0.4s ease; }
+
+.game-box-open { translate: 0 -4px; box-shadow: 0 0 18px 4px rgba(255, 220, 140, 0.35); }
+
+@keyframes game-false-hint {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: 0 0 22px 8px rgba(200, 40, 40, 0.55); }
+}
+.game-false-hint { animation: game-false-hint 0.9s ease 2; }
+
+@keyframes game-echo {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.55; }
+}
+.game-echo { filter: brightness(0); animation: game-echo 4s ease-in-out infinite; }
+
+@keyframes game-light-disturb {
+  0%, 70%, 100% { opacity: 0; }
+  78% { opacity: 0.45; }
+  86% { opacity: 0.1; }
+  92% { opacity: 0.35; }
+}
+.game-light-disturb { background: #000; animation: game-light-disturb 6s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .game-shake, .game-wobble, .game-pop, .game-false-hint, .game-echo, .game-light-disturb { animation: none; }
+}

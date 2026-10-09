@@ -48,6 +48,11 @@ export const sfx = {
     setTimeout(() => tone(784, 0.18, "sine", 0.06), 110);
   },
   blackout: () => tone(180, 0.9, "sawtooth", 0.07, 40),
+  snap: () => {
+    tone(660, 0.08, "triangle", 0.07);
+    setTimeout(() => tone(990, 0.1, "triangle", 0.05), 60);
+  },
+  wrong: () => tone(140, 0.25, "sine", 0.07, 90),
   hum: () => tone(55, 2.4, "sine", 0.05),
   door: () => {
     tone(90, 0.25, "sine", 0.09);
