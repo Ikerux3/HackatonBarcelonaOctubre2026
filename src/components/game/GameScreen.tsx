@@ -1,6 +1,15 @@
 import { useGameController } from "@/game/GameController";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import {
+  haptic,
+  initAudio,
+  setMusicDetune,
+  startDrone,
+  startMusicBox,
+  stopDrone,
+  stopMusicBox,
+} from "@/game/audio";
 import { loadStoryLevels, type StoryLevels } from "@/game/demoProfile";
 import { STORY_LEVELS } from "@/game/levels/defaultLevels";
 import { MinigameHost } from "@/components/minigames/MinigameHost";
@@ -20,9 +29,49 @@ export function GameScreen() {
   const [story, setStory] = useState<StoryLevels>(STORY_LEVELS);
   useEffect(() => setStory(loadStoryLevels()), []);
 
+  // ---- presentation only: run timer, ambience, haptics (no game logic) ----
+  const startedAt = useRef<number | null>(null);
+  const [lastedMs, setLastedMs] = useState(0);
+  useEffect(() => {
+    const st = state.stage;
+    if (st === "intro") {
+      startedAt.current = null;
+      stopDrone();
+      return;
+    }
+    if (st === "task_one" && startedAt.current === null) startedAt.current = Date.now();
+    if (st === "ending" && startedAt.current !== null)
+      setLastedMs(Date.now() - startedAt.current);
+
+    if (st === "task_one") {
+      stopDrone();
+      startMusicBox();
+    } else if (st === "ending") {
+      stopMusicBox(true);
+      stopDrone();
+    } else {
+      // every later stage is dark
+      stopMusicBox();
+      setMusicDetune(60);
+      startDrone();
+    }
+    if (st === "question_one" || st === "question_two" || st === "mother_voice")
+      haptic([30, 80, 30]);
+  }, [state.stage]);
+  useEffect(() => () => {
+    stopMusicBox(true);
+    stopDrone();
+  }, []);
+
   if (state.stage === "intro") {
     return (
-      <div className="game-room-cozy flex min-h-dvh flex-col items-center justify-center gap-6 px-6 text-center">
+      <div
+        onPointerDown={() => {
+          // first touch on the title screen unlocks audio and starts the music box
+          initAudio();
+          startMusicBox();
+        }}
+        className="game-room-cozy flex min-h-dvh flex-col items-center justify-center gap-6 px-6 text-center">
         <h1 className="font-serif text-4xl font-bold tracking-tight text-amber-950">
           MOMMY
           <br />
@@ -39,6 +88,7 @@ export function GameScreen() {
         >
           Play
         </button>
+        <p className="-mt-3 text-sm text-amber-900/80">Do your chores before mommy gets back</p>
       </div>
     );
   }
@@ -49,6 +99,7 @@ export function GameScreen() {
         memory={state.memory}
         rawColorAnswer={state.rawColorAnswer}
         rawToyAnswer={state.rawToyAnswer}
+        lastedMs={lastedMs}
         onReplay={replay}
       />
     );
