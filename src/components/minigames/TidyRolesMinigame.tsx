@@ -300,9 +300,9 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
           } ${cover.open ? "pointer-events-none" : "game-wobble"}`}
           style={{
             left: `${coverSpot.x + (cover.open && cover.role === "cushion" ? 22 : 0)}%`,
-            top: `${coverSpot.y + (cover.open && cover.role === "drawer" ? 12 : 0)}%`,
-            width: cover.role === "cushion" ? "26%" : "24%",
-            height: cover.role === "cushion" ? "11%" : "8%",
+            top: `${coverSpot.y + (cover.open && cover.role === "drawer" ? 14 : 0)}%`,
+            width: "26%",
+            height: "14%",
             transform: `translate(-50%, -50%) ${cover.open && cover.role === "cushion" ? "rotate(18deg)" : ""}`,
             opacity: cover.open && cover.role === "drawer" ? 0.85 : 1,
           }}

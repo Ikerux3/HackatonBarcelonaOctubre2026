@@ -17,6 +17,7 @@ import { STORY_LEVELS } from "@/game/levels/defaultLevels";
 import { MinigameHost } from "@/components/minigames/MinigameHost";
 import { EndingScreen } from "./EndingScreen";
 import { MotherSequence } from "./MotherSequence";
+import { IntroName } from "./IntroName";
 import { MonsterOverlay } from "./MonsterOverlay";
 import { QuestionInput } from "./QuestionInput";
 
@@ -35,7 +36,7 @@ export function GameScreen() {
 }
 
 function GameScreenInner() {
-  const { state, start, completeTask, submitAnswer, advance, replay } = useGameController();
+  const { state, start, setName, completeTask, submitAnswer, advance, replay } = useGameController();
   // saved demo story (validated, per-slot fallback to built-in); read after hydration
   const [story, setStory] = useState<StoryLevels>(STORY_LEVELS);
   useEffect(() => setStory(loadStoryLevels()), []);
@@ -54,7 +55,7 @@ function GameScreenInner() {
     if (st === "ending" && startedAt.current !== null)
       setLastedMs(Date.now() - startedAt.current);
 
-    if (st === "task_one") {
+    if (st === "intro_name" || st === "intro_leave" || st === "task_one") {
       stopDrone();
       startMusicBox();
     } else if (st === "ending") {
@@ -116,6 +117,17 @@ function GameScreenInner() {
     );
   }
 
+  if (state.stage === "intro_name" || state.stage === "intro_leave") {
+    return (
+      <IntroName
+        stage={state.stage}
+        name={state.memory.playerName ?? null}
+        onName={setName}
+        onDone={advance}
+      />
+    );
+  }
+
   if (
     state.stage === "knock" ||
     state.stage === "mother_voice" ||
@@ -165,7 +177,9 @@ function GameScreenInner() {
           <MonsterOverlay
             line={
               stage === "blackout_one"
-                ? "The lights went out…"
+                ? story.task_one.type === "tidy_roles"
+                  ? story.task_one.tidy.completeLine || "The lights went out…"
+                  : "The lights went out…"
                 : stage === "blackout_two"
                   ? "It's back…"
                   : "Lights out. Good night…"

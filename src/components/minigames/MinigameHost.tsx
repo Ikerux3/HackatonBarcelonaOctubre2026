@@ -4,6 +4,7 @@ import { validateLevel } from "@/game/levels/validate";
 import type { MinigameType } from "@/game/levels/types";
 import { DragMinigame } from "./DragMinigame";
 import { FlashlightMinigame } from "./FlashlightMinigame";
+import { TidyRolesMinigame } from "./TidyRolesMinigame";
 import type { MinigameProps } from "./types";
 
 /** Registry: minigame type → component. Add new types here. */
@@ -11,6 +12,7 @@ export const MINIGAME_REGISTRY: Record<MinigameType, ComponentType<MinigameProps
   drag_to_target: DragMinigame,
   place_items: DragMinigame,
   flashlight_find: FlashlightMinigame,
+  tidy_roles: TidyRolesMinigame,
 };
 
 interface HostProps extends MinigameProps {
