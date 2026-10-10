@@ -1,8 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-export const GUEST_VOICE_ROLES = ["guest", "mom", "mom_impostor"] as const;
-export type GuestVoiceRole = (typeof GUEST_VOICE_ROLES)[number];
+import { GUEST_VOICE_ROLES, type GuestVoiceRole } from "./guestVoice";
 
 const requestSchema = z.object({
   role: z.enum(GUEST_VOICE_ROLES),

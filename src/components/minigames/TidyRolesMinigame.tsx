@@ -3,6 +3,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { sfx } from "@/game/audio";
 import { ASSETS, COLOR_HEX, type AssetId } from "@/game/levels/assets";
 import { useCameraShake } from "@/game/cameraShake";
+import { useCorduraLight } from "@/game/cordura";
 import { observe } from "@/game/observer";
 import { zoneCovers, type Point, type SceneObject, type TidyOptions } from "@/game/levels/types";
 import type { MinigameProps } from "./types";
@@ -133,6 +134,8 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
   dragRef.current = drag;
   const lightsRef = useRef(lights);
   lightsRef.current = lights;
+  // Cordura: either light on counts as light; the possessed blackouts are darkness
+  useCorduraLight(done ? null : lights.main || lights.lamp ? "lit" : "dark");
   const possRef = useRef(poss);
   possRef.current = poss;
 

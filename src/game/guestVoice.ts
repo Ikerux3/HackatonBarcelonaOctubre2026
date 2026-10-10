@@ -2,6 +2,8 @@ export const GUEST_VOICE_MUTED_KEY = "mommy-will-be-back:guest-voice-muted";
 export const GUEST_VOICE_ID_KEY = "mommy-will-be-back:guest-voice-id";
 export const GUEST_VOICE_PREVIEW_LINE = "Can you hear me, sweetie?";
 export const ELEVENLABS_VOICE_ID = "elevenlabs";
+export const GUEST_VOICE_ROLES = ["guest", "mom", "mom_impostor"] as const;
+export type GuestVoiceRole = (typeof GUEST_VOICE_ROLES)[number];
 
 export interface GuestSpeechRuntime {
   synthesis: Pick<SpeechSynthesis, "cancel" | "getVoices" | "speak"> &
@@ -16,6 +18,7 @@ export interface GuestVoiceOption {
 
 interface GuestSpeechOptions {
   onEnd?: () => void;
+  role?: GuestVoiceRole;
   voiceId?: string;
 }
 
@@ -36,6 +39,17 @@ export function getGuestSpeechRuntime(): GuestSpeechRuntime | null {
 
 function voiceId(voice: SpeechSynthesisVoice) {
   return voice.voiceURI || `${voice.name}|${voice.lang}`;
+}
+
+function preferredFallbackVoice(voices: SpeechSynthesisVoice[], role: GuestVoiceRole) {
+  const preferredName = role === "guest" ? "david" : "zira";
+  return (
+    voices.find((voice) => voice.name.toLowerCase().includes(preferredName)) ??
+    voices.find((voice) => voice.lang.toLowerCase().startsWith("en-us")) ??
+    voices.find((voice) => voice.lang.toLowerCase().startsWith("en-gb")) ??
+    voices.find((voice) => voice.lang.toLowerCase().startsWith("en")) ??
+    null
+  );
 }
 
 /** English system voices exposed by the current browser/device. */
@@ -60,10 +74,11 @@ export function speakGuestLine(
     // The Guest never talks over itself when scenes or answers change.
     runtime.synthesis.cancel();
     const utterance = new runtime.Utterance(line);
+    const role = options.role ?? "guest";
     utterance.lang = "en-US";
-    utterance.rate = 0.88;
-    utterance.pitch = 0.62;
-    utterance.volume = 0.82;
+    utterance.rate = role === "mom" ? 0.96 : role === "mom_impostor" ? 0.9 : 0.88;
+    utterance.pitch = role === "mom" ? 1 : role === "mom_impostor" ? 0.84 : 0.62;
+    utterance.volume = role === "guest" ? 0.82 : 0.9;
 
     let finished = false;
     const finish = () => {
@@ -76,11 +91,8 @@ export function speakGuestLine(
 
     const voices = runtime.synthesis.getVoices();
     utterance.voice =
-      voices.find((voice) => voiceId(voice) === options.voiceId) ??
-      voices.find((voice) => voice.lang.toLowerCase().startsWith("en-gb")) ??
-      voices.find((voice) => voice.lang.toLowerCase().startsWith("en-us")) ??
-      voices.find((voice) => voice.lang.toLowerCase().startsWith("en")) ??
-      null;
+      (options.voiceId ? voices.find((voice) => voiceId(voice) === options.voiceId) : undefined) ??
+      preferredFallbackVoice(voices, role);
 
     runtime.synthesis.speak(utterance);
     return true;

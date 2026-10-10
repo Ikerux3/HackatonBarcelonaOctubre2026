@@ -19,9 +19,13 @@ import {
   GUEST_VOICE_MUTED_KEY,
   GUEST_VOICE_PREVIEW_LINE,
   speakGuestLine,
+  type GuestVoiceRole,
   type GuestVoiceOption,
 } from "@/game/guestVoice";
-import { synthesizeGuestVoice, type GuestVoiceRole } from "@/game/guestVoice.functions";
+import { synthesizeGuestVoice } from "@/game/guestVoice.functions";
+
+// Keep the selector implementation ready for QA, but hide it from players for now.
+const SHOW_VOICE_SELECTOR = false;
 
 interface GuestVoiceContextValue {
   cancel: () => void;
@@ -55,7 +59,9 @@ export function GuestVoiceProvider({ children }: { children: ReactNode }) {
     runtime?.synthesis.addEventListener?.("voiceschanged", refreshVoices);
     try {
       setMutedState(localStorage.getItem(GUEST_VOICE_MUTED_KEY) === "true");
-      const storedVoiceId = localStorage.getItem(GUEST_VOICE_ID_KEY) ?? ELEVENLABS_VOICE_ID;
+      const storedVoiceId = SHOW_VOICE_SELECTOR
+        ? (localStorage.getItem(GUEST_VOICE_ID_KEY) ?? ELEVENLABS_VOICE_ID)
+        : ELEVENLABS_VOICE_ID;
       voiceIdRef.current = storedVoiceId;
       setVoiceIdState(storedVoiceId);
     } catch {
@@ -98,6 +104,7 @@ export function GuestVoiceProvider({ children }: { children: ReactNode }) {
         stopRemoteAudio();
         const started = speakGuestLine(text, undefined, {
           onEnd: finish,
+          role,
           voiceId: selectedVoiceId === ELEVENLABS_VOICE_ID ? "" : selectedVoiceId,
         });
         if (!started) finish();
@@ -232,7 +239,7 @@ export function GuestVoiceControl() {
 
   return (
     <div className="absolute right-2 top-2 z-[190] flex items-center gap-2">
-      {supported && voices.length > 0 && (
+      {SHOW_VOICE_SELECTOR && supported && voices.length > 0 && (
         <label className="rounded-full border border-neutral-400/35 bg-black/55 px-2 py-1 text-neutral-100 shadow-md backdrop-blur-sm">
           <span className="sr-only">Guest voice</span>
           <select
