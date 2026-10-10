@@ -76,25 +76,30 @@ export async function interpretWithDiagnostics(
     );
   } catch {
     // Last-resort deterministic fallback.
-    return finish(
-      request.questionType === "favorite_color"
-        ? {
-            questionType: "favorite_color",
-            normalizedColor: "other",
-            monsterLine: "Hm. The dark has its own favorite color. It chose for you.",
-            puzzleVariant: "color_removed",
-            fallbackUsed: true,
-          }
-        : {
-            questionType: "favorite_toy",
-            normalizedToy: "other",
-            monsterLine: "It doesn't matter what it was. It's mine now.",
-            puzzleVariant: "toy_shadow",
-            fallbackUsed: true,
-          },
-      "hardcoded-fallback",
-      error,
-    );
+    const last: Record<AIRequest["questionType"], AIResponse> = {
+      favorite_color: {
+        questionType: "favorite_color",
+        normalizedColor: "other",
+        monsterLine: "Hm. The dark has its own favorite color. It chose for you.",
+        puzzleVariant: "color_removed",
+        fallbackUsed: true,
+      },
+      favorite_toy: {
+        questionType: "favorite_toy",
+        normalizedToy: "other",
+        monsterLine: "It doesn't matter what it was. It's mine now.",
+        puzzleVariant: "toy_shadow",
+        fallbackUsed: true,
+      },
+      favorite_food: {
+        questionType: "favorite_food",
+        normalizedFood: "other",
+        monsterLine: "I'll cook something for you anyway. You'll eat it.",
+        puzzleVariant: "food_shown",
+        fallbackUsed: true,
+      },
+    };
+    return finish(last[request.questionType], "hardcoded-fallback", error);
   }
 }
 

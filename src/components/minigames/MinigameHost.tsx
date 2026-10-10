@@ -5,6 +5,7 @@ import { observe } from "@/game/observer";
 import type { MinigameType } from "@/game/levels/types";
 import { DragMinigame } from "./DragMinigame";
 import { FlashlightMinigame } from "./FlashlightMinigame";
+import { TableForThreeMinigame } from "./TableForThreeMinigame";
 import { TidyRolesMinigame } from "./TidyRolesMinigame";
 import type { MinigameProps } from "./types";
 
@@ -14,6 +15,7 @@ export const MINIGAME_REGISTRY: Record<MinigameType, ComponentType<MinigameProps
   place_items: DragMinigame,
   flashlight_find: FlashlightMinigame,
   tidy_roles: TidyRolesMinigame,
+  table_for_three: TableForThreeMinigame,
 };
 
 interface HostProps extends MinigameProps {
@@ -22,7 +24,14 @@ interface HostProps extends MinigameProps {
 }
 
 /** Validates, picks the component from the registry, adds objective + restart. */
-export function MinigameHost({ level, memory, dark, onComplete, onSkip }: HostProps) {
+export function MinigameHost({
+  level,
+  memory,
+  dark,
+  onComplete,
+  onSkip,
+  onRememberFood,
+}: HostProps) {
   const [round, setRound] = useState(0);
   const check = validateLevel(level);
 
@@ -73,6 +82,7 @@ export function MinigameHost({ level, memory, dark, onComplete, onSkip }: HostPr
         memory={memory}
         dark={dark}
         {...(onComplete ? { onComplete } : {})}
+        {...(onRememberFood ? { onRememberFood } : {})}
       />
     </div>
   );

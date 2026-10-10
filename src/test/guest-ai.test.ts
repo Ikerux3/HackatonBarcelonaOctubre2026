@@ -19,6 +19,7 @@ const request = (over: Partial<GuestRequest["observations"]> = {}): GuestRequest
     lightUsed: null,
     secondsToFreeze: null,
     flashlightMisses: 0,
+    fullScares: 0,
     previousVisits: 0,
     ...over,
   },

@@ -1,7 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-import type { GuestDecision, GuestRequest } from "./contracts";
+import {
+  FOOD_CATEGORIES,
+  type FoodCategory,
+  type GuestDecision,
+  type GuestRequest,
+} from "./contracts";
 import { describeObservations } from "./guestFacts";
 
 const ACTIONS = [
@@ -28,11 +33,13 @@ const requestSchema = z.object({
     lightUsed: z.enum(["main", "lamp", "both"]).nullable(),
     secondsToFreeze: count.nullable(),
     flashlightMisses: count,
+    fullScares: count,
     previousVisits: count,
   }),
   memory: z.object({
     favoriteColor: z.enum(COLORS).optional(),
     favoriteToy: z.enum(TOYS).optional(),
+    favoriteFood: z.enum(FOOD_CATEGORIES as [FoodCategory, ...FoodCategory[]]).optional(),
     lastRunColor: z.enum(COLORS).optional(),
     lastRunToy: z.enum(TOYS).optional(),
   }),

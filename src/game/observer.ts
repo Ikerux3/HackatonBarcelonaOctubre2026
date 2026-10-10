@@ -21,6 +21,7 @@ function fresh(previousVisits: number): GuestObservations {
     lightUsed: null,
     secondsToFreeze: null,
     flashlightMisses: 0,
+    fullScares: 0,
     previousVisits,
   };
 }
@@ -74,6 +75,10 @@ export const observe = {
   },
   flashlightMiss() {
     obs.flashlightMisses += 1;
+  },
+  /** stayed in the dark too long: the monster got them (counts as a relevant error) */
+  fullScare() {
+    obs.fullScares += 1;
   },
   snapshot(): GuestObservations {
     return { ...obs, taskSeconds: [...obs.taskSeconds] };

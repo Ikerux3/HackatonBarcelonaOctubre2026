@@ -1,0 +1,226 @@
+{
+  "id": "table_for_three",
+  "title": "Table for three",
+  "type": "table_for_three",
+  "instructions": "Set the table for you and mommy",
+  "theme": "dining_room",
+  "objects": [
+    {
+      "id": "child_plate",
+      "label": "Small plate",
+      "asset": "plate",
+      "color": "blue",
+      "x": 50,
+      "y": 50,
+      "size": 13,
+      "targetId": "slot_left_plate"
+    },
+    {
+      "id": "child_glass",
+      "label": "Small glass",
+      "asset": "glass",
+      "color": "blue",
+      "x": 50,
+      "y": 50,
+      "size": 13,
+      "targetId": "slot_left_glass"
+    },
+    {
+      "id": "child_cutlery",
+      "label": "Small cutlery",
+      "asset": "fork",
+      "color": "blue",
+      "x": 50,
+      "y": 50,
+      "size": 13,
+      "targetId": "slot_left_cutlery"
+    },
+    {
+      "id": "mom_plate",
+      "label": "Medium plate",
+      "asset": "plate",
+      "color": "pink",
+      "x": 50,
+      "y": 50,
+      "size": 17,
+      "targetId": "slot_right_plate"
+    },
+    {
+      "id": "mom_glass",
+      "label": "Medium glass",
+      "asset": "glass",
+      "color": "pink",
+      "x": 50,
+      "y": 50,
+      "size": 17,
+      "targetId": "slot_right_glass"
+    },
+    {
+      "id": "mom_cutlery",
+      "label": "Medium cutlery",
+      "asset": "fork",
+      "color": "pink",
+      "x": 50,
+      "y": 50,
+      "size": 17,
+      "targetId": "slot_right_cutlery"
+    }
+  ],
+  "targets": [
+    {
+      "id": "slot_left_glass",
+      "label": "Glass",
+      "shape": "circle",
+      "x": 29,
+      "y": 35,
+      "w": 15,
+      "h": 9
+    },
+    {
+      "id": "slot_left_plate",
+      "label": "Plate",
+      "shape": "circle",
+      "x": 29,
+      "y": 49,
+      "w": 20,
+      "h": 13
+    },
+    {
+      "id": "slot_left_cutlery",
+      "label": "Cutlery",
+      "shape": "rect",
+      "x": 13,
+      "y": 49,
+      "w": 10,
+      "h": 13
+    },
+    {
+      "id": "slot_right_glass",
+      "label": "Glass",
+      "shape": "circle",
+      "x": 71,
+      "y": 35,
+      "w": 15,
+      "h": 9
+    },
+    {
+      "id": "slot_right_plate",
+      "label": "Plate",
+      "shape": "circle",
+      "x": 71,
+      "y": 49,
+      "w": 20,
+      "h": 13
+    },
+    {
+      "id": "slot_right_cutlery",
+      "label": "Cutlery",
+      "shape": "rect",
+      "x": 87,
+      "y": 49,
+      "w": 10,
+      "h": 13
+    }
+  ],
+  "success": { "kind": "all_placed" },
+  "monster": { "trigger": "on_complete", "intervention": "none" },
+  "personalization": { "source": "favorite_color", "transform": "none" },
+  "table": {
+    "containers": [
+      {
+        "id": "cupboard_left",
+        "label": "Top cupboard",
+        "kind": "cupboard",
+        "x": 26,
+        "y": 22,
+        "w": 30,
+        "h": 18,
+        "contents": ["mom_glass", "decoy_glass"]
+      },
+      {
+        "id": "cupboard_right",
+        "label": "Top cupboard",
+        "kind": "cupboard",
+        "x": 70,
+        "y": 22,
+        "w": 30,
+        "h": 18,
+        "contents": ["child_plate", "decoy_plate"]
+      },
+      {
+        "id": "drawer_top",
+        "label": "Top drawer",
+        "kind": "drawer",
+        "x": 27,
+        "y": 58,
+        "w": 34,
+        "h": 8,
+        "contents": ["child_cutlery"]
+      },
+      {
+        "id": "drawer_bottom",
+        "label": "Bottom drawer",
+        "kind": "drawer",
+        "x": 27,
+        "y": 69,
+        "w": 34,
+        "h": 8,
+        "contents": ["mom_cutlery", "decoy_fork"]
+      },
+      {
+        "id": "cupboard_low",
+        "label": "Low cupboard",
+        "kind": "cupboard",
+        "x": 72,
+        "y": 65,
+        "w": 30,
+        "h": 20,
+        "contents": ["mom_plate", "child_glass"]
+      }
+    ],
+    "decoys": [
+      { "id": "decoy_plate", "label": "Giant plate", "asset": "plate" },
+      { "id": "decoy_glass", "label": "Giant glass", "asset": "glass" },
+      { "id": "decoy_fork", "label": "Giant cutlery", "asset": "fork" }
+    ],
+    "owners": {
+      "child_plate": "child",
+      "child_glass": "child",
+      "child_cutlery": "child",
+      "mom_plate": "mom",
+      "mom_glass": "mom",
+      "mom_cutlery": "mom"
+    },
+    "sides": {
+      "slot_left_glass": "left",
+      "slot_left_plate": "left",
+      "slot_left_cutlery": "left",
+      "slot_right_glass": "right",
+      "slot_right_plate": "right",
+      "slot_right_cutlery": "right"
+    },
+    "childSide": "random",
+    "childFallbackColor": "blue",
+    "motherColors": ["red", "purple", "pink", "green", "orange", "yellow"],
+    "doors": { "toDining": { "x": 86, "y": 44 }, "toKitchen": { "x": 13, "y": 15 } },
+    "lightSwitch": { "x": 89, "y": 15 },
+    "dark": { "eyesMs": 4000, "shakeMs": 7000, "scareMs": 9000 },
+    "checkpointAt": 3,
+    "food": { "enabled": true, "question": "What's your favorite food?" },
+    "swap": { "enabled": true },
+    "hints": {
+      "kitchen": "Find two of everything: small for you ⭐, medium for mommy 👗.",
+      "dining": "Whose place is whose? Turn off the light to see.",
+      "dark": "Remember the marks… then turn the light back on.",
+      "finish": "Finish setting the table for two."
+    },
+    "lines": {
+      "decoy": "That one isn't for you. Not yet.",
+      "needAll": "You haven't found everything yet.",
+      "wrong": "Something isn't right. Look again… in the dark.",
+      "scare": "Too long in the dark. Again.",
+      "swap": "Did you move those? I didn't.",
+      "final": "How nice. Now we're all here."
+    }
+  }
+}

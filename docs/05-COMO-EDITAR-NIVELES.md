@@ -6,8 +6,9 @@ Cada nivel es **un archivo `.json`** en `src/game/levels/data/`. El orden de la 
 src/game/levels/data/
 ├── story.json          ← qué nivel se juega en cada tarea
 ├── tidy_toys.json      ← Tarea 1: recoger juguetes (roles, poseído, escondite)
-├── set_table.json      ← Tarea 2: poner la mesa
+├── table_for_three.json ← Tarea 2: la mesa para tres (Minijuego 02)
 ├── bedtime.json        ← Tarea 3: linterna
+├── set_table.json      ← mesa simple anterior (plantilla, ya no está en la historia)
 └── tidy_toys_drag.json ← versión simple de recoger juguetes (plantilla)
 ```
 
@@ -63,5 +64,22 @@ El test **"level files"** falla si algún nivel tiene un error (campo que falta,
 | `place_items` | Cada objeto a su hueco | `set_table.json` |
 | `flashlight_find` | Habitación a oscuras, mover la linterna y tocar lo iluminado | `bedtime.json` |
 | `tidy_roles` | Recoger juguetes con roles por orden (cojín, cajón, poseído, escondite) | `tidy_toys.json` |
+| `table_for_three` | Cocina (armarios → bandeja) + comedor (luz para colocar, oscuridad para ver de quién es cada sitio), pregunta de comida, intercambio, tercer servicio | `table_for_three.json` |
+
+### Qué se puede tocar en `table_for_three.json` (bloque `table`)
+
+| Campo | Para qué |
+|---|---|
+| `containers` | Armarios/cajones de la cocina: posición (`x`,`y`,`w`,`h` en %) y qué hay dentro (`contents`: ids de piezas y de señuelos). Cada pieza tiene que estar en un solo sitio |
+| `decoys` | Vajilla gigante (señuelo): nunca se puede coger |
+| `owners` / `sides` | De quién es cada pieza y en qué lado está cada hueco (3 y 3, una de cada tipo) |
+| `childSide` | `"left"`, `"right"` o `"random"` (cambia cada partida) |
+| `motherColors` | Colores posibles del vestido de mamá |
+| `dark` | Milisegundos a oscuras hasta los ojos (`eyesMs`), el temblor (`shakeMs`) y el susto (`scareMs`) |
+| `checkpointAt` | Cuántas piezas bien hacen el checkpoint (y lanzan la pregunta de comida) |
+| `food.enabled` / `swap.enabled` | Activar o quitar la pregunta de comida y el intercambio |
+| `hints` / `lines` | Todos los textos de pistas y del monstruo |
+
+Las posiciones de los huecos de la mesa son los `targets` del nivel (`x`,`y`,`w`,`h` en %). El editor todavía no tiene un panel específico para este tipo: el bloque `table` se edita en el JSON y se prueba con **Playtest** en `/editor` o jugando.
 
 Para un tipo de minijuego **nuevo** sí hace falta código (componente en `src/components/minigames/` + registro en `MINIGAME_REGISTRY`): pedídmelo.

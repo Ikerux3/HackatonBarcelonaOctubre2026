@@ -1,19 +1,26 @@
 import { z } from "zod";
 
-import type { AIAdapter, AIRequest, AIResponse } from "./contracts";
+import {
+  FOOD_CATEGORIES,
+  type AIAdapter,
+  type AIRequest,
+  type AIResponse,
+  type FoodCategory,
+} from "./contracts";
 import { interpretAnswerAI } from "./interpret.functions";
 
 export const LIVE_TIMEOUT_MS = 5000;
 
 const responseSchema = z.object({
-  questionType: z.enum(["favorite_color", "favorite_toy"]),
+  questionType: z.enum(["favorite_color", "favorite_toy", "favorite_food"]),
   normalizedColor: z
     .enum(["red", "blue", "yellow", "green", "purple", "pink", "orange", "other"])
     .optional(),
   normalizedToy: z.enum(["doll", "teddy", "dinosaur", "car", "robot", "ball", "other"]).optional(),
+  normalizedFood: z.enum(FOOD_CATEGORIES as [FoodCategory, ...FoodCategory[]]).optional(),
   monsterLine: z.string().trim().min(1).max(140),
   displayAnswer: z.string().trim().min(1).max(40).optional(),
-  puzzleVariant: z.enum(["color_removed", "toy_shadow"]),
+  puzzleVariant: z.enum(["color_removed", "toy_shadow", "food_shown"]),
   fallbackUsed: z.boolean(),
 });
 

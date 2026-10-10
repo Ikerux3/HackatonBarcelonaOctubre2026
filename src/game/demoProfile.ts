@@ -135,7 +135,11 @@ export function parseProfileJson(text: string): ProfileResult {
       version: 1,
       story: s.story,
       aiMode,
-      scriptedLines: { favorite_color: line("favorite_color"), favorite_toy: line("favorite_toy") },
+      scriptedLines: {
+        favorite_color: line("favorite_color"),
+        favorite_toy: line("favorite_toy"),
+        favorite_food: line("favorite_food"),
+      },
       drafts,
     },
   };

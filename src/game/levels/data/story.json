@@ -1,8 +1,8 @@
 {
   "story": {
     "task_one": "tidy_toys",
-    "task_two": "set_table",
+    "task_two": "table_for_three",
     "task_three": "bedtime"
   },
-  "editorOrder": ["tidy_toys", "set_table", "bedtime", "tidy_toys_drag"]
+  "editorOrder": ["tidy_toys", "set_table", "bedtime", "tidy_toys_drag", "table_for_three"]
 }

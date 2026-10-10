@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useReducer, useRef } from "react";
 
 import { interpretAnswerSafe } from "@/ai/aiAdapter";
-import type { GuestRequest, QuestionType } from "@/ai/contracts";
+import type { FoodCategory, GuestRequest, QuestionType } from "@/ai/contracts";
 import { decideGuest } from "@/ai/guestAdapter";
 import { ruleGuestDecision } from "@/ai/guestFacts";
 import {
@@ -26,6 +26,7 @@ function buildGuestRequest(s: GameState, level: LevelConfig): GuestRequest {
     memory: {
       ...(s.memory.favoriteColor ? { favoriteColor: s.memory.favoriteColor } : {}),
       ...(s.memory.favoriteToy ? { favoriteToy: s.memory.favoriteToy } : {}),
+      ...(s.memory.favoriteFood ? { favoriteFood: s.memory.favoriteFood } : {}),
       ...(prev.lastColor ? { lastRunColor: prev.lastColor } : {}),
       ...(prev.lastToy ? { lastRunToy: prev.lastToy } : {}),
     },
@@ -131,6 +132,10 @@ export function useGameController() {
     dispatch({ type: "SET_NAME", name });
   }, []);
 
+  const rememberFood = useCallback((favoriteFood: FoodCategory) => {
+    dispatch({ type: "REMEMBER", favoriteFood });
+  }, []);
+
   const replay = useCallback(() => {
     sfx.click();
     dispatch({ type: "REPLAY" });
@@ -146,5 +151,6 @@ export function useGameController() {
     replay,
     requestGuest,
     ensureGuest,
+    rememberFood,
   };
 }

@@ -1,4 +1,4 @@
-import type { NormalizedColor, ToyCategory } from "@/ai/contracts";
+import type { FoodCategory, NormalizedColor, ToyCategory } from "@/ai/contracts";
 
 /** Fixed asset catalogue. Levels and the AI may only pick from this list. */
 export const ASSETS = {
@@ -35,6 +35,23 @@ export const COLOR_HEX: Record<NormalizedColor, string> = {
   other: "#9a9a9a",
 };
 export const COLORS = Object.keys(COLOR_HEX) as NormalizedColor[];
+
+/** Favorite food → what appears on the table (not one of the pieces to place). */
+export const FOOD_EMOJI: Record<FoodCategory, string> = {
+  pizza: "🍕",
+  pasta: "🍝",
+  burger: "🍔",
+  soup: "🍲",
+  cake: "🍰",
+  ice_cream: "🍨",
+  fruit: "🍎",
+  chicken: "🍗",
+  fish: "🐟",
+  sushi: "🍣",
+  cheese: "🧀",
+  salad: "🥗",
+  other: "🍲",
+};
 
 /** Toy categories → silhouette asset. Unknown toys fall back to the teddy. */
 export const TOY_ASSET: Record<ToyCategory, AssetId> = {

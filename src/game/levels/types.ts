@@ -193,12 +193,92 @@ export interface TidyRolesLevel extends LevelBase {
   tidy: TidyOptions;
 }
 
+// ── table_for_three (Minigame 02 "La mesa para tres") ──
+
+export type TableOwner = "child" | "mom";
+export type TableSide = "left" | "right";
+export type KitchenContainerKind = "cupboard" | "drawer";
+
+/** A cupboard or drawer in the kitchen view; tapping it shows what's inside. */
+export interface KitchenContainer {
+  id: string;
+  label: string;
+  kind: KitchenContainerKind;
+  /** box in % of the scene */
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  /** object ids (the 6 pieces) and decoy ids it holds */
+  contents: string[];
+}
+
+/** Giant piece in the kitchen: never collectable, never counts. Mom's guest's, not yours. */
+export interface TableDecoy {
+  id: string;
+  label: string;
+  asset: AssetId;
+}
+
+export interface TableOptions {
+  containers: KitchenContainer[];
+  decoys: TableDecoy[];
+  /** owner of each object (piece): one plate, one glass, one cutlery each */
+  owners: Record<string, TableOwner>;
+  /** side of the table of each target (slot): one plate, glass and cutlery slot per side */
+  sides: Record<string, TableSide>;
+  /** where the child sits; "random" = new each run — the marks in the dark tell */
+  childSide: TableSide | "random";
+  /** child's pieces use the favorite color; this one if it's unknown */
+  childFallbackColor: NormalizedColor;
+  /** mother's dress color, picked at random each run (may match the child's) */
+  motherColors: NormalizedColor[];
+  doors: { toDining: Point; toKitchen: Point };
+  lightSwitch: Point;
+  /** ms with the light off before the eyes, the warning shake and the full scare */
+  dark: { eyesMs: number; shakeMs: number; scareMs: number };
+  /** correct pieces that make the checkpoint (and trigger the food question) */
+  checkpointAt: number;
+  food: { enabled: boolean; question: string };
+  /** after leaving and coming back (or before the last check) the monster swaps two pieces */
+  swap: { enabled: boolean };
+  hints: { kitchen: string; dining: string; dark: string; finish: string };
+  lines: {
+    decoy: string;
+    needAll: string;
+    wrong: string;
+    scare: string;
+    swap: string;
+    final: string;
+  };
+}
+
+/**
+ * Kitchen → collect 6 pieces into the tray; dining → place them. The light shows the
+ * table, the dark shows whose place is whose. Objects = the 6 pieces (asset plate/glass/fork);
+ * targets = the 6 slots (a target's kind = the kind of the object that points at it).
+ */
+export interface TableForThreeLevel extends LevelBase {
+  type: "table_for_three";
+  table: TableOptions;
+}
+
 export type LevelConfig =
-  DragToTargetLevel | PlaceItemsLevel | FlashlightFindLevel | TidyRolesLevel;
+  DragToTargetLevel | PlaceItemsLevel | FlashlightFindLevel | TidyRolesLevel | TableForThreeLevel;
 export type MinigameType = LevelConfig["type"];
 export const MINIGAME_TYPES: MinigameType[] = [
   "drag_to_target",
   "place_items",
   "flashlight_find",
   "tidy_roles",
+  "table_for_three",
 ];
+
+/** Table pieces: plate / glass / cutlery, by asset. */
+export type TableKind = "plate" | "glass" | "cutlery";
+export function tableKind(asset: AssetId): TableKind | null {
+  if (asset === "plate") return "plate";
+  if (asset === "glass") return "glass";
+  if (asset === "fork" || asset === "spoon") return "cutlery";
+  return null;
+}

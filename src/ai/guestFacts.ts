@@ -29,11 +29,15 @@ export function describeObservations(req: GuestRequest): string[] {
     facts.push(`Lost the light ${o.blackoutsSuffered} more time(s) while the toy ran around.`);
   if (o.flashlightMisses > 0)
     facts.push(`Tapped at things in the dark without lighting them ${o.flashlightMisses} time(s).`);
+  if (o.fullScares > 0)
+    facts.push(`Stayed in the dark too long and got caught by you ${o.fullScares} time(s).`);
   const m = req.memory;
   if (m.favoriteColor && m.favoriteColor !== "other")
     facts.push(`Said their favorite color is ${m.favoriteColor}.`);
   if (m.favoriteToy && m.favoriteToy !== "other")
     facts.push(`Said their favorite childhood toy was a ${m.favoriteToy}.`);
+  if (m.favoriteFood && m.favoriteFood !== "other")
+    facts.push(`Said their favorite food is ${m.favoriteFood.replace("_", " ")}.`);
   if (o.previousVisits > 0) {
     facts.push(`Has been in this house before (${o.previousVisits} earlier night(s)).`);
     if (m.lastRunColor && m.lastRunColor !== "other")

@@ -1,4 +1,4 @@
-import type { GuestDecision, NormalizedColor, ToyCategory } from "@/ai/contracts";
+import type { FoodCategory, GuestDecision, NormalizedColor, ToyCategory } from "@/ai/contracts";
 
 // Explicit game stages — one active stage at a time, no loose boolean flags.
 export type GameStage =
@@ -21,6 +21,8 @@ export type GameStage =
 export interface GameMemory {
   favoriteColor?: NormalizedColor;
   favoriteToy?: ToyCategory;
+  /** asked by the monster in the middle of the table-for-three task */
+  favoriteFood?: FoodCategory;
   /** validated locally, session memory only — never sent to the AI */
   playerName?: string;
 }
@@ -65,6 +67,8 @@ export type GameAction =
       displayAnswer?: string;
     }
   | { type: "GUEST_DECISION"; slot: GuestSlot; decision: GuestDecision }
+  /** a minigame learned something (e.g. the favorite food asked mid-task) */
+  | { type: "REMEMBER"; favoriteFood: FoodCategory }
   | { type: "REPLAY" };
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
@@ -137,6 +141,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return state.guest[action.slot]
         ? state
         : { ...state, guest: { ...state.guest, [action.slot]: action.decision } };
+
+    case "REMEMBER":
+      return { ...state, memory: { ...state.memory, favoriteFood: action.favoriteFood } };
 
     case "REPLAY":
       return initialGameState;

@@ -5,6 +5,7 @@ import {
   MINIGAME_TYPES,
   SCENE_THEMES,
   TIDY_ROLES,
+  tableKind,
   zoneCovers,
   type HideSpotKind,
   type LevelConfig,
@@ -149,7 +150,8 @@ export function validateLevel(input: unknown): ValidationResult {
           const slots = Array.isArray(p.slots) ? p.slots : [];
           if (slots.length < 3 || slots.length > 4 || !slots.every(pt))
             e.push("tidy.possessed.slots needs 3–4 points (0–100).");
-          if (!pt(p.mainSwitch) || !pt(p.lamp)) e.push("tidy.possessed switch/lamp x/y must be 0–100.");
+          if (!pt(p.mainSwitch) || !pt(p.lamp))
+            e.push("tidy.possessed switch/lamp x/y must be 0–100.");
           const mz = Array.isArray(p.mainZones) ? p.mainZones : [];
           const lz = Array.isArray(p.lampZones) ? p.lampZones : [];
           if (!mz.every(zone) || !lz.every(zone) || mz.length + lz.length === 0)
@@ -162,10 +164,13 @@ export function validateLevel(input: unknown): ValidationResult {
             });
           }
           if (!isNum(p.maxBlackouts, 1, 3)) e.push("tidy.possessed.maxBlackouts must be 1–3.");
-          if (!isNum(p.safeWindowMs, 3000, 60000)) e.push("tidy.possessed.safeWindowMs must be 3000–60000.");
+          if (!isNum(p.safeWindowMs, 3000, 60000))
+            e.push("tidy.possessed.safeWindowMs must be 3000–60000.");
           if (!isNum(p.moveMs, 400, 5000)) e.push("tidy.possessed.moveMs must be 400–5000.");
-          if (!isNum(p.hintAfterMs, 3000, 120000)) e.push("tidy.possessed.hintAfterMs must be 3000–120000.");
-          if (!txt(p.possessLine) || !txt(p.freezeLine)) e.push("tidy.possessed lines must be text (max 140).");
+          if (!isNum(p.hintAfterMs, 3000, 120000))
+            e.push("tidy.possessed.hintAfterMs must be 3000–120000.");
+          if (!txt(p.possessLine) || !txt(p.freezeLine))
+            e.push("tidy.possessed lines must be text (max 140).");
         }
       }
       if (roles.includes("hide_seek")) {
@@ -177,13 +182,17 @@ export function validateLevel(input: unknown): ValidationResult {
             spots.length !== 3 ||
             !spots.every(
               (s: Loose) =>
-                pt(s) && typeof s.label === "string" && s.label.length <= 40 &&
+                pt(s) &&
+                typeof s.label === "string" &&
+                s.label.length <= 40 &&
                 HIDE_SPOT_KINDS.includes(s.kind as HideSpotKind),
             )
           )
             e.push("tidy.hideSeek.spots needs exactly 3 spots (label, kind, x/y 0–100).");
-          if (!isNum(h.hintAfterMs, 3000, 120000)) e.push("tidy.hideSeek.hintAfterMs must be 3000–120000.");
-          if (!txt(h.hintLine) || !txt(h.wrongLine)) e.push("tidy.hideSeek lines must be text (max 140).");
+          if (!isNum(h.hintAfterMs, 3000, 120000))
+            e.push("tidy.hideSeek.hintAfterMs must be 3000–120000.");
+          if (!txt(h.hintLine) || !txt(h.wrongLine))
+            e.push("tidy.hideSeek lines must be text (max 140).");
         }
         if (roles.indexOf("hide_seek") !== roles.length - 1)
           e.push("hide_seek must be the last step.");
@@ -194,6 +203,8 @@ export function validateLevel(input: unknown): ValidationResult {
         e.push("tidy_roles needs a target with shape box.");
     }
   }
+
+  if (l.type === "table_for_three") validateTable(l, objects, targets, e);
 
   if (!isObj(l.success)) e.push("success condition is required.");
   else if (l.success.kind === "min_placed") {
@@ -228,6 +239,124 @@ export function validateLevel(input: unknown): ValidationResult {
   }
 
   return e.length ? { ok: false, errors: e } : { ok: true, level: input as unknown as LevelConfig };
+}
+
+/** table_for_three: every piece findable exactly once, 3+3 pieces/slots of each kind, sane timers. */
+function validateTable(l: Loose, objects: Loose[], targets: Loose[], e: string[]) {
+  const t = l.table;
+  if (!isObj(t)) {
+    e.push("table options are required.");
+    return;
+  }
+  const pt = (v: unknown) => isObj(v) && isNum(v.x, 0, 100) && isNum(v.y, 0, 100);
+  const txt = (v: unknown, max = 140) => typeof v === "string" && v.length <= max;
+  const objs = objects.filter(isObj);
+  const kindOf = new Map<string, string | null>(
+    objs.map((o: Loose) => [
+      o.id,
+      typeof o.asset === "string" ? tableKind(o.asset as never) : null,
+    ]),
+  );
+
+  objs.forEach((o: Loose) => {
+    if (!kindOf.get(o.id)) e.push(`table: object "${o.id}" must use asset plate, glass or fork.`);
+  });
+  const used = objs.map((o: Loose) => o.targetId);
+  if (used.some((x: unknown, i: number) => used.indexOf(x) !== i))
+    e.push("table: each slot (target) must be the target of exactly one object.");
+
+  // owners: one plate, glass and cutlery each
+  const owners = isObj(t.owners) ? t.owners : {};
+  for (const owner of ["child", "mom"]) {
+    const kinds = objs
+      .filter((o: Loose) => owners[o.id] === owner)
+      .map((o: Loose) => kindOf.get(o.id));
+    if (kinds.length !== 3 || new Set(kinds).size !== 3)
+      e.push(`table.owners: "${owner}" needs exactly one plate, one glass and one cutlery.`);
+  }
+  // sides: one slot of each kind per side
+  const sides = isObj(t.sides) ? t.sides : {};
+  const slotKind = (id: string) => kindOf.get(objs.find((o: Loose) => o.targetId === id)?.id);
+  for (const side of ["left", "right"]) {
+    const kinds = targets
+      .filter((x: Loose) => isObj(x) && sides[x.id] === side)
+      .map((x: Loose) => slotKind(x.id));
+    if (kinds.length !== 3 || new Set(kinds).size !== 3)
+      e.push(`table.sides: "${side}" needs exactly one plate, one glass and one cutlery slot.`);
+  }
+  if (!["left", "right", "random"].includes(t.childSide as string))
+    e.push("table.childSide must be left, right or random.");
+
+  // containers: every piece exactly once, decoys known
+  const decoys = Array.isArray(t.decoys) ? t.decoys : [];
+  const decoyIds = new Set<string>();
+  decoys.forEach((d: Loose, i: number) => {
+    if (
+      !isObj(d) ||
+      !isStr(d.id) ||
+      typeof d.label !== "string" ||
+      !(typeof d.asset === "string" && d.asset in ASSETS)
+    )
+      e.push(`table decoy #${i + 1} needs id, label and a known asset.`);
+    else decoyIds.add(d.id);
+  });
+  const containers = Array.isArray(t.containers) ? t.containers : [];
+  if (containers.length === 0) e.push("table.containers needs at least one cupboard or drawer.");
+  const seen: string[] = [];
+  containers.forEach((c: Loose, i: number) => {
+    const n = `table container #${i + 1}`;
+    if (!isObj(c)) return void e.push(`${n} is not an object.`);
+    if (!isStr(c.id) || typeof c.label !== "string") e.push(`${n} needs id and label.`);
+    if (!["cupboard", "drawer"].includes(c.kind as string))
+      e.push(`${n}: kind must be cupboard or drawer.`);
+    if (!pt(c) || !isNum(c.w, 4, 100) || !isNum(c.h, 4, 100)) e.push(`${n}: x/y 0–100, w/h 4–100.`);
+    const contents = Array.isArray(c.contents) ? c.contents : [];
+    contents.forEach((id: unknown) => {
+      if (typeof id !== "string" || (!kindOf.has(id) && !decoyIds.has(id)))
+        e.push(`${n}: unknown content "${String(id)}".`);
+      else seen.push(id);
+    });
+  });
+  objs.forEach((o: Loose) => {
+    const count = seen.filter((s) => s === o.id).length;
+    if (count !== 1)
+      e.push(`table: piece "${o.id}" must be in exactly one container (found ${count}).`);
+  });
+
+  if (!(typeof t.childFallbackColor === "string" && t.childFallbackColor in COLOR_HEX))
+    e.push("table.childFallbackColor must be a known color.");
+  const mc = Array.isArray(t.motherColors) ? t.motherColors : [];
+  if (
+    mc.length === 0 ||
+    mc.some((c: unknown) => !(typeof c === "string" && c in COLOR_HEX && c !== "other"))
+  )
+    e.push("table.motherColors needs at least one known color.");
+  if (!isObj(t.doors) || !pt(t.doors.toDining) || !pt(t.doors.toKitchen))
+    e.push("table.doors.toDining/toKitchen x/y must be 0–100.");
+  if (!pt(t.lightSwitch)) e.push("table.lightSwitch x/y must be 0–100.");
+  const d = t.dark;
+  if (
+    !isObj(d) ||
+    !isNum(d.eyesMs, 500, 60000) ||
+    !isNum(d.shakeMs, 500, 60000) ||
+    !isNum(d.scareMs, 1000, 60000) ||
+    !(d.eyesMs < d.shakeMs && d.shakeMs < d.scareMs)
+  )
+    e.push("table.dark needs eyesMs < shakeMs < scareMs (ms, 500–60000).");
+  if (!isNum(t.checkpointAt, 1, 5)) e.push("table.checkpointAt must be 1–5.");
+  if (!isObj(t.food) || typeof t.food.enabled !== "boolean" || !txt(t.food.question, 80))
+    e.push("table.food needs enabled (true/false) and question (max 80).");
+  if (!isObj(t.swap) || typeof t.swap.enabled !== "boolean")
+    e.push("table.swap needs enabled (true/false).");
+  const h = t.hints;
+  if (!isObj(h) || !["kitchen", "dining", "dark", "finish"].every((k) => txt(h[k], 100)))
+    e.push("table.hints needs kitchen, dining, dark, finish (max 100).");
+  const ln = t.lines;
+  if (
+    !isObj(ln) ||
+    !["decoy", "needAll", "wrong", "scare", "swap", "final"].every((k) => txt(ln[k]))
+  )
+    e.push("table.lines needs decoy, needAll, wrong, scare, swap, final (max 140).");
 }
 
 export function parseLevelJson(text: string): ValidationResult {

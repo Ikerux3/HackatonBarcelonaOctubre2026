@@ -8,11 +8,13 @@ const SCRIPT_KEY = "mwbb.editor.scripted.v1";
 export interface ScriptedLines {
   favorite_color: string;
   favorite_toy: string;
+  favorite_food: string;
 }
 
 export const DEFAULT_SCRIPTED: ScriptedLines = {
   favorite_color: "That color… I'll keep it safe for you. In the dark.",
   favorite_toy: "It's been waiting under your bed. It missed you.",
+  favorite_food: "I made it just for you. Eat it all up.",
 };
 
 const isMode = (v: unknown): v is AIMode => AI_MODES.includes(v as AIMode);
@@ -55,6 +57,10 @@ export function getScriptedLines(): ScriptedLines {
         typeof raw?.favorite_toy === "string" && raw.favorite_toy
           ? raw.favorite_toy
           : DEFAULT_SCRIPTED.favorite_toy,
+      favorite_food:
+        typeof raw?.favorite_food === "string" && raw.favorite_food
+          ? raw.favorite_food
+          : DEFAULT_SCRIPTED.favorite_food,
     };
   } catch {
     return DEFAULT_SCRIPTED;

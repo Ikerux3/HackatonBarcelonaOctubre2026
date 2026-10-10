@@ -50,6 +50,7 @@ function GameScreenInner() {
     replay,
     requestGuest,
     ensureGuest,
+    rememberFood,
   } = useGameController();
   // saved demo story (validated, per-slot fallback to built-in); read after hydration
   const [story, setStory] = useState<StoryLevels>(STORY_LEVELS);
@@ -214,6 +215,7 @@ function GameScreenInner() {
           memory={state.memory}
           dark={dark}
           {...(isTask ? { onComplete: completeTask, onSkip: completeTask } : {})}
+          onRememberFood={rememberFood}
         />
 
         {isTask && plan && (

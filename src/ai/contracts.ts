@@ -1,14 +1,45 @@
 // Shared AI contract — agreed with the AI service developer.
 // The real interpretation service must implement AIAdapter using these types.
 
-export type QuestionType = "favorite_color" | "favorite_toy";
+export type QuestionType = "favorite_color" | "favorite_toy" | "favorite_food";
 
 export type NormalizedColor =
   "red" | "blue" | "yellow" | "green" | "purple" | "pink" | "orange" | "other";
 
 export type ToyCategory = "doll" | "teddy" | "dinosaur" | "car" | "robot" | "ball" | "other";
 
-export type PuzzleVariant = "color_removed" | "toy_shadow";
+/** Edible things only — "a wheel" is "other", "a cheese wheel" is "cheese". */
+export type FoodCategory =
+  | "pizza"
+  | "pasta"
+  | "burger"
+  | "soup"
+  | "cake"
+  | "ice_cream"
+  | "fruit"
+  | "chicken"
+  | "fish"
+  | "sushi"
+  | "cheese"
+  | "salad"
+  | "other";
+export const FOOD_CATEGORIES: FoodCategory[] = [
+  "pizza",
+  "pasta",
+  "burger",
+  "soup",
+  "cake",
+  "ice_cream",
+  "fruit",
+  "chicken",
+  "fish",
+  "sushi",
+  "cheese",
+  "salad",
+  "other",
+];
+
+export type PuzzleVariant = "color_removed" | "toy_shadow" | "food_shown";
 
 export interface AIRequest {
   questionType: QuestionType;
@@ -16,6 +47,7 @@ export interface AIRequest {
   memory: {
     favoriteColor?: NormalizedColor;
     favoriteToy?: ToyCategory;
+    favoriteFood?: FoodCategory;
   };
 }
 
@@ -23,6 +55,7 @@ export interface AIResponse {
   questionType: QuestionType;
   normalizedColor?: NormalizedColor;
   normalizedToy?: ToyCategory;
+  normalizedFood?: FoodCategory;
   monsterLine: string;
   /**
    * Short, clean paraphrase of the answer (max 4 words, e.g. "Rex the dinosaur", "sky blue").
@@ -66,6 +99,8 @@ export interface GuestObservations {
   lightUsed: "main" | "lamp" | "both" | null;
   secondsToFreeze: number | null;
   flashlightMisses: number;
+  /** times the monster caught them for staying in the dark too long (full scare) */
+  fullScares: number;
   /** earlier runs on this device (0 = first time) */
   previousVisits: number;
 }
@@ -77,6 +112,7 @@ export interface GuestRequest {
   memory: {
     favoriteColor?: NormalizedColor;
     favoriteToy?: ToyCategory;
+    favoriteFood?: FoodCategory;
     /** answers from the previous run on this device, if any */
     lastRunColor?: NormalizedColor;
     lastRunToy?: ToyCategory;
