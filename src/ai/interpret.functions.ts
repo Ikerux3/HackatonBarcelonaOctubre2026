@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import type { AIResponse } from "./contracts";
+import { isUnsafePlayerAnswer } from "./playerAnswerSafety";
 
 const COLORS = ["red", "blue", "yellow", "green", "purple", "pink", "orange", "other"] as const;
 const TOYS = ["doll", "teddy", "dinosaur", "car", "robot", "ball", "other"] as const;
@@ -58,6 +59,33 @@ const words = (s: string) => s.toLowerCase().match(/[\p{L}\p{N}]{4,}/gu) ?? [];
 export const interpretAnswerAI = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => requestSchema.parse(data))
   .handler(async ({ data }): Promise<AIResponse> => {
+    if (isUnsafePlayerAnswer(data.answer)) {
+      const safe = {
+        monsterLine: "Let's leave that answer in the dark.",
+        fallbackUsed: true,
+      };
+      if (data.questionType === "favorite_color")
+        return {
+          questionType: "favorite_color",
+          normalizedColor: "other",
+          puzzleVariant: "color_removed",
+          ...safe,
+        };
+      if (data.questionType === "favorite_food")
+        return {
+          questionType: "favorite_food",
+          normalizedFood: "other",
+          puzzleVariant: "food_shown",
+          ...safe,
+        };
+      return {
+        questionType: "favorite_toy",
+        normalizedToy: "other",
+        puzzleVariant: "toy_shadow",
+        ...safe,
+      };
+    }
+
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) throw new Error("AI not configured");
     const question = QUESTIONS[data.questionType];
