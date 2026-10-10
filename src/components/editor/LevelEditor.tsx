@@ -30,6 +30,7 @@ import { ASSETS, ASSET_IDS, COLORS, COLOR_HEX, type AssetId } from "@/game/level
 import {
   BEDTIME,
   BUILT_IN_LEVELS,
+  MOM_ROOM,
   MUSIC_BOX,
   SET_TABLE,
   STORY_LEVELS,
@@ -38,6 +39,7 @@ import {
 } from "@/game/levels/defaultLevels";
 import type {
   FlashlightOptions,
+  MomRoomOptions,
   MusicBoxOptions,
   TidyOptions,
   TidyRole,
@@ -172,6 +174,7 @@ export function LevelEditor() {
       task_one: pick("task_one"),
       task_two: pick("task_two"),
       task_music: pick("task_music"),
+      task_mom: pick("task_mom"),
       task_three: pick("task_three"),
     };
   };
@@ -498,7 +501,7 @@ export function LevelEditor() {
             Reset to built-in
           </button>
         </div>
-        <div className="grid gap-3 md:grid-cols-4">
+        <div className="grid gap-3 md:grid-cols-5">
           {STORY_SLOTS.map((slot, i) => (
             <label key={slot} className={label}>
               {slot} {storyChecks[i]!.ok ? "" : "⚠ invalid — built-in will play"}
@@ -659,6 +662,21 @@ export function LevelEditor() {
                       l.musicBox.sequence = null; // the template's symbols may not exist here
                     } else {
                       delete (l as { musicBox?: unknown }).musicBox;
+                    }
+                    if (l.type === "mom_room") {
+                      if (!l.momRoom) {
+                        // the template's marks, put on this level's own objects
+                        const base = clone((MOM_ROOM as { momRoom: MomRoomOptions }).momRoom);
+                        const marks = Object.values(base.marks);
+                        const ids = l.objects.map((o) => o.id);
+                        base.marks = Object.fromEntries(
+                          ids.map((id, i) => [id, marks[i % marks.length]!]),
+                        );
+                        base.order = ids;
+                        l.momRoom = base;
+                      }
+                    } else {
+                      delete (l as { momRoom?: unknown }).momRoom;
                     }
                   })
                 }

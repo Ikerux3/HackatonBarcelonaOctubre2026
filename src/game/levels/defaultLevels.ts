@@ -42,6 +42,7 @@ export const SET_TABLE = levelById("set_table");
 export const BEDTIME = levelById("bedtime");
 export const TIDY_TOYS_DRAG = levelById("tidy_toys_drag");
 export const MUSIC_BOX = levelById("music_box");
+export const MOM_ROOM = levelById("mom_room");
 
 /** Editor list: manifest order first (keeps saved "builtin-N" keys stable), then any new files. */
 export const BUILT_IN_LEVELS: LevelConfig[] = [
@@ -57,5 +58,6 @@ export const STORY_LEVELS = {
   task_one: levelById(manifest.story.task_one),
   task_two: levelById(manifest.story.task_two),
   task_music: levelById(manifest.story.task_music),
+  task_mom: levelById(manifest.story.task_mom),
   task_three: levelById(manifest.story.task_three),
 } as const;

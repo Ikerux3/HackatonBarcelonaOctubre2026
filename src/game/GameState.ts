@@ -21,7 +21,9 @@ export type GameStage =
   | "blackout_two"
   | "question_two"
   | "task_music" // Minigame 03: the music box (Simon, song only visible in the dark)
-  | "blackout_music" // lights out again, no question: straight to bedtime
+  | "blackout_music" // lights out again, no question
+  | "task_mom" // Minigame 04: mom's voice calls the child's name, locked in her room
+  | "blackout_mom" // lights out again, no question: straight to bedtime
   | "task_three" // bedtime: flashlight, favorite toy evades
   | "blackout_three" // final blackout
   | "goodnight_whisper" // total darkness, the monster whispers the name once
@@ -60,14 +62,20 @@ export const TASK_STAGES: readonly GameStage[] = [
   "task_one",
   "task_two",
   "task_music",
+  "task_mom",
   "task_three",
 ];
 /** Leaving this task freezes Cordura for the ending (the bathroom/pajama one in the 5-level plan). */
 const LAST_TASK: GameStage = "task_three";
 
 /** Tasks The Guest plans for, during the blackout before them. */
-export type GuestSlot = "task_two" | "task_music" | "task_three";
-export const GUEST_SLOTS: readonly GuestSlot[] = ["task_two", "task_music", "task_three"];
+export type GuestSlot = "task_two" | "task_music" | "task_mom" | "task_three";
+export const GUEST_SLOTS: readonly GuestSlot[] = [
+  "task_two",
+  "task_music",
+  "task_mom",
+  "task_three",
+];
 
 export const initialGameState: GameState = {
   stage: "intro",
@@ -122,6 +130,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         task_one: "blackout_one",
         task_two: "blackout_two",
         task_music: "blackout_music",
+        task_mom: "blackout_mom",
         task_three: "blackout_three",
       };
       const stage = next[state.stage];
@@ -147,6 +156,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             ? { ...state, stage: "task_music", monsterLine: null }
             : state;
         case "blackout_music":
+          return { ...state, stage: "task_mom", monsterLine: null };
+        case "blackout_mom":
           return { ...state, stage: "task_three", monsterLine: null };
         case "blackout_three":
           return { ...state, stage: "goodnight_whisper" };

@@ -3,6 +3,7 @@
     "task_one": "tidy_toys",
     "task_two": "table_for_three",
     "task_music": "music_box",
+    "task_mom": "mom_room",
     "task_three": "bedtime"
   },
   "editorOrder": [
@@ -11,6 +12,7 @@
     "bedtime",
     "tidy_toys_drag",
     "table_for_three",
-    "music_box"
+    "music_box",
+    "mom_room"
   ]
 }

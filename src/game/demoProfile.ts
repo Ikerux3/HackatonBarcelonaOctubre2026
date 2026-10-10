@@ -7,10 +7,16 @@ import { validateLevel } from "./levels/validate";
 // Everything read from storage or files is untrusted and validated; any bad slot
 // falls back to its built-in level so the player route can never break.
 
-export const STORY_SLOTS = ["task_one", "task_two", "task_music", "task_three"] as const;
+export const STORY_SLOTS = [
+  "task_one",
+  "task_two",
+  "task_music",
+  "task_mom",
+  "task_three",
+] as const;
 export type StorySlot = (typeof STORY_SLOTS)[number];
 /** Slots added after profiles were already being saved: missing → built-in, not an error. */
-const LATER_SLOTS: readonly StorySlot[] = ["task_music"];
+const LATER_SLOTS: readonly StorySlot[] = ["task_music", "task_mom"];
 
 export interface StorySlotEntry {
   /** editor entry key it was chosen from (builtin-N or draft key) — informational */

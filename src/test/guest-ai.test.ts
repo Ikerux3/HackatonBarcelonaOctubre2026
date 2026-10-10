@@ -36,6 +36,13 @@ describe("The Guest", () => {
     expect(facts.join(" ")).toContain("small lamp");
   });
 
+  it("names each finished task in story order (five tasks)", () => {
+    const facts = describeObservations(request({ taskSeconds: [30, 40, 50, 25, 70] })).join(" ");
+    expect(facts).toContain("Took 50 s playing back the music box.");
+    expect(facts).toContain("Took 25 s getting out of mom's room.");
+    expect(facts).toContain("Took 70 s getting ready for bed (slow, hesitant).");
+  });
+
   it("offline rules react to what the player did and only pick allowed actions", () => {
     const d = ruleGuestDecision(request({ firstHideSpot: "Behind the sofa" }));
     expect(allowedGuestActions(SET_TABLE)).toContain(d.action);

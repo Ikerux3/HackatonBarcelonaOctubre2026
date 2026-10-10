@@ -214,7 +214,7 @@ describe("music box minigame (UI)", () => {
 
 describe("story order with the music box", () => {
   const run = (s: GameState, ...a: GameAction[]) => a.reduce(gameReducer, s);
-  it("toys → table → music box → bedtime, with its own blackout and no question", () => {
+  it("toys → table → music box → mom's room → bedtime, blackouts without questions", () => {
     const afterToy = run(
       initialGameState,
       { type: "START" },
@@ -237,7 +237,13 @@ describe("story order with the music box", () => {
     expect(s.stage).toBe("blackout_music");
     expect(s.cordura.final).toBeNull();
     s = run(s, { type: "ADVANCE" });
+    expect(s.stage).toBe("task_mom");
+    // Cordura counts in mom's room too, still not frozen when leaving it
+    s = run(s, { type: "CORDURA_TICK", light: "dark", ms: 2000 }, { type: "TASK_DONE" });
+    expect(s.stage).toBe("blackout_mom");
+    expect(s.cordura.final).toBeNull();
+    s = run(s, { type: "ADVANCE" });
     expect(s.stage).toBe("task_three");
-    expect(run(s, { type: "TASK_DONE" }).cordura.final).toBe(1);
+    expect(run(s, { type: "TASK_DONE" }).cordura.final).toBe(2);
   });
 });

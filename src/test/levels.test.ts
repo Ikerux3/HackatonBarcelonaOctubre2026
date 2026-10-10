@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { STORY_SLOTS } from "@/game/demoProfile";
 import manifest from "@/game/levels/data/story.json";
 import { BUILT_IN_LEVELS, LEVEL_FILE_ERRORS, STORY_LEVELS } from "@/game/levels/defaultLevels";
 import { validateLevel } from "@/game/levels/validate";
@@ -12,7 +13,7 @@ describe("level files", () => {
   });
 
   it("story.json points at existing, valid levels for every slot", () => {
-    for (const slot of ["task_one", "task_two", "task_music", "task_three"] as const) {
+    for (const slot of STORY_SLOTS) {
       const level = STORY_LEVELS[slot];
       expect(level.id, `story.${slot}`).toBe(manifest.story[slot]);
       expect(validateLevel(level).ok, `story.${slot} = "${level.id}"`).toBe(true);

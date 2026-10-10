@@ -206,6 +206,7 @@ export function validateLevel(input: unknown): ValidationResult {
 
   if (l.type === "table_for_three") validateTable(l, objects, targets, e);
   if (l.type === "music_box") validateMusicBox(l, objects, e);
+  if (l.type === "mom_room") validateMomRoom(l, objects, e);
 
   if (!isObj(l.success)) e.push("success condition is required.");
   else if (l.success.kind === "min_placed") {
@@ -407,6 +408,63 @@ function validateMusicBox(l: Loose, objects: Loose[], e: string[]) {
   const ln = m.lines;
   if (!isObj(ln) || !["start", "round", "wrong", "key", "done"].every((k) => txt(ln[k])))
     e.push("musicBox.lines needs start, round, wrong, key, done (max 140).");
+}
+
+/** mom_room: every clue object has one distinct mark, the card orders all of them, the panel can type the code. */
+function validateMomRoom(l: Loose, objects: Loose[], e: string[]) {
+  const m = l.momRoom;
+  if (!isObj(m)) {
+    e.push("momRoom options are required.");
+    return;
+  }
+  const pt = (v: unknown) => isObj(v) && isNum(v.x, 0, 100) && isNum(v.y, 0, 100);
+  const txt = (v: unknown, max = 140) => typeof v === "string" && v.length <= max;
+  const asset = (v: unknown) => typeof v === "string" && v in ASSETS;
+  const ids = objects.filter(isObj).map((o: Loose) => o.id as string);
+  if (ids.length < 2 || ids.length > 4)
+    e.push("mom_room needs 2–4 objects (the clue objects on the nightstand).");
+  const marks = isObj(m.marks) ? m.marks : {};
+  if (!ids.every((id) => asset(marks[id])))
+    e.push("momRoom.marks needs a known asset for every clue object.");
+  const markList = ids.map((id) => marks[id]);
+  if (new Set(markList).size !== markList.length)
+    e.push("momRoom.marks must all be different (one mark per object).");
+  const order = Array.isArray(m.order) ? m.order : [];
+  if (
+    order.length !== ids.length ||
+    new Set(order).size !== order.length ||
+    !order.every((id: unknown) => ids.includes(id as string))
+  )
+    e.push("momRoom.order must list every clue object exactly once.");
+  const panel = Array.isArray(m.panel) ? m.panel : [];
+  if (
+    panel.length < 2 ||
+    panel.length > 6 ||
+    !panel.every(asset) ||
+    new Set(panel).size !== panel.length
+  )
+    e.push("momRoom.panel needs 2–6 different known assets.");
+  else if (!markList.every((mk) => panel.includes(mk)))
+    e.push("momRoom.panel must include every mark, or the code can't be typed.");
+  for (const k of ["door", "wardrobe", "card", "drawer", "lightSwitch"])
+    if (!pt(m[k])) e.push(`momRoom.${k} x/y must be 0–100.`);
+  const h = m.hints;
+  if (!isObj(h) || !["call", "room", "dark", "key"].every((k) => txt(h[k], 100)))
+    e.push("momRoom.hints needs call, room, dark, key (max 100).");
+  const ln = m.lines;
+  const lineKeys = [
+    "call",
+    "locked",
+    "card",
+    "tooDark",
+    "wrong",
+    "drawer",
+    "wardrobe",
+    "leaving",
+    "blackout",
+  ];
+  if (!isObj(ln) || !lineKeys.every((k) => txt(ln[k])))
+    e.push(`momRoom.lines needs ${lineKeys.join(", ")} (max 140).`);
 }
 
 export function parseLevelJson(text: string): ValidationResult {

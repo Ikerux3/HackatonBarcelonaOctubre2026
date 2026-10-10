@@ -8,6 +8,8 @@ interface Props {
   decision: GuestDecision;
   shadow: boolean;
   flicker: boolean;
+  /** hold everything back while the task opens with its own scripted voice (mom's room) */
+  delayMs?: number;
 }
 
 /**
@@ -15,23 +17,23 @@ interface Props {
  * watching), and optionally a silhouette crossing the room or a stuttering light.
  * Purely visual — never blocks input.
  */
-export function GuestOverlay({ decision, shadow, flicker }: Props) {
+export function GuestOverlay({ decision, shadow, flicker, delayMs = 0 }: Props) {
   const [showLine, setShowLine] = useState(false);
   const [passing, setPassing] = useState(false);
   useGuestVoice(decision.line, showLine);
 
   useEffect(() => {
-    const timers = [setTimeout(() => setShowLine(true), 1200)];
+    const timers = [setTimeout(() => setShowLine(true), delayMs + 1200)];
     if (shadow)
       timers.push(
         setTimeout(() => {
           sfx.hum();
           setPassing(true);
-        }, 3800),
-        setTimeout(() => setPassing(false), 6600),
+        }, delayMs + 3800),
+        setTimeout(() => setPassing(false), delayMs + 6600),
       );
     return () => timers.forEach(clearTimeout);
-  }, [shadow]);
+  }, [shadow, delayMs]);
 
   return (
     <div className="pointer-events-none absolute inset-0 z-[60] overflow-hidden">

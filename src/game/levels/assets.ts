@@ -24,6 +24,12 @@ export const ASSETS = {
   star: { emoji: "⭐", label: "Star" },
   bell: { emoji: "🔔", label: "Bell" },
   heart: { emoji: "❤️", label: "Heart" },
+  // mom's room: the clue objects on her nightstand and the marks drawn on them
+  photo: { emoji: "🖼️", label: "Photo" },
+  little_box: { emoji: "🎁", label: "Little box" },
+  clock: { emoji: "⏰", label: "Clock" },
+  flower: { emoji: "🌸", label: "Flower" },
+  eye: { emoji: "👁️", label: "Eye" },
 } as const;
 
 export type AssetId = keyof typeof ASSETS;

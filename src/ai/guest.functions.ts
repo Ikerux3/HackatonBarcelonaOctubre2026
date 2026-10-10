@@ -24,7 +24,8 @@ const count = z.number().int().min(0).max(999);
 const requestSchema = z.object({
   allowedActions: z.array(z.enum(ACTIONS)).min(1).max(ACTIONS.length),
   observations: z.object({
-    taskSeconds: z.array(count).max(3),
+    // one per finished task: five in the story (toys, table, music box, mom's room, bed)
+    taskSeconds: z.array(count).max(5),
     restarts: count,
     wrongDrops: count,
     firstHideSpot: z.string().max(40).nullable(),

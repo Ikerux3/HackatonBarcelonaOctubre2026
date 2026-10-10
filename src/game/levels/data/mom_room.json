@@ -1,0 +1,80 @@
+{
+  "id": "mom_room",
+  "title": "Mom's room",
+  "type": "mom_room",
+  "instructions": "Mom's room",
+  "theme": "bedroom",
+  "objects": [
+    {
+      "id": "photo",
+      "label": "Mom's photo",
+      "asset": "photo",
+      "color": "pink",
+      "x": 64,
+      "y": 55,
+      "size": 13,
+      "targetId": "nightstand"
+    },
+    {
+      "id": "little_box",
+      "label": "Little box",
+      "asset": "little_box",
+      "color": "purple",
+      "x": 76,
+      "y": 55,
+      "size": 13,
+      "targetId": "nightstand"
+    },
+    {
+      "id": "clock",
+      "label": "Clock",
+      "asset": "clock",
+      "color": "yellow",
+      "x": 88,
+      "y": 55,
+      "size": 13,
+      "targetId": "nightstand"
+    }
+  ],
+  "targets": [
+    {
+      "id": "nightstand",
+      "label": "Nightstand",
+      "shape": "rect",
+      "x": 76,
+      "y": 66,
+      "w": 36,
+      "h": 12
+    }
+  ],
+  "success": { "kind": "all_placed" },
+  "monster": { "trigger": "on_complete", "intervention": "none" },
+  "personalization": { "source": "none", "transform": "none" },
+  "momRoom": {
+    "marks": { "photo": "flower", "little_box": "moon", "clock": "eye" },
+    "order": ["photo", "little_box", "clock"],
+    "panel": ["moon", "eye", "flower"],
+    "door": { "x": 49, "y": 31 },
+    "wardrobe": { "x": 82, "y": 31 },
+    "card": { "x": 23, "y": 37 },
+    "drawer": { "x": 76, "y": 67 },
+    "lightSwitch": { "x": 64, "y": 22 },
+    "hints": {
+      "call": "Mom is calling you…",
+      "room": "The door shut behind you. Find a way out.",
+      "dark": "Something is drawn on mom's things…",
+      "key": "You have the key. Open the door."
+    },
+    "lines": {
+      "call": "{name}, come here a moment.",
+      "locked": "It's locked.",
+      "card": "A card on mom's vanity, in her handwriting:",
+      "tooDark": "It's too dark to see that.",
+      "wrong": "No, no, {name}. That's not it.",
+      "drawer": "Click. The drawer slides open…",
+      "wardrobe": "Don't open that one, sweetie.",
+      "leaving": "{name}… leaving already?",
+      "blackout": "It's almost bedtime…"
+    }
+  }
+}

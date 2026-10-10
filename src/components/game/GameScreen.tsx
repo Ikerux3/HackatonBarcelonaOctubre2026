@@ -45,6 +45,9 @@ const QUESTIONS = {
 /** how long the "evento 100" scare covers the scene */
 const SCARE_100_MS = 1600;
 
+/** mom's room opens with mom's borrowed voice calling the name (D45): The Guest's own line waits */
+const MOM_CALL_GRACE_MS = 8000;
+
 /** QA only: `?debug=1&cordura=95` starts the bar there, to test the 100 event quickly. */
 function debugCorduraStart(): number | undefined {
   const q = new URLSearchParams(window.location.search);
@@ -62,9 +65,30 @@ const SLOT_OF_STAGE: Partial<Record<GameStage, GuestSlot | "task_one">> = {
   question_two: "task_two",
   task_music: "task_music",
   blackout_music: "task_music",
+  task_mom: "task_mom",
+  blackout_mom: "task_mom",
   task_three: "task_three",
   blackout_three: "task_three",
 };
+
+/** What The Guest says in the blackout after each task (levels may supply their own). */
+function blackoutLine(stage: GameStage, story: StoryLevels): string {
+  const one = story.task_one;
+  const music = story.task_music;
+  const mom = story.task_mom;
+  switch (stage) {
+    case "blackout_one":
+      return (one.type === "tidy_roles" && one.tidy.completeLine) || "The lights went out…";
+    case "blackout_two":
+      return "It's back…";
+    case "blackout_music":
+      return (music.type === "music_box" && music.musicBox.lines.done) || "It's quiet now…";
+    case "blackout_mom":
+      return (mom.type === "mom_room" && mom.momRoom.lines.blackout) || "It's almost bedtime…";
+    default:
+      return "Lights out. Good night…";
+  }
+}
 
 /** Mom's dress palette comes from the table level in the story (if any). */
 function motherPalette(story: StoryLevels) {
@@ -116,16 +140,19 @@ function GameScreenInner() {
       st === "blackout_one" ||
       st === "blackout_two" ||
       st === "blackout_music" ||
+      st === "blackout_mom" ||
       st === "blackout_three"
     )
       observe.taskEnd();
     // ask the model while the lights are out and the player answers the question
     if (st === "blackout_one") requestGuest("task_two", s.task_two);
     if (st === "blackout_two") requestGuest("task_music", s.task_music);
-    if (st === "blackout_music") requestGuest("task_three", s.task_three);
+    if (st === "blackout_music") requestGuest("task_mom", s.task_mom);
+    if (st === "blackout_mom") requestGuest("task_three", s.task_three);
     // never start a task without a plan: rules decide if the model is late
     if (st === "task_two") ensureGuest("task_two", s.task_two);
     if (st === "task_music") ensureGuest("task_music", s.task_music);
+    if (st === "task_mom") ensureGuest("task_mom", s.task_mom);
     if (st === "task_three") ensureGuest("task_three", s.task_three);
     if (st === "ending") rememberRun(state.memory.favoriteColor, state.memory.favoriteToy);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -148,7 +175,7 @@ function GameScreenInner() {
     if (st === "ending" || st === "mom_returns" || st === "unsettling_detail") {
       stopMusicBox(true);
       stopDrone();
-    } else if (st === "blackout_music") {
+    } else if (st === "blackout_music" || st === "task_mom" || st === "blackout_mom") {
       // the player just silenced the music box (Minigame 03): only the drone until bedtime
       stopMusicBox();
     } else {
@@ -292,6 +319,7 @@ function GameScreenInner() {
     stage === "blackout_one" ||
     stage === "blackout_two" ||
     stage === "blackout_music" ||
+    stage === "blackout_mom" ||
     stage === "blackout_three";
   const isTask = TASK_STAGES.includes(stage);
   const slot = SLOT_OF_STAGE[stage] ?? "task_three";
@@ -341,7 +369,12 @@ function GameScreenInner() {
         )}
 
         {isTask && plan && (
-          <GuestOverlay key={slot} decision={plan} {...guestOverlay(level, plan.action)} />
+          <GuestOverlay
+            key={slot}
+            decision={plan}
+            {...guestOverlay(level, plan.action)}
+            delayMs={level.type === "mom_room" ? MOM_CALL_GRACE_MS : 0}
+          />
         )}
 
         {isBlackout && (
@@ -350,19 +383,7 @@ function GameScreenInner() {
               minimumMs={BLACKOUT_MS}
               maxWaitMs={BLACKOUT_MAX_MS}
               onReadyToAdvance={advance}
-              line={
-                stage === "blackout_one"
-                  ? story.task_one.type === "tidy_roles"
-                    ? story.task_one.tidy.completeLine || "The lights went out…"
-                    : "The lights went out…"
-                  : stage === "blackout_two"
-                    ? "It's back…"
-                    : stage === "blackout_music"
-                      ? story.task_music.type === "music_box"
-                        ? story.task_music.musicBox.lines.done || "It's quiet now…"
-                        : "It's quiet now…"
-                      : "Lights out. Good night…"
-              }
+              line={blackoutLine(stage, story)}
             />
           </div>
         )}

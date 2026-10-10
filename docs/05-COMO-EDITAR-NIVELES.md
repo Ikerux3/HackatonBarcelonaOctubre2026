@@ -8,6 +8,7 @@ src/game/levels/data/
 ├── tidy_toys.json      ← Tarea 1: recoger juguetes (roles, poseído, escondite)
 ├── table_for_three.json ← Tarea 2: la mesa para tres (Minijuego 02)
 ├── music_box.json      ← Tarea 3: la caja de música (Minijuego 03, slot task_music)
+├── mom_room.json       ← Tarea 4: el cuarto de mamá (Minijuego 04, slot task_mom)
 ├── bedtime.json        ← última tarea: dormir con linterna (slot task_three)
 ├── set_table.json      ← mesa simple anterior (plantilla, ya no está en la historia)
 └── tidy_toys_drag.json ← versión simple de recoger juguetes (plantilla)
@@ -36,13 +37,14 @@ src/game/levels/data/
     "task_one": "tidy_toys",
     "task_two": "kitchen_mess",
     "task_music": "music_box",
+    "task_mom": "mom_room",
     "task_three": "bedtime"
   },
-  "editorOrder": ["tidy_toys", "set_table", "bedtime", "tidy_toys_drag", "table_for_three", "music_box"]
+  "editorOrder": ["tidy_toys", "set_table", "bedtime", "tidy_toys_drag", "table_for_three", "music_box", "mom_room"]
 }
 ```
 
-**Orden de la partida** (los nombres de los slots son fijos; el nivel de cada uno lo eliges tú): `task_one` → apagón + pregunta del color → `task_two` → apagón + pregunta del juguete → **`task_music`** → apagón (sin pregunta) → `task_three` (la última: al salir se congela la Cordura) → final.
+**Orden de la partida** (los nombres de los slots son fijos; el nivel de cada uno lo eliges tú): `task_one` → apagón + pregunta del color → `task_two` → apagón + pregunta del juguete → **`task_music`** → apagón (sin pregunta) → **`task_mom`** → apagón (sin pregunta) → `task_three` (la última: al salir se congela la Cordura) → final.
 
 > No borres ni renombres los archivos de serie: el editor los usa como plantillas. Para variaciones, **copia** el archivo con otro `id`. Si añades un archivo nuevo, ponlo **al final** de `editorOrder` (el editor guarda las elecciones como "builtin-N" por posición).
 
@@ -70,6 +72,22 @@ El test **"level files"** falla si algún nivel tiene un error (campo que falta,
 | `tidy_roles` | Recoger juguetes con roles por orden (cojín, cajón, poseído, escondite) | `tidy_toys.json` |
 | `table_for_three` | Cocina (armarios → bandeja) + comedor (luz para colocar, oscuridad para ver de quién es cada sitio), pregunta de comida, intercambio, tercer servicio | `table_for_three.json` |
 | `music_box` | Simón: la canción (qué símbolos brillan y en qué orden) **solo se ve con la luz apagada** y **solo se toca con la luz encendida**; rondas acumulativas que se guardan; al final, girar la llave | `music_box.json` |
+| `mom_room` | La voz de mamá (imitada) te llama por tu nombre y te encierra en su cuarto: a oscuras se ven marcas sobre los objetos de la mesita; con luz se lee la tarjeta del orden y se teclea el código del cajón → llave → puerta | `mom_room.json` |
+
+### Qué se puede tocar en `mom_room.json` (bloque `momRoom`)
+
+Los **objetos con pista** son los `objects` del nivel (2–4; de serie foto, cajita y reloj sobre la mesita) y la mesita es el `target`.
+
+| Campo | Para qué |
+|---|---|
+| `marks` | La marca que aparece **solo a oscuras** sobre cada objeto (id del objeto → asset). De serie `photo → flower`, `little_box → moon`, `clock → eye`. Todas distintas |
+| `order` | La tarjeta del tocador: los objetos en orden. **El código = sus marcas en ese orden** (de serie flor → luna → ojo). Tiene que nombrar cada objeto una vez |
+| `panel` | Los botones del panel del cajón, en el orden en que se ven (2–6). Tiene que incluir todas las marcas; puedes añadir señuelos. No lo pongas en el orden del código |
+| `door` / `wardrobe` / `card` / `drawer` / `lightSwitch` | Posiciones (% de la escena) de la puerta, el armario, la tarjeta, el panel del cajón (ahí aparece la llave) y el interruptor. Deja libre la franja 73–89 % de alto (subtítulo del Invitado) |
+| `hints` | Ayuda arriba: en el pasillo (`call`), con luz (`room`), a oscuras (`dark`), con la llave (`key`) |
+| `lines` | `call` (la llamada del pasillo), `locked`, `card` (título de la tarjeta), `tooDark`, `wrong` (código mal), `drawer`, `wardrobe`, `leaving` (al salir, desde el armario) y `blackout` (frase del apagón siguiente). Escribe `{name}` donde va el nombre del jugador |
+
+**El nombre (D45)**: El Invitado lo dice **por primera vez aquí**, con la voz de mamá imitada (`call`, `wrong`, `wardrobe` y `leaving` suenan con la voz `mom_impostor`). No pongas `{name}` en niveles anteriores: un test lo comprueba. Fallar el código no cuesta nada; la llave, una vez cogida, no se pierde (ni con el evento 100 de la Cordura).
 
 ### Qué se puede tocar en `music_box.json` (bloque `musicBox`)
 
@@ -101,6 +119,6 @@ Fallar un símbolo solo borra lo tecleado en esa ronda (sin susto ni Cordura); a
 | `hints` / `lines` | Todos los textos de pistas y del monstruo. `hints.howTo` (opcional, hasta 4 pasos) es la tarjeta "Setting the table" que sale la primera vez en el comedor |
 | `motherColors` | Colores posibles del vestido de mamá: se sortea **uno al pulsar Play** y se usa igual en toda la partida |
 
-Las posiciones de los huecos de la mesa son los `targets` del nivel (`x`,`y`,`w`,`h` en %). El editor todavía no tiene un panel específico para `table_for_three` ni `music_box`: sus bloques se editan en el JSON (en el editor se pueden mover los símbolos y la caja arrastrando) y se prueban con **Playtest** en `/editor` o jugando.
+Las posiciones de los huecos de la mesa son los `targets` del nivel (`x`,`y`,`w`,`h` en %). El editor todavía no tiene un panel específico para `table_for_three`, `music_box` ni `mom_room`: sus bloques se editan en el JSON (en el editor se pueden mover los símbolos y la caja arrastrando) y se prueban con **Playtest** en `/editor` o jugando.
 
 Para un tipo de minijuego **nuevo** sí hace falta código (componente en `src/components/minigames/` + registro en `MINIGAME_REGISTRY`): pedídmelo.

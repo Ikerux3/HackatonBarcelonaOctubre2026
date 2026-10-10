@@ -5,6 +5,7 @@ import { observe } from "@/game/observer";
 import type { MinigameType } from "@/game/levels/types";
 import { DragMinigame } from "./DragMinigame";
 import { FlashlightMinigame } from "./FlashlightMinigame";
+import { MomRoomMinigame } from "./MomRoomMinigame";
 import { MusicBoxMinigame } from "./MusicBoxMinigame";
 import { TableForThreeMinigame } from "./TableForThreeMinigame";
 import { TidyRolesMinigame } from "./TidyRolesMinigame";
@@ -18,6 +19,7 @@ export const MINIGAME_REGISTRY: Record<MinigameType, ComponentType<MinigameProps
   tidy_roles: TidyRolesMinigame,
   table_for_three: TableForThreeMinigame,
   music_box: MusicBoxMinigame,
+  mom_room: MomRoomMinigame,
 };
 
 interface HostProps extends MinigameProps {

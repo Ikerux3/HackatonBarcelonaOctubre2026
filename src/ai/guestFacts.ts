@@ -6,7 +6,14 @@ import type { GuestAction, GuestDecision, GuestRequest } from "./contracts";
 export function describeObservations(req: GuestRequest): string[] {
   const o = req.observations;
   const facts: string[] = [];
-  const tasks = ["tidying the toys", "setting the table", "getting ready for bed"];
+  // story order (GameState TASK_STAGES): a level swapped in the editor is still "a chore"
+  const tasks = [
+    "tidying the toys",
+    "setting the table",
+    "playing back the music box",
+    "getting out of mom's room",
+    "getting ready for bed",
+  ];
   o.taskSeconds.forEach((s, i) => {
     const pace = s >= 60 ? " (slow, hesitant)" : s <= 20 ? " (fast, rushing)" : "";
     facts.push(`Took ${s} s ${tasks[i] ?? "on a chore"}${pace}.`);

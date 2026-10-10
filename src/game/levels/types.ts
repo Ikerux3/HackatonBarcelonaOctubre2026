@@ -300,13 +300,54 @@ export interface MusicBoxLevel extends LevelBase {
   musicBox: MusicBoxOptions;
 }
 
+// ── mom_room (Minigame 04 "El cuarto de mamá", Drive D39 → D42/D45) ──
+
+export interface MomRoomOptions {
+  /** the mark drawn on each clue object, only visible in the dark (object id → asset) */
+  marks: Record<string, AssetId>;
+  /** the card on the vanity: the clue objects in order — the code is their marks in this order */
+  order: string[];
+  /** the drawer panel's buttons, in display order (must hold every mark; extras are decoys) */
+  panel: AssetId[];
+  /** hotspots, % of the scene */
+  door: Point;
+  wardrobe: Point;
+  card: Point;
+  drawer: Point;
+  lightSwitch: Point;
+  hints: { call: string; room: string; dark: string; key: string };
+  /** `{name}` = the player's (locally validated) name — D45: first said by The Guest here */
+  lines: {
+    call: string;
+    locked: string;
+    card: string;
+    tooDark: string;
+    wrong: string;
+    drawer: string;
+    wardrobe: string;
+    leaving: string;
+    blackout: string;
+  };
+}
+
+/**
+ * The Guest calls with mom's voice and locks the child in her room. The marks on the clue
+ * objects (objects) only show with the light OFF; the vanity card and the drawer panel only
+ * work with the light ON. Code → drawer → key → door. Targets = the nightstand.
+ */
+export interface MomRoomLevel extends LevelBase {
+  type: "mom_room";
+  momRoom: MomRoomOptions;
+}
+
 export type LevelConfig =
   | DragToTargetLevel
   | PlaceItemsLevel
   | FlashlightFindLevel
   | TidyRolesLevel
   | TableForThreeLevel
-  | MusicBoxLevel;
+  | MusicBoxLevel
+  | MomRoomLevel;
 export type MinigameType = LevelConfig["type"];
 export const MINIGAME_TYPES: MinigameType[] = [
   "drag_to_target",
@@ -315,6 +356,7 @@ export const MINIGAME_TYPES: MinigameType[] = [
   "tidy_roles",
   "table_for_three",
   "music_box",
+  "mom_room",
 ];
 
 /** Table pieces: plate / glass / cutlery, by asset. */
