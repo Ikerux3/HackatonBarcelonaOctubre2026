@@ -1,5 +1,6 @@
 import type { FoodCategory, GuestDecision, NormalizedColor, ToyCategory } from "@/ai/contracts";
 import {
+  corduraStartingAt,
   freezeCordura,
   initialCordura,
   scareCordura,
@@ -72,7 +73,8 @@ export const initialGameState: GameState = {
 };
 
 export type GameAction =
-  | { type: "START"; motherColor?: NormalizedColor }
+  /** `cordura`: QA start value for the bar (debug only) */
+  | { type: "START"; motherColor?: NormalizedColor; cordura?: number }
   | { type: "SET_NAME"; name: string }
   | { type: "TASK_DONE" }
   | { type: "ADVANCE" } // blackout timers / monster dialogue continue
@@ -99,6 +101,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...initialGameState,
         stage: "intro_name",
         memory: action.motherColor ? { motherColor: action.motherColor } : {},
+        cordura: action.cordura !== undefined ? corduraStartingAt(action.cordura) : initialCordura,
       };
 
     case "SET_NAME":

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { sfx } from "@/game/audio";
 import { ASSETS, COLOR_HEX, type AssetId } from "@/game/levels/assets";
 import { useCameraShake } from "@/game/cameraShake";
-import { useCorduraLight } from "@/game/cordura";
+import { useCordura100, useCorduraLight } from "@/game/cordura";
 import { observe } from "@/game/observer";
 import { zoneCovers, type Point, type SceneObject, type TidyOptions } from "@/game/levels/types";
 import type { MinigameProps } from "./types";
@@ -137,6 +137,17 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
   useCorduraLight(done ? null : lights.main || lights.lamp ? "lit" : "dark");
   const possRef = useRef(poss);
   possRef.current = poss;
+  // D44: the bar hit 100 → only the current toy's step restarts (toys already in the box
+  // stay): the drag is dropped, the possessed toy hops away again, the main light comes on
+  useCordura100(() => {
+    if (done) return;
+    setDrag(null);
+    setSelected(null);
+    const cur = possRef.current;
+    if (P && cur && P.slots.length > 1) setPoss({ ...cur, slot: (cur.slot + 1) % P.slots.length });
+    setLights({ main: true, lamp: false });
+    lastLightOnRef.current = Date.now();
+  });
 
   // ── hide and seek (role 5) ──
   const H = tidy?.hideSeek;

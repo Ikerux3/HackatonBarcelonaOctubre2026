@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, renderHook, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -7,16 +7,23 @@ import { EndingSequence } from "@/components/game/EndingSequence";
 import { GuestVoiceProvider } from "@/components/game/GuestVoice";
 import {
   CORDURA_RULES,
+  CorduraContext,
   corduraEnding,
   finalCordura,
   freezeCordura,
   initialCordura,
   scareCordura,
   tickCordura,
+  useCordura100,
+  type CorduraReporter,
 } from "@/game/cordura";
+import { useGameController } from "@/game/GameController";
 import { gameReducer, initialGameState, type GameAction, type GameState } from "@/game/GameState";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 // The ending scenes speak The Guest's lines (Flash's GuestVoice): they need the provider
 // GameShell gives them, and jsdom has no speech synthesis, so stub a silent one.
@@ -52,10 +59,10 @@ const scares = (s: GameState, n: number) =>
   run(s, ...Array.from({ length: n }, (): GameAction => ({ type: "FULL_SCARE" })));
 
 /** a run that has reached the last minigame */
-function atLastTask(): GameState {
+function atLastTask(cordura?: number): GameState {
   const s = run(
     initialGameState,
-    { type: "START", motherColor: "purple" },
+    { type: "START", motherColor: "purple", ...(cordura !== undefined ? { cordura } : {}) },
     { type: "SET_NAME", name: "Unai" },
     { type: "ADVANCE" }, // → task_one
     { type: "TASK_DONE" },
@@ -68,7 +75,7 @@ function atLastTask(): GameState {
     { type: "ADVANCE" }, // → task_three
   );
   expect(s.stage).toBe("task_three");
-  expect(s.cordura.value).toBe(0);
+  expect(s.cordura.value).toBe(cordura ?? 0);
   return s;
 }
 
@@ -187,5 +194,119 @@ describe("Barra de Cordura (Drive D28/D33/D34)", () => {
       />,
     );
     expect(screen.getByText(/Mom found you crying\./)).toBeTruthy();
+  });
+});
+
+describe("evento 100 (Drive D44)", () => {
+  it("reaching 100 in the dark fires ONE event; staying there a minute never loops", () => {
+    let s = spend(atLastTask(96), "dark", CORDURA_RULES.darkMsPerPoint * 3);
+    expect(s.cordura.value).toBe(99);
+    expect(s.cordura.events100).toBe(0);
+    s = spend(s, "dark", CORDURA_RULES.darkMsPerPoint);
+    expect(s.cordura.value).toBe(100);
+    expect(s.cordura.events100).toBe(1);
+    s = spend(s, "dark", 60_000);
+    expect(s.cordura.value).toBe(100);
+    expect(s.cordura.events100).toBe(1);
+  });
+
+  it("re-arms only once the light brings it down to rearmAt, then can fire again", () => {
+    let s = spend(atLastTask(98), "dark", 4000);
+    expect(s.cordura.events100).toBe(1);
+    // a little light (100 → 92) and back to the dark: no second scare
+    s = spend(s, "lit", CORDURA_RULES.litMsPerPoint * 8);
+    expect(s.cordura.value).toBe(92);
+    expect(s.cordura.armed100).toBe(false);
+    s = spend(s, "dark", 20_000);
+    expect(s.cordura.value).toBe(100);
+    expect(s.cordura.events100).toBe(1);
+    // enough light to reach rearmAt (100 → 90), then darkness again: second scare
+    s = spend(s, "lit", CORDURA_RULES.litMsPerPoint * (100 - CORDURA_RULES.rearmAt));
+    expect(s.cordura.value).toBe(CORDURA_RULES.rearmAt);
+    expect(s.cordura.armed100).toBe(true);
+    s = spend(s, "dark", 20_000);
+    expect(s.cordura.events100).toBe(2);
+  });
+
+  it("a minigame's own scare that reaches 100 IS the scare: no chained 100 event", () => {
+    let s = scares(atLastTask(95), 1);
+    expect(s.cordura.value).toBe(100);
+    expect(s.cordura.events100).toBe(0);
+    s = spend(s, "dark", 30_000);
+    expect(s.cordura.events100).toBe(0);
+    // below 100 an own scare doesn't spend the latch
+    expect(scareCordura({ ...initialCordura, value: 50 }).armed100).toBe(true);
+  });
+
+  it("only inside minigames, and nothing after the last one ends", () => {
+    const blackout = run(
+      initialGameState,
+      { type: "START", cordura: 99 },
+      { type: "SET_NAME", name: "Unai" },
+      { type: "ADVANCE" },
+      { type: "TASK_DONE" },
+    );
+    expect(blackout.stage).toBe("blackout_one");
+    expect(spend(blackout, "dark", 10_000).cordura.events100).toBe(0);
+    // ending at 100 → frozen, crying, and no event afterwards
+    const ended = gameReducer(spend(atLastTask(99), "dark", 2000), { type: "TASK_DONE" });
+    expect(ended.cordura.events100).toBe(1);
+    expect(corduraEnding(finalCordura(ended.cordura))).toBe("crying");
+    const later = spend(gameReducer(ended, { type: "ADVANCE" }), "lit", 60_000);
+    expect(spend(later, "dark", 60_000).cordura.events100).toBe(1);
+    // 0 / 64 / 65 still decide the ending the same way
+    expect(corduraEnding(finalCordura(freezeCordura({ ...initialCordura, value: 0 })))).toBe(
+      "scared",
+    );
+    expect(corduraEnding(64)).toBe("scared");
+    expect(corduraEnding(65)).toBe("crying");
+  });
+
+  it("the controller tells the active minigame to reset its phase, once per event", () => {
+    vi.useFakeTimers();
+    const { result } = renderHook(() => useGameController());
+    act(() => result.current.start(["red"], 99));
+    act(() => result.current.setName("Unai"));
+    act(() => result.current.advance());
+    expect(result.current.state.stage).toBe("task_one");
+    const reset = vi.fn();
+    act(() => {
+      result.current.cordura.onEvent100(reset);
+      result.current.cordura.light("dark");
+    });
+    act(() => void vi.advanceTimersByTime(2500));
+    expect(result.current.state.cordura.value).toBe(100);
+    expect(reset).toHaveBeenCalledTimes(1);
+    act(() => void vi.advanceTimersByTime(60_000));
+    expect(reset).toHaveBeenCalledTimes(1);
+  });
+
+  it("useCordura100 registers the minigame's latest handler and unregisters on unmount", () => {
+    const handlers = new Set<() => void>();
+    const reporter: CorduraReporter = {
+      light: () => {},
+      fullScare: () => {},
+      onEvent100: (h) => {
+        handlers.add(h);
+        return () => handlers.delete(h);
+      },
+    };
+    const calls: string[] = [];
+    function Probe({ phase }: { phase: string }) {
+      useCordura100(() => calls.push(phase));
+      return null;
+    }
+    const ui = (phase: string) => (
+      <CorduraContext.Provider value={reporter}>
+        <Probe phase={phase} />
+      </CorduraContext.Provider>
+    );
+    const { rerender, unmount } = render(ui("place"));
+    rerender(ui("place2"));
+    expect(handlers.size).toBe(1);
+    handlers.forEach((h) => h());
+    expect(calls).toEqual(["place2"]);
+    unmount();
+    expect(handlers.size).toBe(0);
   });
 });

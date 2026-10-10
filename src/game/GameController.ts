@@ -70,15 +70,25 @@ export function useGameController() {
   const stateRef = useRef(state);
   stateRef.current = state;
 
-  /** `motherPalette`: colors mom's dress may have this run — one is drawn, once. */
-  const start = useCallback((motherPalette: NormalizedColor[] = DEFAULT_MOTHER_COLORS) => {
-    initAudio();
-    sfx.click();
-    observe.reset();
-    const palette = motherPalette.length ? motherPalette : DEFAULT_MOTHER_COLORS;
-    const motherColor = palette[Math.floor(Math.random() * palette.length)];
-    dispatch({ type: "START", ...(motherColor ? { motherColor } : {}) });
-  }, []);
+  /**
+   * `motherPalette`: colors mom's dress may have this run — one is drawn, once.
+   * `corduraStart`: QA only (`?debug=1&cordura=95`), to reach the 100 event quickly.
+   */
+  const start = useCallback(
+    (motherPalette: NormalizedColor[] = DEFAULT_MOTHER_COLORS, corduraStart?: number) => {
+      initAudio();
+      sfx.click();
+      observe.reset();
+      const palette = motherPalette.length ? motherPalette : DEFAULT_MOTHER_COLORS;
+      const motherColor = palette[Math.floor(Math.random() * palette.length)];
+      dispatch({
+        type: "START",
+        ...(motherColor ? { motherColor } : {}),
+        ...(corduraStart !== undefined ? { cordura: corduraStart } : {}),
+      });
+    },
+    [],
+  );
 
   /** During a blackout: ask The Guest (real model) what it does in the next task. */
   const requestGuest = useCallback((slot: GuestSlot, level: LevelConfig) => {
@@ -105,15 +115,28 @@ export function useGameController() {
 
   // ── Barra de Cordura: the active minigame reports the light, time is counted here ──
   const lightRef = useRef<CorduraLight | null>(null);
+  const event100Handlers = useRef(new Set<() => void>());
   const cordura = useMemo<CorduraReporter>(
     () => ({
       light: (l) => {
         lightRef.current = l;
       },
       fullScare: () => dispatch({ type: "FULL_SCARE" }),
+      onEvent100: (handler) => {
+        event100Handlers.current.add(handler);
+        return () => event100Handlers.current.delete(handler);
+      },
     }),
     [],
   );
+  // D44 "evento 100": the reducer counts it once per climb; the active minigame resets its
+  // current phase right away (behind the scare overlay the game screen shows)
+  const events100 = state.cordura.events100;
+  useEffect(() => {
+    if (events100 === 0) return;
+    observe.fullScare();
+    event100Handlers.current.forEach((reset) => reset());
+  }, [events100]);
   useEffect(() => {
     if (!TASK_STAGES.includes(state.stage)) return;
     let last = Date.now();

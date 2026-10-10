@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext, useEffect, useRef } from "react";
 
 /**
  * Barra de CORDURA (Drive D28/D33/D34, 10 oct): 0–100, a HIGH value means the child is
@@ -12,10 +12,16 @@ export const CORDURA_RULES = {
   fullScare: 10,
   /** +1 for every 2 s with the light off (D28 — never +1 per second) */
   darkMsPerPoint: 2000,
-  /** −1 for every 3 s with the light on: MJ's proposed rate (D36), waiting for Iker's OK */
+  /** −1 for every 3 s with the light on (MJ's D36, ratified by Iker in D43) */
   litMsPerPoint: 3000,
   /** D34: 0–64 mom finds the child a little scared · 65–100 crying and very scared */
   cryingFrom: 65,
+  /**
+   * D44 "evento 100": reaching the max triggers ONE full scare (phase reset). It can only
+   * happen again once the light has brought the bar down to this value — staying at 100
+   * never chains scares. 90 = ~30 s with the light on. MJ may tune it after playtests.
+   */
+  rearmAt: 90,
 } as const;
 
 /** What the player is in right now, as reported by the active minigame. */
@@ -29,11 +35,30 @@ export interface Cordura {
   litMs: number;
   /** set once when the last minigame ends; nothing changes the bar after that */
   final: number | null;
+  /** D44: true while reaching 100 would trigger the scare (re-armed at `rearmAt`) */
+  armed100: boolean;
+  /** how many "evento 100" scares happened this run — the screen reacts when it grows */
+  events100: number;
 }
 
-export const initialCordura: Cordura = { value: 0, darkMs: 0, litMs: 0, final: null };
+export const initialCordura: Cordura = {
+  value: 0,
+  darkMs: 0,
+  litMs: 0,
+  final: null,
+  armed100: true,
+  events100: 0,
+};
 
 const clamp = (v: number) => Math.max(0, Math.min(CORDURA_RULES.max, v));
+
+/** D44 latch: fire once at the top, re-arm only after the light brought it down. */
+function latch100(c: Cordura): Cordura {
+  if (c.armed100 && c.value >= CORDURA_RULES.max)
+    return { ...c, armed100: false, events100: c.events100 + 1 };
+  if (!c.armed100 && c.value <= CORDURA_RULES.rearmAt) return { ...c, armed100: true };
+  return c;
+}
 
 /** `ms` spent in the light or in the dark. */
 export function tickCordura(c: Cordura, light: CorduraLight, ms: number): Cordura {
@@ -44,18 +69,29 @@ export function tickCordura(c: Cordura, light: CorduraLight, ms: number): Cordur
     const value = clamp(c.value + points);
     // at the top nothing is banked: the light starts bringing it down right away
     const darkMs = value === CORDURA_RULES.max ? 0 : banked - points * CORDURA_RULES.darkMsPerPoint;
-    return { ...c, value, darkMs };
+    return latch100({ ...c, value, darkMs });
   }
   const banked = c.litMs + ms;
   const points = Math.floor(banked / CORDURA_RULES.litMsPerPoint);
   const value = clamp(c.value - points);
   // at zero the light can't bank "credit" for later darkness
   const litMs = value === 0 ? 0 : banked - points * CORDURA_RULES.litMsPerPoint;
-  return { ...c, value, litMs };
+  return latch100({ ...c, value, litMs });
 }
 
+/**
+ * A minigame's own full scare (+10). If it is what takes the bar to 100, it already IS the
+ * scare D44 asks for: the latch is spent without firing a second, chained one.
+ */
 export function scareCordura(c: Cordura): Cordura {
-  return c.final !== null ? c : { ...c, value: clamp(c.value + CORDURA_RULES.fullScare) };
+  if (c.final !== null) return c;
+  const value = clamp(c.value + CORDURA_RULES.fullScare);
+  return { ...c, value, armed100: value >= CORDURA_RULES.max ? false : c.armed100 };
+}
+
+/** Dev/QA start value (`?debug=1&cordura=95`), so the 100 event can be tested quickly. */
+export function corduraStartingAt(value: number): Cordura {
+  return { ...initialCordura, value: clamp(Math.round(value)) };
 }
 
 /** Snapshot taken when the last minigame ends. */
@@ -75,9 +111,15 @@ export interface CorduraReporter {
   /** null = not counting (a question, a cutscene, the task is done) */
   light: (light: CorduraLight | null) => void;
   fullScare: () => void;
+  /** the active minigame resets its CURRENT phase when the 100 event fires */
+  onEvent100: (handler: () => void) => () => void;
 }
 
-const NOOP: CorduraReporter = { light: () => {}, fullScare: () => {} };
+const NOOP: CorduraReporter = {
+  light: () => {},
+  fullScare: () => {},
+  onEvent100: () => () => {},
+};
 
 /** Provided by the game screen. Outside it (editor playtest) reports are ignored. */
 export const CorduraContext = createContext<CorduraReporter>(NOOP);
@@ -91,4 +133,15 @@ export function useCorduraLight(light: CorduraLight | null) {
 
 export function useCorduraScare() {
   return useContext(CorduraContext).fullScare;
+}
+
+/**
+ * D44: what this minigame does when the bar hits 100 — reset only its current phase,
+ * keeping inventory and earlier progress. The game screen shows the scare itself.
+ */
+export function useCordura100(resetCurrentPhase: () => void) {
+  const report = useContext(CorduraContext);
+  const handler = useRef(resetCurrentPhase);
+  handler.current = resetCurrentPhase;
+  useEffect(() => report.onEvent100(() => handler.current()), [report]);
 }

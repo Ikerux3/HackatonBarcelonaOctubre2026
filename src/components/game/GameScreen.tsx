@@ -14,6 +14,7 @@ import {
   haptic,
   initAudio,
   setMusicCorruption,
+  sfx,
   startDrone,
   startMusicBox,
   stopDrone,
@@ -33,6 +34,16 @@ const QUESTIONS = {
   question_one: "What's your favorite color?",
   question_two: "What was your favorite childhood toy?",
 } as const;
+
+/** how long the "evento 100" scare covers the scene */
+const SCARE_100_MS = 1600;
+
+/** QA only: `?debug=1&cordura=95` starts the bar there, to test the 100 event quickly. */
+function debugCorduraStart(): number | undefined {
+  const q = new URLSearchParams(window.location.search);
+  const v = Number(q.get("cordura"));
+  return q.get("debug") === "1" && q.has("cordura") && Number.isFinite(v) ? v : undefined;
+}
 
 /** Mom's dress palette comes from the table level in the story (if any). */
 function motherPalette(story: StoryLevels) {
@@ -131,6 +142,19 @@ function GameScreenInner() {
     [],
   );
 
+  // D44 "evento 100": the bar hit the top — full scare over the scene while the active
+  // minigame resets its current phase underneath (GameController calls its handler)
+  const [scare100, setScare100] = useState(false);
+  const events100 = state.cordura.events100;
+  useEffect(() => {
+    if (events100 === 0) return;
+    setScare100(true);
+    sfx.possessed();
+    haptic([120, 60, 220]);
+    const t = setTimeout(() => setScare100(false), SCARE_100_MS);
+    return () => clearTimeout(t);
+  }, [events100]);
+
   if (state.stage === "intro") {
     return (
       <div
@@ -176,7 +200,7 @@ function GameScreenInner() {
         </div>
         <button
           type="button"
-          onClick={() => start(motherPalette(story))}
+          onClick={() => start(motherPalette(story), debugCorduraStart())}
           className="g-btn g-btn-warm relative px-12 py-4 text-2xl"
         >
           Play
@@ -273,6 +297,19 @@ function GameScreenInner() {
         </CorduraContext.Provider>
 
         <CorruptionLayer level={corruption} />
+
+        {isTask && scare100 && (
+          <div
+            data-testid="cordura-100-scare"
+            className="absolute inset-0 z-[65] flex items-center justify-center rounded-2xl bg-black"
+            aria-hidden
+          >
+            <div className="game-eyes flex gap-10">
+              <span className="h-10 w-16 rounded-full bg-red-600 shadow-[0_0_40px_12px_var(--color-red-600)]" />
+              <span className="h-10 w-16 rounded-full bg-red-600 shadow-[0_0_40px_12px_var(--color-red-600)]" />
+            </div>
+          </div>
+        )}
 
         {isTask && plan && (
           <GuestOverlay key={slot} decision={plan} {...guestOverlay(level, plan.action)} />
