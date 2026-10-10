@@ -1,6 +1,6 @@
 # 04 — ESTADO Y ARQUITECTURA | MOMMY WILL BE BACK
 
-Actualizado: **10 oct 2026, 04:00** · Autor: Unai + Claude Code · Rama `unai/tension-ending` = `main` @ `3a251d8` (renovación visual de Lovable/Iker + sprites de juguetes de Codex) + aclaraciones del equipo del 10 oct, ya fusionadas sin conflictos
+Actualizado: **10 oct 2026, 04:45** · Autor: Unai + Claude Code · `main` @ `a93df9f` (renovación visual de Lovable/Iker + sprites de juguetes de Codex + aclaraciones del equipo del 10 oct) · QA de regresión en producción: `docs/07`
 
 > Documento de orden: qué hay hecho, cómo está construido y qué falta. Distingue **VERIFICADO** (probado con evidencia), **HECHO** (en el código, sin prueba completa) y **PENDIENTE**.
 
@@ -16,12 +16,13 @@ Actualizado: **10 oct 2026, 04:00** · Autor: Unai + Claude Code · Rama `unai/t
 | Carpeta Drive del equipo | https://drive.google.com/drive/folders/1dxyM4McxXHxplu6rjcJumJPAt22R9_cB |
 | Informe técnico detallado (por iteraciones) | `DEV_REPORT.md` en el repo |
 | Cómo editar niveles | `docs/05-COMO-EDITAR-NIVELES.md` |
+| QA de regresión e IA real/respaldo (issue #2) | `docs/07-QA-REGRESION-IA.md` |
 
 ## 2. El juego en una frase
 
 Un niño se queda solo en casa mientras mamá va a por la cena. Hace tareas (recoger juguetes, poner la mesa, prepararse para dormir) mientras se va la luz y **El Invitado**, un monstruo controlado por IA, le hace preguntas, **observa cómo juega** y usa todo lo que aprende para asustarle en la siguiente tarea.
 
-## 3. Flujo de una partida (≈3 min)
+## 3. Flujo de una partida (≈3–4 min)
 
 1. **Título** → Play. Aquí se sortea **una sola vez** el color del vestido de mamá para toda la partida.
 2. **Mamá se despide** (aparece con ese vestido — pista provisional hasta el cómic) y se interrumpe para preguntar tu **nombre** (validado en el móvil, nunca sale del dispositivo).
@@ -56,7 +57,7 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 
 **Seguridad y robustez**: salida JSON validada (zod) · acciones limitadas a lo que el nivel soporta · nunca se muestra el texto crudo del jugador · nombre filtrado localmente · si la IA falla o tarda, reglas deterministas de respaldo.
 
-**Prueba en producción** (10 oct 01:45, `?debug=1`): decisiones del Invitado `live` (798 / 1230 ms), respuestas `live` (890 ms), notas finales escritas por el modelo. La pregunta de la comida **aún no está probada en producción** (solo en local con el respaldo).
+**Prueba en producción** (10 oct 01:45, `?debug=1`): decisiones del Invitado `live` (798 / 1230 ms), respuestas `live` (890 ms), notas finales escritas por el modelo. La pregunta de la comida se probó después en producción (10 oct 02:50, ver §8).
 
 ## 5. Modos para la demo (no visibles para el jugador)
 
@@ -110,9 +111,10 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 - Minijuego 02: aviso "no lo has encontrado todo", señuelo gigante, 6 piezas a la bandeja, marcas a oscuras (⭐/👗 con colores), pieza en hueco de otro tipo rechazada, susto completo a los 9 s con reinicio de fase, checkpoint a 3 correctas → pregunta de comida ("pizza con piña" → 🍕 + tinta), intercambio de dos piezas antes de la comprobación final, tercer servicio y frase final, la historia continúa.
 - IA real en producción (color, juguete y decisiones del Invitado), latencias < 1,5 s.
 - Versión móvil: sin scroll ni barra lateral, el campo de respuesta queda sobre el teclado, sin zoom.
-- Niveles modulares + 19 tests automáticos + TypeScript sin errores.
+- Niveles modulares + 25 tests automáticos + TypeScript sin errores.
 
 - **Producción (10 oct 02:50, `?debug=1`)**: decisión del Invitado `live` 787 ms; color `live` 857 ms; **comida `live` 1107 ms** ("los macarrones con queso de mi abuela" → 🍝, frase del modelo sobre la abuela).
+- **Regresión tras la renovación visual (10 oct ~04:15, `a93df9f`, producción, `?debug=1`)**: dos partidas con IA real y respuestas distintas (`fallback: false` en interpretación y decisiones del Invitado, 820–1617 ms; mesa, juguete, final y notas distintos; el Invitado recuerda la partida anterior) y una sin conexión que llega al final con el respaldo. Detalle y handoff: `docs/07`.
 - Aclaraciones del equipo (local, móvil simulado): mamá con el color sorteado en la intro y el mismo en su vajilla y silla; tarjeta de instrucciones; temblor nivel 1 a los 4 s y nivel 2 a los 7 s a oscuras, con pausas; la tensión empieza de cero en cada minijuego; final con dos habitaciones.
 
 **HECHO, falta probar**
@@ -123,16 +125,16 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 - Susto completo → reinicia **solo la fase actual**, conserva todo lo anterior; un susto no pasa al siguiente minijuego; errores pequeños no penalizan.
 - Temblor progresivo, limitado y con pausas por minijuego; vuelve a cero en el siguiente.
 - Vestido de mamá: sorteado una vez al pulsar Play (`GameMemory.motherColor`); mismo color en la intro (figura provisional), su vajilla, sus marcas, su silla (a oscuras) y el final. No se vuelve a sortear.
-- No hay final malo. Final: mamá y el niño en la habitación iluminada, El Invitado insinuado en la de al lado a oscuras.
+- No hay final malo (**superado por D34 en Drive: dos finales, pendiente de implementar**). Final: mamá y el niño en la habitación iluminada, El Invitado insinuado en la de al lado a oscuras.
 - Sin cambios en los contratos de IA.
 
 **PENDIENTE DE COORDINAR (Iker)**
 - Encajar el reinicio por fase y el desenlace con las decisiones generales anteriores (D14).
 - La silla de mamá se ilumina con su color **solo a oscuras** (con luz, colorearla revelaría qué sitio es de quién y el puzle de la oscuridad dejaría de tener sentido). Si se quiere siempre coloreada, es un cambio de una línea.
-- **Seis minijuegos**: objetivo del producto; ahora hay tres en la historia.
+- **Decisiones nuevas de Iker en Drive (D32–D35), aún no implementadas**: cinco minijuegos (baño/pijama el último; los intermedios MG03/MG04 los propone MJ y los aprueba Iker); barra de **Cordura** 0–100 (+10 por susto completo, +1 cada 2 s a oscuras, baja con la luz encendida: velocidad pendiente, MJ propone −1 cada 3 s); **dos finales** según la Cordura al salir del baño (0–64 algo asustado, 65–100 llorando; mamá vuelve en los dos). El código actual tiene 3 tareas y un solo final.
 
 **PENDIENTE (por prioridad)**
-1. Merge de `unai/tension-ending` + Publish en Lovable.
+1. Confirmar que lo publicado en Lovable es `main` @ `a93df9f` (el merge de `unai/tension-ending` ya está en `main`).
 2. Arte (en curso) → integrar (sustituye a las siluetas provisionales de mamá y el niño).
 3. Prueba en móviles reales.
 4. Vídeo de respaldo de la demo + guion de 2–3 min.
@@ -143,6 +145,6 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 ## 9. Handoff
 
 - **Responsable**: Unai + Claude Code
-- **Estado**: Minijuego 02 en producción y verificado con IA real; aclaraciones del equipo (temblor, color de mamá, final) implementadas y probadas en local.
-- **Rama / commit**: `unai/tension-ending` (incluye `main` @ `3a251d8`; el merge a `main` sale limpio)
-- **Siguiente paso**: merge + Publish; integrar arte cuando esté; pruebas en móvil real.
+- **Estado**: `main` @ `a93df9f` probado en producción tras la renovación visual: IA real y respaldo sin bloqueo (`docs/07`).
+- **Rama / commit**: `main` @ `a93df9f`
+- **Siguiente paso**: Iker confirma la versión publicada; QA en móvil real; barra de Cordura + dos finales (D33/D34) en rama propia; integrar arte cuando esté.
