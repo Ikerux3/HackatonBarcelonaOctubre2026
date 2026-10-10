@@ -7,6 +7,7 @@ import { observe } from "@/game/observer";
 import { zoneCovers, type Point, type SceneObject, type TidyOptions } from "@/game/levels/types";
 import type { MinigameProps } from "./types";
 import { SceneBackdrop } from "./SceneBackdrop";
+import { ArtImage, artAsset } from "./ArtImage";
 import { ToySprite } from "./ToySprite";
 
 const HIT_MARGIN = 5;
@@ -471,7 +472,7 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
       {/* static furniture: the drawer chest is always there */}
       {tidy && (
         <div
-          className="pointer-events-none absolute z-0 rounded-md border-4 border-[#3a1f0d] bg-gradient-to-b from-[#8a5a2b] to-[#5a3416] shadow-[0_12px_16px_-8px_rgba(0,0,0,0.7)] bg-[linear-gradient(transparent_48%,rgba(0,0,0,0.35)_48%_52%,transparent_52%),linear-gradient(180deg,#8a5a2b,#5a3416)]"
+          className="g-art-prop pointer-events-none absolute z-0 rounded-md border-4 border-[#3a1f0d] bg-gradient-to-b from-[#8a5a2b] to-[#5a3416] shadow-[0_12px_16px_-8px_rgba(0,0,0,0.7)] bg-[linear-gradient(transparent_48%,rgba(0,0,0,0.35)_48%_52%,transparent_52%),linear-gradient(180deg,#8a5a2b,#5a3416)]"
           style={{
             left: `${tidy.drawer.x - 14}%`,
             top: `${tidy.drawer.y - 9}%`,
@@ -479,6 +480,30 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
             height: "18%",
           }}
           aria-hidden
+        >
+          <ArtImage
+            src={artAsset("scenes/playroom", "drawer-interior")}
+            className="absolute inset-0 h-full w-full object-fill"
+          />
+          {cover?.role !== "drawer" && (
+            <ArtImage
+              src={artAsset("scenes/playroom", "drawer-front")}
+              className="absolute inset-0 h-full w-full object-fill"
+            />
+          )}
+        </div>
+      )}
+
+      {tidy && cover?.role !== "cushion" && (
+        <ArtImage
+          src={artAsset("scenes/playroom", "cushion")}
+          className="absolute z-0 -translate-x-1/2 -translate-y-1/2 object-contain"
+          style={{
+            left: `${tidy.cushion.x}%`,
+            top: `${tidy.cushion.y}%`,
+            width: "22%",
+            height: "10%",
+          }}
         />
       )}
 
@@ -488,7 +513,7 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
           <div
             key={`f-${i}`}
             aria-hidden
-            className={`pointer-events-none absolute z-0 -translate-x-1/2 -translate-y-1/2 border-4 ${
+            className={`g-art-prop pointer-events-none absolute z-0 -translate-x-1/2 -translate-y-1/2 border-4 ${
               sp.kind === "sofa"
                 ? "rounded-t-[40%] rounded-b-lg border-[#3d0f12] bg-gradient-to-b from-[#a8333a] to-[#6e1d22] shadow-[inset_0_4px_0_rgba(255,180,170,0.25),0_14px_16px_-8px_rgba(0,0,0,0.7)]"
                 : sp.kind === "drawer"
@@ -501,7 +526,28 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
               width: sp.kind === "sofa" ? "46%" : sp.kind === "drawer" ? "20%" : "20%",
               height: sp.kind === "sofa" ? "12%" : sp.kind === "drawer" ? "9%" : "22%",
             }}
-          />
+          >
+            <ArtImage
+              src={artAsset(
+                "scenes/playroom",
+                sp.kind === "sofa" ? "sofa" : sp.kind === "drawer" ? "drawer-front" : "curtain",
+              )}
+              className="absolute inset-0 h-full w-full object-fill"
+              style={
+                hide?.revealed && hide.spot === i
+                  ? {
+                      transform:
+                        sp.kind === "curtain"
+                          ? "scaleX(.28)"
+                          : sp.kind === "drawer"
+                            ? "translateY(65%) scaleY(.4)"
+                            : undefined,
+                      transformOrigin: "left center",
+                    }
+                  : undefined
+              }
+            />
+          </div>
         ))}
 
       {/* toy box */}
@@ -514,8 +560,10 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
             place(selected);
           }
         }}
-        className={`absolute z-10 flex items-end justify-center rounded-b-xl border-4 pb-1 transition-all duration-300 ${
-          dark ? "border-neutral-700 bg-gradient-to-b from-neutral-700 to-neutral-900 shadow-[inset_0_6px_10px_rgba(0,0,0,0.6)]" : "border-[#5a3416] bg-gradient-to-b from-[#c98a45] to-[#8a5426] shadow-[inset_0_6px_10px_rgba(0,0,0,0.35),0_10px_14px_-6px_rgba(0,0,0,0.6)]"
+        className={`g-art-prop absolute z-10 flex items-end justify-center rounded-b-xl border-4 pb-1 transition-all duration-300 ${
+          dark
+            ? "border-neutral-700 bg-gradient-to-b from-neutral-700 to-neutral-900 shadow-[inset_0_6px_10px_rgba(0,0,0,0.6)]"
+            : "border-[#5a3416] bg-gradient-to-b from-[#c98a45] to-[#8a5426] shadow-[inset_0_6px_10px_rgba(0,0,0,0.35),0_10px_14px_-6px_rgba(0,0,0,0.6)]"
         } ${(drag || selected) && !done ? "game-box-open" : ""} ${selected ? "ring-2 ring-amber-200/70" : ""}`}
         style={{
           left: `${box.x - box.w / 2}%`,
@@ -524,19 +572,28 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
           height: `${box.h}%`,
         }}
       >
+        <ArtImage
+          src={artAsset("scenes/playroom", "chest")}
+          className="absolute inset-0 h-full w-full object-fill"
+        />
         <span
-          className={`text-[10px] font-bold uppercase ${dark ? "text-neutral-400" : "text-amber-950"}`}
+          className={`relative text-[10px] font-bold uppercase ${dark ? "text-neutral-400" : "text-amber-950"}`}
         >
           {box.label}
         </span>
         {/* lid closes when everything is put away */}
         <span
-          className={`absolute -top-2 left-[-6%] h-3 w-[112%] origin-left rounded border-2 transition-transform duration-500 ${
+          className={`g-art-prop absolute -top-2 left-[-6%] h-3 w-[112%] origin-left rounded border-2 transition-transform duration-500 ${
             dark ? "border-neutral-500 bg-neutral-700" : "border-amber-800 bg-amber-600"
           }`}
           style={{ transform: done ? "rotate(0deg)" : "rotate(-35deg) translateY(-6px)" }}
           aria-hidden
-        />
+        >
+          <ArtImage
+            src={artAsset("scenes/playroom", "chest-lid")}
+            className="h-full w-full object-fill"
+          />
+        </span>
       </button>
 
       {/* toys */}
@@ -586,7 +643,10 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
                   : "left .45s ease, top .45s ease, transform .35s ease, opacity .45s ease",
             }}
           >
-            <span className="pointer-events-none absolute inset-x-0 top-0 bottom-3 flex items-center justify-center" aria-hidden>
+            <span
+              className="pointer-events-none absolute inset-x-0 top-0 bottom-3 flex items-center justify-center"
+              aria-hidden
+            >
               <ToySprite asset={sprite} possessed={isPoss} />
             </span>
             <span className="pointer-events-none absolute bottom-0.5 text-[9px] font-bold text-white drop-shadow">
@@ -602,7 +662,7 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
           type="button"
           aria-label={cover.role === "cushion" ? "Move the cushion" : "Open the drawer"}
           onPointerDown={openCover}
-          className={`absolute z-30 flex min-h-12 items-center justify-center border-4 shadow-xl transition-all duration-500 ${
+          className={`g-art-prop absolute z-30 flex min-h-12 items-center justify-center border-4 shadow-xl transition-all duration-500 ${
             cover.role === "cushion"
               ? "rounded-[40%] border-rose-900 bg-rose-400"
               : "rounded-md border-amber-950 bg-amber-800"
@@ -616,6 +676,10 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
             opacity: cover.open && cover.role === "drawer" ? 0.85 : 1,
           }}
         >
+          <ArtImage
+            src={artAsset("scenes/playroom", cover.role === "drawer" ? "drawer-front" : "cushion")}
+            className="absolute inset-0 h-full w-full object-fill"
+          />
           {cover.role === "drawer" && (
             <span className="h-2 w-6 rounded-full bg-amber-300" aria-hidden />
           )}
@@ -700,7 +764,11 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
                 } ${hintKey === k ? "animate-pulse ring-4 ring-amber-300" : ""}`}
                 style={{ left: `${at.x}%`, top: `${at.y}%` }}
               >
-                <span aria-hidden>{k === "main" ? "💡" : "🪔"}</span>
+                <ArtImage
+                  src={artAsset("scenes/playroom", k === "main" ? "switch" : "lamp")}
+                  className="h-full w-full object-contain"
+                  fallback={<span aria-hidden>{k === "main" ? "💡" : "🪔"}</span>}
+                />
               </button>
             );
           });

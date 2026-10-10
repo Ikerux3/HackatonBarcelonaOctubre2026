@@ -1,3 +1,4 @@
+import { ArtImage, artAsset } from "@/components/minigames/ArtImage";
 import { useEffect, useRef, useState } from "react";
 
 import { useGuestVoice } from "./GuestVoice";
@@ -78,54 +79,66 @@ export function MonsterOverlay({
       </svg>
 
       {/* shrinks first when space is short (keyboard open, small phones) */}
-      <svg
-        viewBox="0 0 200 260"
-        className="g-guest-in relative mb-2 h-60 max-h-[40%] min-h-0 w-48 shrink"
-        aria-label="A dark silhouette watches you"
+      <span
         role="img"
+        aria-label="A dark silhouette watches you"
+        className="g-guest-in relative mb-2 h-60 max-h-[40%] min-h-0 w-48 shrink"
       >
-        <defs>
-          <radialGradient id="g-guest-fill" cx="50%" cy="35%" r="70%">
-            <stop offset="0%" stopColor="#1a0f0c" />
-            <stop offset="70%" stopColor="#050302" />
-            <stop offset="100%" stopColor="#000" />
-          </radialGradient>
-        </defs>
-        <ellipse cx="100" cy="250" rx="80" ry="12" fill="#000" opacity="0.9" />
-        <g className="g-guest-body">
-          {/* tall head, long neck, shoulders melting downward like wet ink */}
-          <path
-            d="M100 14 C70 14 60 46 62 78 C63 98 74 110 82 116 C58 124 40 150 38 190 C36 214 30 232 22 248 L58 244 L66 226 L76 248 L92 236 L100 252 L110 236 L124 248 L134 226 L142 244 L178 248 C170 232 164 214 162 190 C160 150 142 124 118 116 C126 110 137 98 138 78 C140 46 130 14 100 14 Z"
-            fill="#060403"
-          />
-          <ellipse cx="84" cy="70" rx="7" ry="4.5" className="g-eye" />
-          <ellipse
-            cx="116"
-            cy="70"
-            rx="7"
-            ry="4.5"
-            className="g-eye"
-            style={{ animationDelay: "0.12s" }}
-          />
-          {/* a third eye that shouldn't be there */}
-          <ellipse
-            cx="100"
-            cy="52"
-            rx="3.2"
-            ry="2"
-            className="g-eye g-eye-red"
-            style={{ animationDelay: "2s" }}
-          />
-          {/* faint smile */}
-          <path
-            d="M86 92 Q100 100 114 92"
-            stroke="#2a1a14"
-            strokeWidth="1.6"
-            fill="none"
-            opacity="0.7"
-          />
-        </g>
-      </svg>
+        <ArtImage
+          src={artAsset("guest", "silhouette")}
+          className="h-full w-full object-contain"
+          fallback={
+            <svg
+              viewBox="0 0 200 260"
+              className="h-full w-full"
+              aria-label="A dark silhouette watches you"
+              role="img"
+            >
+              <defs>
+                <radialGradient id="g-guest-fill" cx="50%" cy="35%" r="70%">
+                  <stop offset="0%" stopColor="#1a0f0c" />
+                  <stop offset="70%" stopColor="#050302" />
+                  <stop offset="100%" stopColor="#000" />
+                </radialGradient>
+              </defs>
+              <ellipse cx="100" cy="250" rx="80" ry="12" fill="#000" opacity="0.9" />
+              <g className="g-guest-body">
+                {/* tall head, long neck, shoulders melting downward like wet ink */}
+                <path
+                  d="M100 14 C70 14 60 46 62 78 C63 98 74 110 82 116 C58 124 40 150 38 190 C36 214 30 232 22 248 L58 244 L66 226 L76 248 L92 236 L100 252 L110 236 L124 248 L134 226 L142 244 L178 248 C170 232 164 214 162 190 C160 150 142 124 118 116 C126 110 137 98 138 78 C140 46 130 14 100 14 Z"
+                  fill="#060403"
+                />
+                <ellipse cx="84" cy="70" rx="7" ry="4.5" className="g-eye" />
+                <ellipse
+                  cx="116"
+                  cy="70"
+                  rx="7"
+                  ry="4.5"
+                  className="g-eye"
+                  style={{ animationDelay: "0.12s" }}
+                />
+                {/* a third eye that shouldn't be there */}
+                <ellipse
+                  cx="100"
+                  cy="52"
+                  rx="3.2"
+                  ry="2"
+                  className="g-eye g-eye-red"
+                  style={{ animationDelay: "2s" }}
+                />
+                {/* faint smile */}
+                <path
+                  d="M86 92 Q100 100 114 92"
+                  stroke="#2a1a14"
+                  strokeWidth="1.6"
+                  fill="none"
+                  opacity="0.7"
+                />
+              </g>
+            </svg>
+          }
+        />
+      </span>
 
       {line && (
         <p

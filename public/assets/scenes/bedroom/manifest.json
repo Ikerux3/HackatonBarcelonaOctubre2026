@@ -1,0 +1,412 @@
+{
+  "version": 1,
+  "sourceCommit": "a93df9fe046182abfc3aa4d16063e7e5823af9da",
+  "medium": "generated raster 2D; no editable 3D source",
+  "aspect": [
+    2,
+    3
+  ],
+  "scenePixels": [
+    1024,
+    1536
+  ],
+  "coordinates": "center normalized 0..100; w scene width percent; h scene height percent",
+  "background": "backgrounds/clean.webp",
+  "assets": {
+    "bed": {
+      "path": "sprites/bed.webp",
+      "dimensions": [
+        707,
+        768
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        707,
+        768
+      ],
+      "sourceDimensions": [
+        740,
+        804
+      ],
+      "bytes": 192448
+    },
+    "pajamas": {
+      "path": "sprites/pajamas.webp",
+      "dimensions": [
+        450,
+        512
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        450,
+        512
+      ],
+      "sourceDimensions": [
+        525,
+        597
+      ],
+      "bytes": 116278
+    },
+    "toothbrush": {
+      "path": "sprites/toothbrush.webp",
+      "dimensions": [
+        375,
+        512
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        375,
+        512
+      ],
+      "sourceDimensions": [
+        410,
+        560
+      ],
+      "bytes": 40730
+    },
+    "shelf": {
+      "path": "sprites/shelf.webp",
+      "dimensions": [
+        512,
+        129
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        512,
+        129
+      ],
+      "sourceDimensions": [
+        984,
+        247
+      ],
+      "bytes": 22606
+    },
+    "cabinet": {
+      "path": "sprites/cabinet.webp",
+      "dimensions": [
+        492,
+        512
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        492,
+        512
+      ],
+      "sourceDimensions": [
+        643,
+        669
+      ],
+      "bytes": 107182
+    },
+    "toy-demo": {
+      "path": "sprites/toy-demo.webp",
+      "dimensions": [
+        256,
+        256
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        256,
+        256
+      ],
+      "sourceDimensions": [
+        256,
+        256
+      ],
+      "bytes": 19214
+    }
+  },
+  "layers": [
+    {
+      "asset": "bed",
+      "x": 50,
+      "y": 59,
+      "w": 48,
+      "h": 38,
+      "z": 2
+    },
+    {
+      "asset": "shelf",
+      "x": 20,
+      "y": 37,
+      "w": 27,
+      "h": 4,
+      "z": 1
+    },
+    {
+      "asset": "shelf",
+      "x": 72,
+      "y": 36,
+      "w": 27,
+      "h": 4,
+      "z": 1
+    },
+    {
+      "asset": "cabinet",
+      "x": 80,
+      "y": 85,
+      "w": 22,
+      "h": 16,
+      "z": 1
+    },
+    {
+      "asset": "pajamas",
+      "x": 20,
+      "y": 30,
+      "w": 16,
+      "h": 10.666666666666666,
+      "z": 4,
+      "anchor": "pajamas"
+    },
+    {
+      "asset": "toothbrush",
+      "x": 80,
+      "y": 74,
+      "w": 16,
+      "h": 10.666666666666666,
+      "z": 4,
+      "anchor": "toothbrush"
+    },
+    {
+      "asset": "toy-demo",
+      "x": 72,
+      "y": 28,
+      "w": 18,
+      "h": 12,
+      "z": 4,
+      "anchor": "toy",
+      "demoOnly": true
+    }
+  ],
+  "status": "bedroom legacy level compatible candidate; bathroom exploration only",
+  "sourceLevel": "src/game/levels/data/bedtime.json",
+  "objects": [
+    {
+      "id": "pajamas",
+      "x": 20,
+      "y": 30,
+      "size": 16
+    },
+    {
+      "id": "toothbrush",
+      "x": 80,
+      "y": 74,
+      "size": 16
+    },
+    {
+      "id": "toy",
+      "x": 72,
+      "y": 28,
+      "size": 18,
+      "asset": "runtime favorite_toy"
+    }
+  ],
+  "flashlight": {
+    "radius": 24,
+    "radiusUnits": "percent scene width",
+    "evasivePositions": [
+      [
+        22,
+        82
+      ],
+      [
+        50,
+        56
+      ],
+      [
+        82,
+        50
+      ]
+    ],
+    "mask": "runtime circle; gradient must remain within radius; presentation only"
+  },
+  "bathroom": {
+    "status": "EXPLORATION ONLY",
+    "path": "backgrounds/bathroom-EXPLORATION.webp",
+    "hotspots": []
+  },
+  "limitations": [
+    "Existing bedroom compatibility does not define its place in five-minigame design.",
+    "Bed and shelves are decorative alpha layers; no new containers.",
+    "No bathroom targets, rules or final gameplay specification invented.",
+    "Raster candidate, no 3D camera source."
+  ],
+  "contactShadow": {
+    "path": "overlays/contact-shadow.webp",
+    "dimensions": [
+      256,
+      96
+    ],
+    "pivot": [
+      0.5,
+      0.5
+    ],
+    "blend": "normal",
+    "opacity": 0.45,
+    "placement": "under object, separate layer; hide/lift when held; scene art placement only"
+  },
+  "mobileExportPolicy": "Background750x1125; WebP alpha longest edge512, bed/table/mother768. PNG high-resolution sources preserved separately. Load only current scene.",
+  "fileInventory": [
+    {
+      "path": "backgrounds/bathroom-EXPLORATION.webp",
+      "bytes": 168022,
+      "dimensions": [
+        750,
+        1125
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "backgrounds/clean.webp",
+      "bytes": 228376,
+      "dimensions": [
+        750,
+        1125
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "overlays/contact-shadow.png",
+      "bytes": 7810,
+      "dimensions": [
+        256,
+        96
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "overlays/contact-shadow.webp",
+      "bytes": 3966,
+      "dimensions": [
+        256,
+        96
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "overlays/flashlight-template.svg",
+      "bytes": 439
+    },
+    {
+      "path": "qa/alpha-check.json",
+      "bytes": 661
+    },
+    {
+      "path": "qa/anchors-375.png",
+      "bytes": 444712,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "qa/bathroom-exploration-375.png",
+      "bytes": 356697,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/beauty-1024.webp",
+      "bytes": 490632,
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/beauty-375.png",
+      "bytes": 394615,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "README.md",
+      "bytes": 674
+    },
+    {
+      "path": "sprites/bed.webp",
+      "bytes": 192448,
+      "dimensions": [
+        707,
+        768
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/cabinet.webp",
+      "bytes": 107182,
+      "dimensions": [
+        492,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/pajamas.webp",
+      "bytes": 116278,
+      "dimensions": [
+        450,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/shelf.webp",
+      "bytes": 22606,
+      "dimensions": [
+        512,
+        129
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/toothbrush.webp",
+      "bytes": 40730,
+      "dimensions": [
+        375,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/toy-demo.webp",
+      "bytes": 19214,
+      "dimensions": [
+        256,
+        256
+      ],
+      "mode": "RGBA"
+    }
+  ],
+  "anchorRecheck": {
+    "mainHEAD": "69c529c16760aa7b186190292a6ef4e739cb2bf7",
+    "result": "tidy_toys.json, table_for_three.json, bedtime.json unchanged from a93df9f"
+  },
+  "highResolutionSources": "External companion archive THE-MENDED-HOUSE-sources-v1.zip"
+}

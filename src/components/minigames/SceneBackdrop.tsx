@@ -1,3 +1,4 @@
+import { ArtBackground, ArtDecor } from "./ArtImage";
 import type { SceneTheme } from "@/game/levels/types";
 
 /**
@@ -14,7 +15,10 @@ export function SceneBackdrop({ theme, dark }: { theme: SceneTheme; dark: boolea
         ? "g-wallpaper-dining"
         : "g-wallpaper";
   return (
-    <div className="g-corruptible pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+    <div
+      className="g-corruptible pointer-events-none absolute inset-0 isolate overflow-hidden"
+      aria-hidden
+    >
       {/* wall */}
       <div className={`absolute inset-x-0 top-0 h-[62%] ${wall}`} />
       {/* ceiling shadow + cornice */}
@@ -119,6 +123,17 @@ export function SceneBackdrop({ theme, dark }: { theme: SceneTheme; dark: boolea
         </>
       )}
 
+      <ArtBackground
+        scene={
+          theme === "living_room"
+            ? "scenes/playroom"
+            : theme === "bedroom"
+              ? "scenes/bedroom"
+              : "scenes/dining"
+        }
+      />
+      {theme === "bedroom" && <ArtDecor scene="scenes/bedroom" />}
+      {theme === "living_room" && <ArtDecor scene="scenes/playroom" />}
       {/* lighting & finish */}
       {dark && <div className="g-room-dark-tint" />}
       <div className={dark ? "g-vignette-dark" : "g-vignette"} />

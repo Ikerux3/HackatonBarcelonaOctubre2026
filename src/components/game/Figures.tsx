@@ -1,7 +1,34 @@
+import { ArtImage } from "@/components/minigames/ArtImage";
+import { COLOR_HEX } from "@/game/levels/assets";
+
 // Placeholder silhouettes until the team's illustrations arrive.
 
 /** Mom: dark silhouette in a dress of this run's color. */
-export function MomFigure({ color, className = "" }: { color: string; className?: string }) {
+export function MomFigure({
+  color,
+  className = "",
+  rescue = false,
+}: {
+  color: string;
+  className?: string;
+  rescue?: boolean;
+}) {
+  const colorName = Object.entries(COLOR_HEX).find(
+    ([name, hex]) => hex === color && name !== "blue" && name !== "other",
+  )?.[0];
+  if (colorName)
+    return (
+      <span role="img" aria-label="Mom" className={`inline-block ${className}`}>
+        <ArtImage
+          src={`/assets/intro-ending/states/mother-${rescue ? "rescue" : "standing"}-${colorName}.webp`}
+          className="h-full w-auto object-contain"
+          fallback={<MomFallback color={color} />}
+        />
+      </span>
+    );
+  return <MomFallback color={color} className={className} />;
+}
+function MomFallback({ color, className = "h-full" }: { color: string; className?: string }) {
   return (
     <svg viewBox="0 0 60 120" className={className} aria-label="Mom" role="img">
       <circle cx="30" cy="14" r="10" fill="#3b2a20" />
@@ -16,6 +43,18 @@ export function MomFigure({ color, className = "" }: { color: string; className?
 
 /** The child: smaller, neutral pajamas. */
 export function ChildFigure({ className = "" }: { className?: string }) {
+  return (
+    <span role="img" aria-label="The child" className={`inline-block ${className}`}>
+      <ArtImage
+        src="/assets/intro-ending/sprites/child-worried.webp"
+        className="h-full w-auto object-contain"
+        fallback={<ChildFallback />}
+      />
+    </span>
+  );
+}
+function ChildFallback() {
+  const className = "h-full";
   return (
     <svg viewBox="0 0 40 80" className={className} aria-label="The child" role="img">
       <circle cx="20" cy="12" r="9" fill="#3b2a20" />

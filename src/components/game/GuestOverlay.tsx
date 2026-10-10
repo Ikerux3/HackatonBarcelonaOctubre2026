@@ -1,3 +1,4 @@
+import { ArtImage, artAsset } from "@/components/minigames/ArtImage";
 import { useEffect, useState } from "react";
 
 import type { GuestDecision } from "@/ai/contracts";
@@ -39,20 +40,16 @@ export function GuestOverlay({ decision, shadow, flicker }: Props) {
       {/* ink creeping in from the edges while The Guest is present */}
       <div className="g-corruption-edge g-stage-in" style={{ opacity: 0.55 }} />
       {passing && (
-        <svg
-          className="game-shadow-pass g-guest-body absolute bottom-[8%] h-[70%]"
-          viewBox="0 0 60 160"
-          preserveAspectRatio="xMidYMax meet"
-        >
-          {/* tall, thin, slightly hunched figure */}
-          <path
-            d="M30 6c7 0 11 6 11 13 0 6-3 10-6 12 9 4 14 14 15 30l3 40c0 4-4 5-6 2l-4-28-2 60c0 6-8 6-8 0l-3-45-3 45c0 6-8 6-8 0l-2-60-4 28c-2 3-6 2-6-2l3-40c1-16 6-26 15-30-3-2-6-6-6-12 0-7 4-13 11-13z"
-            fill="#050505"
-            opacity="0.85"
-          />
-          <circle cx="26" cy="18" r="1.4" fill="#e04848" />
-          <circle cx="34" cy="18" r="1.4" fill="#e04848" />
-        </svg>
+        <ArtImage
+          src={artAsset("guest", "silhouette")}
+          className="game-shadow-pass g-guest-body absolute bottom-[8%] h-[70%] object-contain"
+        />
+      )}
+      {showLine && (
+        <ArtImage
+          src={artAsset("guest", "ink-corner")}
+          className="absolute left-0 top-[45%] h-[30%] w-[10%] object-contain opacity-60"
+        />
       )}
       {showLine && (
         <p

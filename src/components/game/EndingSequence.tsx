@@ -1,6 +1,8 @@
 import type { GameMemory, GameStage } from "@/game/GameState";
-import { ASSETS, COLORS, COLOR_HEX, TOY_ASSET } from "@/game/levels/assets";
+import { COLORS, COLOR_HEX, TOY_ASSET } from "@/game/levels/assets";
 import { SceneBackdrop } from "@/components/minigames/SceneBackdrop";
+import { ArtBackground, ArtImage, artAsset } from "@/components/minigames/ArtImage";
+import { ToySprite } from "@/components/minigames/ToySprite";
 import { ChildFigure, MomFigure } from "./Figures";
 import { useGuestVoice } from "./GuestVoice";
 
@@ -91,7 +93,6 @@ function Detail({
   colorText: string;
   onSkip: () => void;
 }) {
-  const toy = ASSETS[TOY_ASSET[memory.favoriteToy ?? "other"]];
   const stolen = memory.favoriteColor;
   // fixed template, no AI call: instant, and only ever shows cleaned labels
   const goodbye = `I'll keep ${toyText} safe for you. And ${colorText}… that's mine now.`;
@@ -105,6 +106,7 @@ function Detail({
     >
       {/* the lit room: mom and the child, together */}
       <div className="g-title-room relative h-full w-[62%] overflow-hidden" aria-hidden>
+        <ArtBackground scene="intro-ending" />
         <div className="g-grain" />
         <div className="absolute left-1/2 top-[4%] flex -translate-x-1/2 flex-col items-center">
           <div className="h-6 w-0.5 bg-amber-500" />
@@ -124,9 +126,8 @@ function Detail({
             />
           ))}
         </div>
-        <div className="absolute inset-x-0 bottom-0 h-[34%] bg-orange-200" />
         <div className="absolute bottom-[20%] left-1/2 flex -translate-x-1/2 items-end gap-1">
-          <MomFigure color={momColor} className="h-44" />
+          <MomFigure color={momColor} rescue className="h-44" />
           <ChildFigure className="h-24" />
         </div>
       </div>
@@ -136,12 +137,17 @@ function Detail({
       <div className="relative h-full flex-1 bg-black" aria-hidden>
         <div className="absolute inset-x-[12%] bottom-[20%] top-[22%] rounded-t-lg border-2 border-neutral-900" />
         <div className="game-eyes absolute left-1/2 top-[36%] flex -translate-x-1/2 gap-2">
-          <span className="h-2 w-3 rounded-full bg-red-500 shadow-[0_0_8px_var(--color-red-500)]" />
-          <span className="h-2 w-3 rounded-full bg-red-500 shadow-[0_0_8px_var(--color-red-500)]" />
+          <ArtImage
+            src={artAsset("guest", "eyes")}
+            className="h-4 w-12 object-contain"
+            fallback="••"
+          />
         </div>
         {/* your toy, barely visible in its hands */}
         <span className="absolute bottom-[24%] left-1/2 -translate-x-1/2 text-4xl opacity-40 grayscale drop-shadow-[0_0_6px_rgba(255,60,60,0.35)]">
-          {toy.emoji}
+          <span className="block h-12 w-12">
+            <ToySprite asset={TOY_ASSET[memory.favoriteToy ?? "other"]} />
+          </span>
         </span>
       </div>
       {/* The Guest's goodbye, built only from cleaned labels */}
