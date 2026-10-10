@@ -2,6 +2,7 @@
 @source "../src";
 @import "tw-animate-css";
 @import "./styles/game.css";
+@import "./styles/game-art.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -20,6 +21,9 @@
  */
 
 @theme inline {
+  --font-serif: "Crimson Pro", Georgia, serif;
+  --font-display: "IM Fell English", "Crimson Pro", Georgia, serif;
+  --font-display-sc: "IM Fell English SC", "IM Fell English", Georgia, serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

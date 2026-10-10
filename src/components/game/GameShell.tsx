@@ -1,5 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 
+import { ArtFilters } from "./CorruptionLayer";
+
 /**
  * Phone "app shell" for the game route: a fixed box that always matches the
  * VISIBLE area (it shrinks when the keyboard opens), so the page never scrolls,
@@ -51,6 +53,7 @@ export function GameShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="game-shell">
+      <ArtFilters />
       {children}
       {rotate && (
         <div className="absolute inset-0 z-[200] flex flex-col items-center justify-center gap-3 bg-neutral-950 px-8 text-center font-serif text-neutral-200">

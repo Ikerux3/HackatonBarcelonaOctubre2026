@@ -37,9 +37,11 @@ export function GuestOverlay({ decision, shadow, flicker }: Props) {
   return (
     <div className="pointer-events-none absolute inset-0 z-[60] overflow-hidden" aria-hidden>
       {flicker && <div className="game-light-disturb absolute inset-0" />}
+      {/* ink creeping in from the edges while The Guest is present */}
+      <div className="g-corruption-edge g-stage-in" style={{ opacity: 0.55 }} />
       {passing && (
         <svg
-          className="game-shadow-pass absolute bottom-[8%] h-[70%]"
+          className="game-shadow-pass g-guest-body absolute bottom-[8%] h-[70%]"
           viewBox="0 0 60 160"
           preserveAspectRatio="xMidYMax meet"
         >
@@ -54,7 +56,7 @@ export function GuestOverlay({ decision, shadow, flicker }: Props) {
         </svg>
       )}
       {showLine && (
-        <p className="game-monster-line absolute inset-x-3 bottom-12 rounded-lg bg-black/75 px-3 py-2 text-center font-serif text-base italic text-red-200 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+        <p className="g-guest-note g-guest-line game-monster-line absolute inset-x-3 bottom-12 px-4 py-2.5 text-center text-lg leading-snug">
           “{decision.line}”
         </p>
       )}
