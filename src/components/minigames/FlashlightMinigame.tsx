@@ -131,7 +131,7 @@ export function FlashlightMinigame({ level, memory, onComplete }: MinigameProps)
       onPointerMove={onMove}
       onPointerUp={onUp}
       onPointerCancel={() => (down.current = null)}
-      className="game-room-dark relative w-full cursor-none touch-none select-none overflow-hidden rounded-2xl border border-neutral-800"
+      className="g-stage g-stage-dark game-room-dark relative w-full cursor-none touch-none select-none overflow-hidden rounded-2xl border border-neutral-800"
       style={{ aspectRatio: "2 / 3" }}
       role="application"
       aria-label="Dark bedroom. Drag to move the flashlight, tap lit objects to collect them."

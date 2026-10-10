@@ -481,10 +481,10 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
             aria-hidden
             className={`pointer-events-none absolute z-0 -translate-x-1/2 -translate-y-1/2 border-4 ${
               sp.kind === "sofa"
-                ? "rounded-t-[40%] rounded-b-lg border-rose-950 bg-rose-800"
+                ? "rounded-t-[40%] rounded-b-lg border-[#3d0f12] bg-gradient-to-b from-[#a8333a] to-[#6e1d22] shadow-[inset_0_4px_0_rgba(255,180,170,0.25),0_14px_16px_-8px_rgba(0,0,0,0.7)]"
                 : sp.kind === "drawer"
-                  ? "rounded-md border-amber-950 bg-amber-800"
-                  : "rounded-b-[30%] border-red-950 bg-[repeating-linear-gradient(90deg,var(--color-red-800)_0_6px,var(--color-red-900)_6px_12px)]"
+                  ? "rounded-md border-[#3a1f0d] bg-gradient-to-b from-[#8a5a2b] to-[#5a3416] shadow-[0_10px_12px_-6px_rgba(0,0,0,0.6)]"
+                  : "rounded-b-[30%] border-red-950 shadow-[6px_8px_12px_-4px_rgba(0,0,0,0.5)] bg-[repeating-linear-gradient(90deg,var(--color-red-800)_0_6px,var(--color-red-900)_6px_12px)]"
             }`}
             style={{
               left: `${sp.x}%`,
