@@ -222,7 +222,7 @@
     radial-gradient(ellipse at 50% 70%, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.92) 60%, #000 100%);
 }
 .g-guest-body {
-  filter: url(#g-ink-wobble) drop-shadow(0 0 18px rgba(0, 0, 0, 0.95));
+  filter: drop-shadow(0 0 18px rgba(0, 0, 0, 0.95));
   animation: g-guest-breathe 6s ease-in-out infinite;
   transform-origin: 50% 100%;
 }

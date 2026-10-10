@@ -48,7 +48,7 @@ export function MonsterOverlay({ line, children }: MonsterOverlayProps) {
           {/* tall head, long neck, shoulders melting downward like wet ink */}
           <path
             d="M100 14 C70 14 60 46 62 78 C63 98 74 110 82 116 C58 124 40 150 38 190 C36 214 30 232 22 248 L58 244 L66 226 L76 248 L92 236 L100 252 L110 236 L124 248 L134 226 L142 244 L178 248 C170 232 164 214 162 190 C160 150 142 124 118 116 C126 110 137 98 138 78 C140 46 130 14 100 14 Z"
-            fill="url(#g-guest-fill)"
+            fill="#060403"
           />
           <ellipse cx="84" cy="70" rx="7" ry="4.5" className="g-eye" />
           <ellipse cx="116" cy="70" rx="7" ry="4.5" className="g-eye" style={{ animationDelay: "0.12s" }} />
