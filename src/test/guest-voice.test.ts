@@ -37,8 +37,8 @@ function runtime(voices: SpeechSynthesisVoice[] = []) {
 
 describe("Guest voice", () => {
   it("cancels an old line and configures a quiet English voice before speaking", () => {
-    const english = { lang: "en-GB" } as SpeechSynthesisVoice;
-    const speech = runtime([{ lang: "es-ES" } as SpeechSynthesisVoice, english]);
+    const english = { lang: "en-GB", name: "British Voice" } as SpeechSynthesisVoice;
+    const speech = runtime([{ lang: "es-ES", name: "Española" } as SpeechSynthesisVoice, english]);
 
     expect(speakGuestLine("  Come closer.  ", speech.value)).toBe(true);
     expect(speech.cancel).toHaveBeenCalledOnce();
@@ -75,6 +75,30 @@ describe("Guest voice", () => {
 
     utterance.onend?.();
     expect(onEnd).toHaveBeenCalledOnce();
+  });
+
+  it("uses Microsoft David for The Guest and Microsoft Zira for both mom roles", () => {
+    const david = {
+      lang: "en-US",
+      name: "Microsoft David Desktop",
+      voiceURI: "david",
+    } as SpeechSynthesisVoice;
+    const zira = {
+      lang: "en-US",
+      name: "Microsoft Zira Desktop",
+      voiceURI: "zira",
+    } as SpeechSynthesisVoice;
+    const speech = runtime([zira, david]);
+
+    speakGuestLine("I can see you.", speech.value, { role: "guest" });
+    speakGuestLine("I'll be home soon.", speech.value, { role: "mom" });
+    speakGuestLine("Come here.", speech.value, { role: "mom_impostor" });
+
+    const utterances = speech.speak.mock.calls.map((call) => call[0] as unknown as FakeUtterance);
+    expect(utterances[0]?.voice).toBe(david);
+    expect(utterances[1]?.voice).toBe(zira);
+    expect(utterances[2]?.voice).toBe(zira);
+    expect(utterances[2]?.pitch).toBeLessThan(utterances[1]?.pitch ?? 0);
   });
 
   it("lists only the English voices available on the device", () => {

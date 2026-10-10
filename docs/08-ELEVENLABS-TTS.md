@@ -9,6 +9,8 @@ The game prefers server-side ElevenLabs speech and falls back to the browser's W
 3. Restart `npm run dev`.
 4. In the game voice selector, choose **ElevenLabs voice** and select a line or play until The Guest speaks.
 
+The player-facing selector is currently hidden by `SHOW_VOICE_SELECTOR = false` in `GuestVoice.tsx`. Set it to `true` temporarily when comparing voices; ElevenLabs remains selected internally while it is hidden.
+
 Do not prefix these variables with `VITE_`: that would expose them to the browser. Configure the same names as server secrets in the deployed environment.
 
 ## Voice roles
@@ -16,6 +18,8 @@ Do not prefix these variables with `VITE_`: that would expose them to the browse
 - `guest`: current lines from The Guest.
 - `mom`: the genuine fictional mother voice planned for the introduction.
 - `mom_impostor`: the same fictional base, with subtly less stable generation and slightly lower playback for MG04.
+
+If ElevenLabs is unavailable, browser speech uses Microsoft David for `guest` and Microsoft Zira for both `mom` roles when those Windows voices exist. Other English voices remain the final portability fallback.
 
 `ELEVENLABS_MOM_VOICE_ID` falls back to the Guest voice ID. `ELEVENLABS_MOM_IMPOSTOR_VOICE_ID` falls back to Mom. The MG04 trigger can call `useGuestVoice(line, active, delay, onFinished, "mom_impostor")` when that level lands; no AI contract change is required.
 
@@ -29,3 +33,5 @@ Do not prefix these variables with `VITE_`: that would expose them to the browse
 - Network, quota, configuration and playback failures fall back to Web Speech; if that is unavailable too, the subtitle remains and the scene advances.
 
 The free ElevenLabs plan is suitable for evaluation, but it does not list a commercial license. Re-check licensing before a public/commercial release.
+
+Never commit real values to GitHub. For local development, put them in `.env.local` (ignored by Git). For Lovable hosting, add the same names under **More → Cloud → Secrets**; secret values are injected server-side and are not exposed to the browser.
