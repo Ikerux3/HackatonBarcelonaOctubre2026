@@ -348,7 +348,7 @@ function GameScreenInner() {
       <div
         key={slot}
         data-corruption={corruption}
-        className={`game-scene-fit g-stage-in relative ${isBlackout ? "game-flicker" : ""}`}
+        className={`game-scene-fit g-stage-in relative ${isBlackout && stage !== "blackout_three" ? "game-flicker" : ""}`}
       >
         <CorduraMeter value={state.cordura.value} />
         <CorduraContext.Provider value={cordura}>
@@ -387,8 +387,8 @@ function GameScreenInner() {
         )}
 
         {stage === "blackout_three" && (
-          <div className="absolute inset-0 z-[55] flex items-center justify-center bg-black px-6 text-center" aria-label="Six seconds of darkness with a frightened heartbeat">
-            <span className="font-serif text-xl tracking-[.25em] text-red-200 motion-safe:animate-pulse" aria-live="polite">THUMP ... THUMP ...</span>
+          <div className="game-final-heartbeat-shake absolute inset-0 z-[55] flex items-center justify-center bg-black px-6 text-center" role="status" aria-label="Six seconds of darkness and a frightened heartbeat">
+            <span className="sr-only">A frightened heartbeat. Something is coming.</span>
           </div>
         )}
 
