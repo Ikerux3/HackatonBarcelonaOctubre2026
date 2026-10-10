@@ -1,7 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-import { GUEST_VOICE_ROLES, type GuestVoiceRole } from "./guestVoice";
+import {
+  GUEST_VOICE_ROLES,
+  isElevenLabsEnabled,
+  type GuestVoiceRole,
+} from "./guestVoice";
 
 const requestSchema = z.object({
   role: z.enum(GUEST_VOICE_ROLES),
@@ -42,6 +46,7 @@ function bytesToBase64(bytes: Uint8Array): string {
 }
 
 async function requestSpeech(text: string, role: GuestVoiceRole): Promise<ElevenLabsSpeechResult> {
+  if (!isElevenLabsEnabled(process.env["ELEVENLABS_ENABLED"])) return { available: false };
   const apiKey = process.env["ELEVENLABS_API_KEY"]?.trim();
   const voiceId = voiceIdForRole(role);
   if (!apiKey || !voiceId) return { available: false };
@@ -77,6 +82,8 @@ async function requestSpeech(text: string, role: GuestVoiceRole): Promise<Eleven
 export const synthesizeGuestVoice = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => requestSchema.parse(data))
   .handler(async ({ data }): Promise<ElevenLabsSpeechResult> => {
+    // Check before the cache too: disabled requests must never call or prime ElevenLabs.
+    if (!isElevenLabsEnabled(process.env["ELEVENLABS_ENABLED"])) return { available: false };
     const cacheKey = `${data.role}\n${data.text}`;
     const cached = cache.get(cacheKey);
     if (cached) return cached;

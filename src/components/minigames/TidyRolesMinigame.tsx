@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
+import { useGuestVoice } from "@/components/game/GuestVoice";
 import { sfx } from "@/game/audio";
 import { ASSETS, COLOR_HEX, type AssetId } from "@/game/levels/assets";
 import { useCameraShake } from "@/game/cameraShake";
 import { useCordura100, useCorduraLight } from "@/game/cordura";
 import { observe } from "@/game/observer";
+import { spokenLineDurationMs } from "@/game/guestVoice";
 import { zoneCovers, type Point, type SceneObject, type TidyOptions } from "@/game/levels/types";
 import type { MinigameProps } from "./types";
 import { SceneBackdrop } from "./SceneBackdrop";
@@ -159,12 +161,15 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
   const [hideHint, setHideHint] = useState(false);
 
   const [whisper, setWhisper] = useState<string | null>(null);
+  useGuestVoice(whisper);
+  const whisperRef = useRef(whisper);
+  whisperRef.current = whisper;
   const whisperT = useRef<ReturnType<typeof setTimeout> | null>(null);
   const say = useCallback((line: string, ms = 3200) => {
     if (!line) return;
     if (whisperT.current) clearTimeout(whisperT.current);
     setWhisper(line);
-    whisperT.current = setTimeout(() => setWhisper(null), ms);
+    whisperT.current = setTimeout(() => setWhisper(null), spokenLineDurationMs(line, ms));
   }, []);
   useEffect(
     () => () => {
@@ -224,9 +229,15 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
     if (!done && total > 0 && placed.length >= total) {
       setDone(true);
       setCover(null);
-      onComplete?.();
     }
-  }, [placed.length, total, done, onComplete]);
+  }, [placed.length, total, done]);
+  useEffect(() => {
+    if (!done) return;
+    const finalLine = whisperRef.current;
+    const delay = finalLine ? spokenLineDurationMs(finalLine) : 400;
+    const timer = setTimeout(() => onComplete?.(), delay);
+    return () => clearTimeout(timer);
+  }, [done, onComplete]);
 
   const locked = (id: string) =>
     done ||

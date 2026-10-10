@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { sfx } from "@/game/audio";
 import type { CorduraEnding } from "@/game/cordura";
 import type { GameMemory, GameStage } from "@/game/GameState";
@@ -6,6 +6,7 @@ import { ASSETS, COLORS, COLOR_HEX, TOY_ASSET } from "@/game/levels/assets";
 import { SceneBackdrop } from "@/components/minigames/SceneBackdrop";
 import { ChildFigure, MomFigure } from "./Figures";
 import { useGuestVoice } from "./GuestVoice";
+import type { GuestVoiceRole } from "@/game/guestVoice";
 
 interface Props {
   stage: Extract<GameStage, "goodnight_whisper" | "mom_returns" | "unsettling_detail">;
@@ -25,8 +26,10 @@ interface Props {
 /** Final blackout whisper → mom really comes home → one detail is wrong. */
 export function EndingSequence({ stage, name, memory, toyText, colorText, ending, finalValue, onSkip }: Props) {
   const momColor = COLOR_HEX[memory.motherColor ?? "pink"];
-  if (stage === "goodnight_whisper") return <Whisper name={name} intense={finalValue >= 100} />;
-  if (stage === "mom_returns") return <MomHome name={name} momColor={momColor} ending={ending} />;
+  if (stage === "goodnight_whisper")
+    return <Whisper name={name} intense={finalValue >= 100} onDone={onSkip} />;
+  if (stage === "mom_returns")
+    return <MomHome name={name} momColor={momColor} ending={ending} onDone={onSkip} />;
   return (
     <Detail
       memory={memory}
@@ -39,9 +42,51 @@ export function EndingSequence({ stage, name, memory, toyText, colorText, ending
   );
 }
 
-function Whisper({ name, intense }: { name: string; intense: boolean }) {
+function useSpokenStageAdvance(
+  line: string,
+  onDone: () => void,
+  options: {
+    delayMs: number;
+    minimumMs: number;
+    maxWaitMs: number;
+    role?: GuestVoiceRole;
+  },
+) {
+  const [minimumElapsed, setMinimumElapsed] = useState(false);
+  const [voiceFinished, setVoiceFinished] = useState(false);
+  const advanced = useRef(false);
+  useGuestVoice(line, true, options.delayMs, () => setVoiceFinished(true), options.role);
+
+  useEffect(() => {
+    advanced.current = false;
+    setMinimumElapsed(false);
+    setVoiceFinished(false);
+    const minimumTimer = window.setTimeout(() => setMinimumElapsed(true), options.minimumMs);
+    const safetyTimer = window.setTimeout(() => {
+      if (advanced.current) return;
+      advanced.current = true;
+      onDone();
+    }, options.maxWaitMs);
+    return () => {
+      window.clearTimeout(minimumTimer);
+      window.clearTimeout(safetyTimer);
+    };
+  }, [line, onDone, options.maxWaitMs, options.minimumMs]);
+
+  useEffect(() => {
+    if (!minimumElapsed || !voiceFinished || advanced.current) return;
+    advanced.current = true;
+    onDone();
+  }, [minimumElapsed, onDone, voiceFinished]);
+}
+
+function Whisper({ name, intense, onDone }: { name: string; intense: boolean; onDone: () => void }) {
   const line = `Good night, ${name}.`;
-  useGuestVoice(line, true, 600);
+  useSpokenStageAdvance(line, onDone, {
+    delayMs: 600,
+    minimumMs: 2800,
+    maxWaitMs: 10_000,
+  });
   useEffect(() => { if (intense) sfx.possessed(); }, [intense]);
   return (
     <div className="g-ink-veil relative flex h-full items-center justify-center overflow-hidden bg-black px-6 text-center">
@@ -67,11 +112,24 @@ function MomHome({
   name,
   momColor,
   ending,
+  onDone,
 }: {
   name: string;
   momColor: string;
   ending: CorduraEnding;
+  onDone: () => void;
 }) {
+  const line =
+    ending === "crying"
+      ? `${name}? Oh, sweetie, you're crying… I'm here now. I'm here.`
+      : `I'm home, ${name}! Did you tidy up?`;
+  useEffect(() => sfx.door(), []);
+  useSpokenStageAdvance(line, onDone, {
+    delayMs: 250,
+    minimumMs: 4000,
+    maxWaitMs: 12_000,
+    role: "mom",
+  });
   return (
     <div className="g-title-room g-stage-in relative flex h-full flex-col items-center justify-center overflow-hidden px-6 text-center">
       <SceneBackdrop theme="living_room" dark={false} />
@@ -84,9 +142,7 @@ function MomHome({
         <div className="game-door-open absolute inset-0 origin-left rounded-t-md border-4 border-amber-900 bg-amber-700" />
       </div>
       <p className="g-paper-card game-monster-line relative z-10 mt-[-30vh] max-w-xs px-5 py-3 font-display text-2xl italic text-[#3a2010]">
-        {ending === "crying"
-          ? `“${name}? Oh, sweetie, you're crying… I'm here now. I'm here.”`
-          : `“I'm home, ${name}! Did you tidy up?”`}
+        “{line}”
       </p>
     </div>
   );
@@ -117,7 +173,11 @@ function Detail({
   const stolen = memory.favoriteColor;
   // fixed template, no AI call: instant, and only ever shows cleaned labels
   const goodbye = `${crying ? "Shh… don't cry. " : ""}I'll keep ${toyText} safe for you. And ${colorText}… that's mine now.`;
-  useGuestVoice(goodbye, true, 1200);
+  useSpokenStageAdvance(goodbye, onSkip, {
+    delayMs: 1200,
+    minimumMs: 6500,
+    maxWaitMs: 15_000,
+  });
   return (
     <button
       type="button"

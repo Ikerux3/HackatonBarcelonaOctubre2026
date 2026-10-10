@@ -4,6 +4,7 @@ import type { NormalizedColor } from "@/ai/contracts";
 import { COLOR_HEX } from "@/game/levels/assets";
 import { DEFAULT_NAME, sanitizeName } from "@/game/playerName";
 import { MomFigure } from "./Figures";
+import { useGuestVoice } from "./GuestVoice";
 
 interface Props {
   stage: "intro_name" | "intro_leave";
@@ -37,6 +38,11 @@ export function IntroName({ stage, motherColor, name, onName, onDone }: Props) {
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const askName = stage === "intro_name" && first.finished;
+  const spokenLine =
+    stage === "intro_name"
+      ? "I'm going to get dinner. What's your name?"
+      : rest(name ?? DEFAULT_NAME);
+  useGuestVoice(spokenLine, true, 0, undefined, "mom");
 
   useEffect(() => {
     if (askName) inputRef.current?.focus({ preventScroll: true });

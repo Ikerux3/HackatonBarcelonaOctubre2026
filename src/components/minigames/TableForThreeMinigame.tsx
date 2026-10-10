@@ -6,6 +6,7 @@ import { MonsterOverlay } from "@/components/game/MonsterOverlay";
 import { QuestionInput } from "@/components/game/QuestionInput";
 import { useGuestVoice } from "@/components/game/GuestVoice";
 import { haptic, sfx } from "@/game/audio";
+import { spokenLineDurationMs } from "@/game/guestVoice";
 import { ASSETS, COLOR_HEX, FOOD_EMOJI } from "@/game/levels/assets";
 import {
   tableKind,
@@ -151,7 +152,7 @@ export function TableForThreeMinigame({
     if (!line) return;
     if (whisperT.current) clearTimeout(whisperT.current);
     setWhisper(line);
-    whisperT.current = setTimeout(() => setWhisper(null), ms);
+    whisperT.current = setTimeout(() => setWhisper(null), spokenLineDurationMs(line, ms));
   }, []);
   useEffect(
     () => () => {
@@ -295,8 +296,9 @@ export function TableForThreeMinigame({
       setPhase("final");
       setLight(true);
       sfx.hum();
-      say(table.lines.final, 4200);
-      setTimeout(() => onComplete?.(), 4200);
+      const completionDelay = spokenLineDurationMs(table.lines.final, 4200);
+      say(table.lines.final, completionDelay);
+      setTimeout(() => onComplete?.(), completionDelay);
       return;
     }
     const key = JSON.stringify(placed);
@@ -431,7 +433,10 @@ export function TableForThreeMinigame({
 
   const foodLayer = asking && (
     <div className="absolute inset-0 z-[70]">
-      <MonsterOverlay line={food.line}>
+      <MonsterOverlay
+        line={food.line}
+        voiceLine={food.busy ? null : (food.line ?? table.food.question)}
+      >
         <QuestionInput
           question={table.food.question}
           busy={food.busy}

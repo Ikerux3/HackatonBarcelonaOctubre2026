@@ -3,7 +3,9 @@ import { describe, expect, it, vi } from "vitest";
 import {
   cancelGuestSpeech,
   getGuestVoiceOptions,
+  isElevenLabsEnabled,
   speakGuestLine,
+  spokenLineDurationMs,
   type GuestSpeechRuntime,
 } from "@/game/guestVoice";
 
@@ -36,6 +38,18 @@ function runtime(voices: SpeechSynthesisVoice[] = []) {
 }
 
 describe("Guest voice", () => {
+  it("keeps ElevenLabs disabled unless the server flag is explicitly true", () => {
+    expect(isElevenLabsEnabled(undefined)).toBe(false);
+    expect(isElevenLabsEnabled("false")).toBe(false);
+    expect(isElevenLabsEnabled("1")).toBe(false);
+    expect(isElevenLabsEnabled(" TRUE ")).toBe(true);
+  });
+
+  it("keeps longer spoken subtitles visible beyond the fixed minimum", () => {
+    expect(spokenLineDurationMs("Short line.", 3200)).toBe(3200);
+    expect(spokenLineDurationMs("one two three four five six seven eight", 3200)).toBe(4600);
+  });
+
   it("cancels an old line and configures a quiet English voice before speaking", () => {
     const english = { lang: "en-GB", name: "British Voice" } as SpeechSynthesisVoice;
     const speech = runtime([{ lang: "es-ES", name: "Española" } as SpeechSynthesisVoice, english]);

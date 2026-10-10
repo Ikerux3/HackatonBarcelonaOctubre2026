@@ -61,9 +61,6 @@ const CORDURA_MAX_TICK_MS = 1000;
 const TIMED_STAGES: Partial<Record<GameStage, number>> = {
   intro_leave: 8200, // typing + door; tap also continues
   blackout_three: 6000, // final suspense replaces (not adds to) the old blackout
-  goodnight_whisper: 2800,
-  mom_returns: 4800,
-  unsettling_detail: 6500, // goodbye line types out; tap also continues
 };
 
 export function useGameController() {

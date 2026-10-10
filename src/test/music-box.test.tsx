@@ -185,6 +185,10 @@ describe("music box minigame (UI)", () => {
     tap("Turn the key (0/3)");
     tap("Turn the key (1/3)");
     tap("Turn the key (2/3)");
+    expect(onComplete).not.toHaveBeenCalled();
+    act(() => void vi.advanceTimersByTime(3249));
+    expect(onComplete).not.toHaveBeenCalled();
+    act(() => void vi.advanceTimersByTime(1));
     expect(onComplete).toHaveBeenCalledTimes(1);
     expect(lights.at(-1)).toBeNull(); // done: Cordura stops counting
   });

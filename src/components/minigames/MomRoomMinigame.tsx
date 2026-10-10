@@ -4,7 +4,7 @@ import { useGuestVoice } from "@/components/game/GuestVoice";
 import { sfx } from "@/game/audio";
 import { useCameraShake } from "@/game/cameraShake";
 import { useCordura100, useCorduraLight } from "@/game/cordura";
-import type { GuestVoiceRole } from "@/game/guestVoice";
+import { spokenLineDurationMs, type GuestVoiceRole } from "@/game/guestVoice";
 import { ASSETS, type AssetId } from "@/game/levels/assets";
 import type { MomRoomOptions, Point } from "@/game/levels/types";
 import { momCode, pressPanel, withName } from "@/game/momRoom";
@@ -17,6 +17,7 @@ type Line = { text: string; voice: GuestVoiceRole | null };
 
 /** the "Go to mom's room" button shows up once the call has been heard */
 const CALL_BUTTON_MS = 1500;
+const CALL_MAX_WAIT_MS = 10_000;
 /** door opens → the wardrobe creaks open → The Guest's goodbye → the task ends */
 const EXIT_WARDROBE_MS = 900;
 const EXIT_DONE_MS = 4600;
@@ -38,7 +39,8 @@ export function MomRoomMinigame({ level, memory, onComplete }: MinigameProps) {
   const { shakeClass, shake: camShake, raiseTension } = useCameraShake();
 
   const [phase, setPhase] = useState<Phase>("call");
-  const [canGo, setCanGo] = useState(false);
+  const [callMinimumElapsed, setCallMinimumElapsed] = useState(false);
+  const [callVoiceFinished, setCallVoiceFinished] = useState(false);
   const [light, setLight] = useState(true);
   const [triedDark, setTriedDark] = useState(false);
   const [cardOpen, setCardOpen] = useState(false);
@@ -53,7 +55,16 @@ export function MomRoomMinigame({ level, memory, onComplete }: MinigameProps) {
   const [rattle, setRattle] = useState<"door" | "wardrobe" | "panel" | null>(null);
 
   const [line, setLine] = useState<Line | null>(null);
-  useGuestVoice(line?.text, !!line?.voice, 0, undefined, line?.voice ?? "guest");
+  useGuestVoice(
+    line?.text,
+    !!line?.voice,
+    0,
+    () => {
+      if (phase === "call") setCallVoiceFinished(true);
+    },
+    line?.voice ?? "guest",
+  );
+  const canGo = callMinimumElapsed && callVoiceFinished;
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const later = useCallback((ms: number, fn: () => void) => {
     timers.current.push(setTimeout(fn, ms));
@@ -63,7 +74,8 @@ export function MomRoomMinigame({ level, memory, onComplete }: MinigameProps) {
     if (!text) return;
     if (lineT.current) clearTimeout(lineT.current);
     setLine({ text, voice });
-    lineT.current = setTimeout(() => setLine(null), ms);
+    const displayMs = voice ? spokenLineDurationMs(text, ms) : ms;
+    lineT.current = setTimeout(() => setLine(null), displayMs);
   }, []);
   const shakeIt = (what: "door" | "wardrobe" | "panel") => {
     setRattle(what);
@@ -73,7 +85,8 @@ export function MomRoomMinigame({ level, memory, onComplete }: MinigameProps) {
   // D45: the first time The Guest says the child's name — with mom's borrowed voice
   useEffect(() => {
     if (mr) say(withName(mr.lines.call, name), "mom_impostor", 60_000);
-    later(CALL_BUTTON_MS, () => setCanGo(true));
+    later(CALL_BUTTON_MS, () => setCallMinimumElapsed(true));
+    later(CALL_MAX_WAIT_MS, () => setCallVoiceFinished(true));
     const pending = timers.current;
     return () => {
       pending.forEach(clearTimeout);

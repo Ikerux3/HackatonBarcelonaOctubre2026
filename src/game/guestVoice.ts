@@ -5,6 +5,17 @@ export const ELEVENLABS_VOICE_ID = "elevenlabs";
 export const GUEST_VOICE_ROLES = ["guest", "mom", "mom_impostor"] as const;
 export type GuestVoiceRole = (typeof GUEST_VOICE_ROLES)[number];
 
+/** ElevenLabs is an explicit opt-in so configured credentials cannot spend credits by accident. */
+export function isElevenLabsEnabled(value: string | undefined): boolean {
+  return value?.trim().toLowerCase() === "true";
+}
+
+/** Keep a spoken subtitle visible long enough for a deliberately slow horror voice. */
+export function spokenLineDurationMs(text: string, minimumMs = 3200): number {
+  const words = text.trim().split(/\s+/u).filter(Boolean).length;
+  return Math.max(minimumMs, 1000 + words * 450);
+}
+
 export interface GuestSpeechRuntime {
   synthesis: Pick<SpeechSynthesis, "cancel" | "getVoices" | "speak"> &
     Partial<Pick<SpeechSynthesis, "addEventListener" | "removeEventListener">>;

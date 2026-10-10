@@ -4,6 +4,8 @@ import { useGuestVoice } from "./GuestVoice";
 
 interface MonsterOverlayProps {
   line?: string | null;
+  /** Optional spoken text when the visible prompt is rendered by a child component. */
+  voiceLine?: string | null;
   children?: React.ReactNode;
   minimumMs?: number;
   maxWaitMs?: number;
@@ -17,6 +19,7 @@ interface MonsterOverlayProps {
  */
 export function MonsterOverlay({
   line,
+  voiceLine,
   children,
   minimumMs = 0,
   maxWaitMs = 12_000,
@@ -25,7 +28,8 @@ export function MonsterOverlay({
   const [minimumElapsed, setMinimumElapsed] = useState(false);
   const [voiceFinished, setVoiceFinished] = useState(false);
   const advanced = useRef(false);
-  useGuestVoice(line, true, 0, () => setVoiceFinished(true));
+  const spokenLine = voiceLine === undefined ? line : voiceLine;
+  useGuestVoice(spokenLine, true, 0, () => setVoiceFinished(true));
 
   useEffect(() => {
     if (!onReadyToAdvance) return;
@@ -45,7 +49,7 @@ export function MonsterOverlay({
       window.clearTimeout(minimumTimer);
       window.clearTimeout(safetyTimer);
     };
-  }, [line, maxWaitMs, minimumMs, onReadyToAdvance]);
+  }, [maxWaitMs, minimumMs, onReadyToAdvance, spokenLine]);
 
   useEffect(() => {
     if (!onReadyToAdvance || !minimumElapsed || !voiceFinished || advanced.current) return;

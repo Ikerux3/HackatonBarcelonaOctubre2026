@@ -4,6 +4,7 @@ import { useGuestVoice } from "@/components/game/GuestVoice";
 import { setMusicCorruption, sfx, stopMusicBox } from "@/game/audio";
 import { useCameraShake } from "@/game/cameraShake";
 import { useCordura100, useCorduraLight } from "@/game/cordura";
+import { spokenLineDurationMs } from "@/game/guestVoice";
 import { ASSETS, COLOR_HEX } from "@/game/levels/assets";
 import type { MusicBoxOptions } from "@/game/levels/types";
 import {
@@ -68,7 +69,7 @@ export function MusicBoxMinigame({ level, onComplete }: MinigameProps) {
     if (!line) return;
     if (whisperT.current) clearTimeout(whisperT.current);
     setWhisper(line);
-    whisperT.current = setTimeout(() => setWhisper(null), ms);
+    whisperT.current = setTimeout(() => setWhisper(null), spokenLineDurationMs(line, ms));
   }, []);
   useEffect(() => {
     if (mb) say(mb.lines.start, 4200);
@@ -162,8 +163,9 @@ export function MusicBoxMinigame({ level, onComplete }: MinigameProps) {
     if (n < mb.keyTurns) return;
     setDone(true);
     stopMusicBox();
-    say(mb.lines.done, 3000);
-    onComplete?.();
+    const completionDelay = spokenLineDurationMs(mb.lines.done, 3000);
+    say(mb.lines.done, completionDelay);
+    setTimeout(() => onComplete?.(), completionDelay);
   };
 
   if (!mb) return null;

@@ -408,7 +408,17 @@ function GameScreenInner() {
           shrinks to the visible area and the input stays right above it */}
       {isQuestion && (
         <div className="absolute inset-0 z-[70]">
-          <MonsterOverlay line={state.monsterLine}>
+          <MonsterOverlay
+            line={state.monsterLine}
+            voiceLine={
+              state.aiBusy
+                ? null
+                : (state.monsterLine ??
+                  (state.stage === "question_one"
+                    ? QUESTIONS.question_one
+                    : QUESTIONS.question_two))
+            }
+          >
             <QuestionInput
               question={
                 state.stage === "question_one" ? QUESTIONS.question_one : QUESTIONS.question_two

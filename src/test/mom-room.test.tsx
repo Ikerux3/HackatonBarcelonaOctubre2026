@@ -125,6 +125,8 @@ describe("mom's room minigame (UI)", () => {
     expect(screen.getByText("“Unai, come here a moment.”")).toBeTruthy();
     expect(lights.at(-1)).toBeNull();
     wait(1600);
+    expect(screen.queryByRole("button", { name: "Go to mom's room" })).toBeNull();
+    wait(8500); // safety escape if a browser exposes speech but never reports completion
     tap("Go to mom's room");
     expect(screen.getByText(/Find a way out/)).toBeTruthy();
     expect(lights.at(-1)).toBe("lit");
