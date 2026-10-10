@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 
 import { ArtFilters } from "./CorruptionLayer";
+import { GuestVoiceControl, GuestVoiceProvider } from "./GuestVoice";
 
 /**
  * Phone "app shell" for the game route: a fixed box that always matches the
@@ -53,17 +54,20 @@ export function GameShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="game-shell">
-      <ArtFilters />
-      {children}
-      {rotate && (
-        <div className="absolute inset-0 z-[200] flex flex-col items-center justify-center gap-3 bg-neutral-950 px-8 text-center font-serif text-neutral-200">
-          <span className="text-5xl" aria-hidden>
-            📱
-          </span>
-          <p className="text-lg italic">Turn your phone upright.</p>
-          <p className="text-sm text-neutral-500">It's watching from the other side.</p>
-        </div>
-      )}
+      <GuestVoiceProvider>
+        <ArtFilters />
+        {children}
+        <GuestVoiceControl />
+        {rotate && (
+          <div className="absolute inset-0 z-[200] flex flex-col items-center justify-center gap-3 bg-neutral-950 px-8 text-center font-serif text-neutral-200">
+            <span className="text-5xl" aria-hidden>
+              📱
+            </span>
+            <p className="text-lg italic">Turn your phone upright.</p>
+            <p className="text-sm text-neutral-500">It's watching from the other side.</p>
+          </div>
+        )}
+      </GuestVoiceProvider>
     </div>
   );
 }

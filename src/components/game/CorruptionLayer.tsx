@@ -1,3 +1,5 @@
+import type { CorruptionLevel } from "@/game/corruption";
+
 /**
  * Reusable corruption overlay for any scene (visual only). Level 0–3:
  * 0 clean · 1 edges darken + one stain · 2 more stains, drips, far eyes ·
@@ -19,7 +21,7 @@ const DRIPS = [
   { l: "88%", h: "22%", d: "1s", lvl: 3 },
 ];
 
-export function CorruptionLayer({ level }: { level: 0 | 1 | 2 | 3 }) {
+export function CorruptionLayer({ level }: { level: CorruptionLevel }) {
   if (level === 0) return null;
   return (
     <div className="g-corruption z-[50]" aria-hidden>
