@@ -35,3 +35,7 @@ Oso/coche poseídos usan `__possessed.webp`; otros usan normal con filtro CSS. I
 Capturas guardadas en la carpeta hermana `sprite-test-evidence/`, fuera del código del juego: poseído iluminado, pista del escondite, 5/5 y escena con sprites.
 
 Entregar rama y commit local para revisión funcional; probar en teléfono real antes de aprobar integración. No hacer merge ni desplegar sin autorización de Iker.
+
+## Traslado autorizado a Lovable
+
+Iker pidió después llevar estos cambios a la rama de Lovable. Se preparó el commit sobre el main remoto `a006ad9`, conservando el nuevo minijuego Table for three y su pregunta de comida. Cherry-pick sin conflictos, build PASS y suite 23/23 PASS. La prueba visual completa descrita arriba corresponde a la base anterior; la integración con la mesa nueva se revalidó mediante build y tests. Se autoriza sincronizar main; no se ejecuta despliegue independiente ni se modifica Drive.
