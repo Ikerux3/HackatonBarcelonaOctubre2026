@@ -47,8 +47,15 @@ export function EndingSequence({ stage, name, memory, toyText, colorText, onSkip
 function Whisper({ name }: { name: string }) {
   const line = useTyped(`Good night, ${name}.`, 140, 600);
   return (
-    <div className="flex h-full items-center justify-center bg-black px-6 text-center">
-      <p className="font-serif text-2xl italic tracking-wide text-neutral-400" aria-live="polite">
+    <div className="g-ink-veil relative flex h-full items-center justify-center overflow-hidden bg-black px-6 text-center">
+      <div className="g-grain-dark" />
+      <svg className="absolute left-1/2 top-[30%] h-5 w-16 -translate-x-1/2" viewBox="0 0 40 14" aria-hidden>
+        <g className="g-eyes-far">
+          <ellipse cx="12" cy="7" rx="3" ry="1.6" className="g-eye" />
+          <ellipse cx="28" cy="7" rx="3" ry="1.6" className="g-eye" />
+        </g>
+      </svg>
+      <p className="g-guest-line relative text-3xl" aria-live="polite">
         {line}
       </p>
     </div>
@@ -57,7 +64,7 @@ function Whisper({ name }: { name: string }) {
 
 function MomHome({ name }: { name: string }) {
   return (
-    <div className="game-room-cozy relative flex h-full flex-col items-center justify-center overflow-hidden px-6 text-center">
+    <div className="g-title-room g-stage-in relative flex h-full flex-col items-center justify-center overflow-hidden px-6 text-center">
       <SceneBackdrop theme="living_room" dark={false} />
       {/* front door swinging open */}
       <div
@@ -66,7 +73,7 @@ function MomHome({ name }: { name: string }) {
       >
         <div className="game-door-open absolute inset-0 origin-left rounded-t-md border-4 border-amber-900 bg-amber-700" />
       </div>
-      <p className="game-monster-line relative z-10 mt-[-30vh] max-w-xs rounded-xl bg-amber-50/90 px-4 py-3 font-serif text-xl text-amber-950 shadow-lg">
+      <p className="g-paper-card game-monster-line relative z-10 mt-[-30vh] max-w-xs px-5 py-3 font-display text-2xl italic text-[#3a2010]">
         “I'm home, {name}! Did you tidy up?”
       </p>
     </div>
@@ -96,7 +103,7 @@ function Detail({
     <button
       type="button"
       onClick={onSkip}
-      className="game-room-cozy relative flex h-full w-full items-end justify-center overflow-hidden"
+      className="g-title-room g-stage-in relative flex h-full w-full items-end justify-center overflow-hidden"
       aria-label={`The room is cozy again, but ${toyText} sits on the dinner table, and ${colorText} is gone from the room. Tap to continue.`}
     >
       <SceneBackdrop theme="dining_room" dark={false} />
@@ -132,7 +139,7 @@ function Detail({
       {goodbye && (
         <p
           aria-hidden
-          className="game-monster-line absolute inset-x-4 bottom-[6%] mx-auto max-w-sm rounded-lg bg-black/75 px-3 py-2 text-center font-serif text-base italic text-red-200"
+          className="g-guest-note g-guest-line game-monster-line absolute inset-x-4 bottom-[6%] mx-auto max-w-sm px-4 py-2.5 text-center text-lg"
         >
           {goodbye}
         </p>
