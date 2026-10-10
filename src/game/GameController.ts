@@ -47,12 +47,12 @@ export const DEFAULT_MOTHER_COLORS: NormalizedColor[] = [
 /** how long a blackout lingers before the question appears */
 export const BLACKOUT_MS = 3200;
 
+/** Safety escape if a browser never emits speech completion. */
+export const BLACKOUT_MAX_MS = 12_000;
+
 /** auto-advance timings for the timed stages (ms) */
 const TIMED_STAGES: Partial<Record<GameStage, number>> = {
   intro_leave: 8200, // typing + door; tap also continues
-  blackout_one: BLACKOUT_MS,
-  blackout_two: BLACKOUT_MS,
-  blackout_three: BLACKOUT_MS,
   goodnight_whisper: 5200,
   mom_returns: 4800,
   unsettling_detail: 6500, // goodbye line types out; tap also continues

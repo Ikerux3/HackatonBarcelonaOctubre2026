@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { cancelGuestSpeech, speakGuestLine, type GuestSpeechRuntime } from "@/game/guestVoice";
+import {
+  cancelGuestSpeech,
+  getGuestVoiceOptions,
+  speakGuestLine,
+  type GuestSpeechRuntime,
+} from "@/game/guestVoice";
 
 class FakeUtterance {
   lang = "";
@@ -9,6 +14,8 @@ class FakeUtterance {
   text: string;
   voice: SpeechSynthesisVoice | null = null;
   volume = 1;
+  onend: (() => void) | null = null;
+  onerror: (() => void) | null = null;
 
   constructor(text: string) {
     this.text = text;
@@ -48,6 +55,43 @@ describe("Guest voice", () => {
   it("keeps subtitles as the fallback when speech is unavailable or empty", () => {
     expect(speakGuestLine("Still visible.", null)).toBe(false);
     expect(speakGuestLine("   ", runtime().value)).toBe(false);
+  });
+
+  it("waits for the browser speech completion event and honors a selected voice", () => {
+    const onEnd = vi.fn();
+    const selected = {
+      lang: "en-US",
+      name: "Night Voice",
+      voiceURI: "night-voice",
+    } as SpeechSynthesisVoice;
+    const speech = runtime([selected]);
+
+    expect(speakGuestLine("Stay a while.", speech.value, { voiceId: "night-voice", onEnd })).toBe(
+      true,
+    );
+    const utterance = speech.speak.mock.calls[0]?.[0] as unknown as FakeUtterance;
+    expect(utterance.voice).toBe(selected);
+    expect(onEnd).not.toHaveBeenCalled();
+
+    utterance.onend?.();
+    expect(onEnd).toHaveBeenCalledOnce();
+  });
+
+  it("lists only the English voices available on the device", () => {
+    const english = {
+      lang: "en-GB",
+      name: "Whisper",
+      voiceURI: "whisper",
+    } as SpeechSynthesisVoice;
+    const spanish = {
+      lang: "es-ES",
+      name: "Española",
+      voiceURI: "spanish",
+    } as SpeechSynthesisVoice;
+
+    expect(getGuestVoiceOptions(runtime([spanish, english]).value)).toEqual([
+      { id: "whisper", label: "Whisper (en-GB)" },
+    ]);
   });
 
   it("cancels safely on scene transitions", () => {

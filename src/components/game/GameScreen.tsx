@@ -1,4 +1,4 @@
-import { useGameController } from "@/game/GameController";
+import { BLACKOUT_MAX_MS, BLACKOUT_MS, useGameController } from "@/game/GameController";
 import { colorLabel, guestNotes, toyLabel, type GuestSlot } from "@/game/GameState";
 import { applyGuestAction, guestOverlay } from "@/game/guestEffects";
 import { forgetGuestMemory, observe, rememberRun } from "@/game/observer";
@@ -271,6 +271,9 @@ function GameScreenInner() {
         {isBlackout && (
           <div className="absolute inset-0 z-[55]">
             <MonsterOverlay
+              minimumMs={BLACKOUT_MS}
+              maxWaitMs={BLACKOUT_MAX_MS}
+              onReadyToAdvance={advance}
               line={
                 stage === "blackout_one"
                   ? story.task_one.type === "tidy_roles"

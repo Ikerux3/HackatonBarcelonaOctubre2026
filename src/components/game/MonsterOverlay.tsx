@@ -1,8 +1,13 @@
+import { useEffect, useRef, useState } from "react";
+
 import { useGuestVoice } from "./GuestVoice";
 
 interface MonsterOverlayProps {
   line?: string | null;
   children?: React.ReactNode;
+  minimumMs?: number;
+  maxWaitMs?: number;
+  onReadyToAdvance?: () => void;
 }
 
 /**
@@ -10,8 +15,43 @@ interface MonsterOverlayProps {
  * that rewrites the scene — a wobbling silhouette, smears, more eyes than it
  * should have. Different visual language from the cozy room on purpose.
  */
-export function MonsterOverlay({ line, children }: MonsterOverlayProps) {
-  useGuestVoice(line);
+export function MonsterOverlay({
+  line,
+  children,
+  minimumMs = 0,
+  maxWaitMs = 12_000,
+  onReadyToAdvance,
+}: MonsterOverlayProps) {
+  const [minimumElapsed, setMinimumElapsed] = useState(false);
+  const [voiceFinished, setVoiceFinished] = useState(false);
+  const advanced = useRef(false);
+  useGuestVoice(line, true, 0, () => setVoiceFinished(true));
+
+  useEffect(() => {
+    if (!onReadyToAdvance) return;
+    advanced.current = false;
+    setMinimumElapsed(false);
+    setVoiceFinished(false);
+    const minimumTimer = window.setTimeout(() => setMinimumElapsed(true), minimumMs);
+    const safetyTimer = window.setTimeout(
+      () => {
+        if (advanced.current) return;
+        advanced.current = true;
+        onReadyToAdvance();
+      },
+      Math.max(maxWaitMs, minimumMs),
+    );
+    return () => {
+      window.clearTimeout(minimumTimer);
+      window.clearTimeout(safetyTimer);
+    };
+  }, [line, maxWaitMs, minimumMs, onReadyToAdvance]);
+
+  useEffect(() => {
+    if (!onReadyToAdvance || !minimumElapsed || !voiceFinished || advanced.current) return;
+    advanced.current = true;
+    onReadyToAdvance();
+  }, [minimumElapsed, onReadyToAdvance, voiceFinished]);
 
   return (
     <div className="g-ink-veil g-blackout-in absolute inset-0 z-20 flex flex-col items-center justify-end overflow-hidden pb-6">
