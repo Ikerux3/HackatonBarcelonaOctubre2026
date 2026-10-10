@@ -1,0 +1,85 @@
+{
+  "id": "music_box",
+  "title": "The music box",
+  "type": "music_box",
+  "instructions": "Make the music box stop",
+  "theme": "bedroom",
+  "objects": [
+    {
+      "id": "moon",
+      "label": "Moon",
+      "asset": "moon",
+      "color": "blue",
+      "x": 32,
+      "y": 47,
+      "size": 18,
+      "targetId": "box"
+    },
+    {
+      "id": "star",
+      "label": "Star",
+      "asset": "star",
+      "color": "yellow",
+      "x": 68,
+      "y": 47,
+      "size": 18,
+      "targetId": "box"
+    },
+    {
+      "id": "bell",
+      "label": "Bell",
+      "asset": "bell",
+      "color": "orange",
+      "x": 32,
+      "y": 63,
+      "size": 18,
+      "targetId": "box"
+    },
+    {
+      "id": "heart",
+      "label": "Heart",
+      "asset": "heart",
+      "color": "red",
+      "x": 68,
+      "y": 63,
+      "size": 18,
+      "targetId": "box"
+    }
+  ],
+  "targets": [
+    {
+      "id": "box",
+      "label": "Music box",
+      "shape": "rect",
+      "x": 50,
+      "y": 55,
+      "w": 76,
+      "h": 32
+    }
+  ],
+  "success": { "kind": "all_placed" },
+  "monster": { "trigger": "on_complete", "intervention": "none" },
+  "personalization": { "source": "none", "transform": "none" },
+  "musicBox": {
+    "rounds": [3, 4, 5, 7],
+    "sequence": null,
+    "lightSwitch": { "x": 88, "y": 20 },
+    "key": { "x": 91, "y": 50 },
+    "keyTurns": 3,
+    "showMs": 650,
+    "gapMs": 300,
+    "loopPauseMs": 1600,
+    "hints": {
+      "lit": "Light off to see its song. Light on to play it back.",
+      "dark": "Watch the symbols glow… then turn the light back on.",
+      "key": "Turn the key to stop the music."
+    },
+    "lines": {
+      "start": "Do you like my song? Sing it back to me… if you can see it.",
+      "round": "Again. A little longer this time.",
+      "wrong": "No, no. That's not how my song goes.",
+      "key": "You know my whole song now. Turn the key… if you want me to stop.",
+      "done": "Shh… fine. It's quiet now."
+    }
+  }
+}

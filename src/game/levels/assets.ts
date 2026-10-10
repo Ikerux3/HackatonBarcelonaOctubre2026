@@ -19,6 +19,11 @@ export const ASSETS = {
   pajamas: { emoji: "👚", label: "Pajamas" },
   toothbrush: { emoji: "🪥", label: "Toothbrush" },
   slippers: { emoji: "🥿", label: "Slippers" },
+  // music box symbols (shape + color, so they read without sound or color vision)
+  moon: { emoji: "🌙", label: "Moon" },
+  star: { emoji: "⭐", label: "Star" },
+  bell: { emoji: "🔔", label: "Bell" },
+  heart: { emoji: "❤️", label: "Heart" },
 } as const;
 
 export type AssetId = keyof typeof ASSETS;

@@ -7,8 +7,10 @@ import { validateLevel } from "./levels/validate";
 // Everything read from storage or files is untrusted and validated; any bad slot
 // falls back to its built-in level so the player route can never break.
 
-export const STORY_SLOTS = ["task_one", "task_two", "task_three"] as const;
+export const STORY_SLOTS = ["task_one", "task_two", "task_music", "task_three"] as const;
 export type StorySlot = (typeof STORY_SLOTS)[number];
+/** Slots added after profiles were already being saved: missing → built-in, not an error. */
+const LATER_SLOTS: readonly StorySlot[] = ["task_music"];
 
 export interface StorySlotEntry {
   /** editor entry key it was chosen from (builtin-N or draft key) — informational */
@@ -45,6 +47,10 @@ export function validateStory(input: unknown): {
   if (!isObj(input)) return { levels, story: null, errors: ["story must be an object."] };
   for (const slot of STORY_SLOTS) {
     const e = input[slot];
+    if (e === undefined && LATER_SLOTS.includes(slot)) {
+      story[slot] = { source: "", level: levels[slot] };
+      continue;
+    }
     const v = validateLevel(isObj(e) ? e.level : undefined);
     if (v.ok) {
       levels[slot] = v.level;

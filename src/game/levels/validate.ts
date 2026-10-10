@@ -205,6 +205,7 @@ export function validateLevel(input: unknown): ValidationResult {
   }
 
   if (l.type === "table_for_three") validateTable(l, objects, targets, e);
+  if (l.type === "music_box") validateMusicBox(l, objects, e);
 
   if (!isObj(l.success)) e.push("success condition is required.");
   else if (l.success.kind === "min_placed") {
@@ -362,6 +363,50 @@ function validateTable(l: Loose, objects: Loose[], targets: Loose[], e: string[]
     !["decoy", "needAll", "wrong", "scare", "swap", "final"].every((k) => txt(ln[k]))
   )
     e.push("table.lines needs decoy, needAll, wrong, scare, swap, final (max 140).");
+}
+
+/** music_box: 3–6 symbols, sane rounds and timings, a song only made of those symbols. */
+function validateMusicBox(l: Loose, objects: Loose[], e: string[]) {
+  const m = l.musicBox;
+  if (!isObj(m)) {
+    e.push("musicBox options are required.");
+    return;
+  }
+  const pt = (v: unknown) => isObj(v) && isNum(v.x, 0, 100) && isNum(v.y, 0, 100);
+  const txt = (v: unknown, max = 140) => typeof v === "string" && v.length <= max;
+  if (objects.length < 3 || objects.length > 6)
+    e.push("music_box needs 3–6 objects (the symbols on the box).");
+  const rounds = Array.isArray(m.rounds) ? m.rounds : [];
+  if (
+    rounds.length < 1 ||
+    rounds.length > 6 ||
+    !rounds.every((r: unknown) => Number.isInteger(r) && isNum(r, 1, 12)) ||
+    rounds.some((r: number, i: number) => i > 0 && r < rounds[i - 1])
+  )
+    e.push("musicBox.rounds needs 1–6 whole numbers (1–12), never shorter than the round before.");
+  const longest = rounds.every((r: unknown) => typeof r === "number") ? Math.max(0, ...rounds) : 0;
+  if (m.sequence !== null) {
+    const ids = new Set(objects.filter(isObj).map((o: Loose) => o.id));
+    if (
+      !Array.isArray(m.sequence) ||
+      m.sequence.length < longest ||
+      !m.sequence.every((id: unknown) => typeof id === "string" && ids.has(id))
+    )
+      e.push(
+        `musicBox.sequence must be null (random) or at least ${longest} object ids of the symbols.`,
+      );
+  }
+  if (!pt(m.lightSwitch) || !pt(m.key)) e.push("musicBox.lightSwitch and key x/y must be 0–100.");
+  if (!isNum(m.keyTurns, 1, 6) || !Number.isInteger(m.keyTurns))
+    e.push("musicBox.keyTurns must be a whole number 1–6.");
+  if (!isNum(m.showMs, 250, 2000) || !isNum(m.gapMs, 100, 1500) || !isNum(m.loopPauseMs, 500, 6000))
+    e.push("musicBox timings: showMs 250–2000, gapMs 100–1500, loopPauseMs 500–6000.");
+  const h = m.hints;
+  if (!isObj(h) || !["lit", "dark", "key"].every((k) => txt(h[k], 100)))
+    e.push("musicBox.hints needs lit, dark, key (max 100).");
+  const ln = m.lines;
+  if (!isObj(ln) || !["start", "round", "wrong", "key", "done"].every((k) => txt(ln[k])))
+    e.push("musicBox.lines needs start, round, wrong, key, done (max 140).");
 }
 
 export function parseLevelJson(text: string): ValidationResult {

@@ -1,5 +1,6 @@
 import type { FoodCategory, GuestDecision, NormalizedColor, ToyCategory } from "@/ai/contracts";
 import {
+  corduraStartingAt,
   freezeCordura,
   initialCordura,
   scareCordura,
@@ -19,6 +20,8 @@ export type GameStage =
   | "task_two"
   | "blackout_two"
   | "question_two"
+  | "task_music" // Minigame 03: the music box (Simon, song only visible in the dark)
+  | "blackout_music" // lights out again, no question: straight to bedtime
   | "task_three" // bedtime: flashlight, favorite toy evades
   | "blackout_three" // final blackout
   | "goodnight_whisper" // total darkness, the monster whispers the name once
@@ -53,12 +56,18 @@ export interface GameState {
 }
 
 /** Stages where a minigame is being played (the only ones where Cordura moves). */
-export const TASK_STAGES: readonly GameStage[] = ["task_one", "task_two", "task_three"];
+export const TASK_STAGES: readonly GameStage[] = [
+  "task_one",
+  "task_two",
+  "task_music",
+  "task_three",
+];
 /** Leaving this task freezes Cordura for the ending (the bathroom/pajama one in the 5-level plan). */
 const LAST_TASK: GameStage = "task_three";
 
 /** Tasks The Guest plans for, during the blackout before them. */
-export type GuestSlot = "task_two" | "task_three";
+export type GuestSlot = "task_two" | "task_music" | "task_three";
+export const GUEST_SLOTS: readonly GuestSlot[] = ["task_two", "task_music", "task_three"];
 
 export const initialGameState: GameState = {
   stage: "intro",
@@ -72,7 +81,8 @@ export const initialGameState: GameState = {
 };
 
 export type GameAction =
-  | { type: "START"; motherColor?: NormalizedColor }
+  /** `cordura`: QA start value for the bar (debug only) */
+  | { type: "START"; motherColor?: NormalizedColor; cordura?: number }
   | { type: "SET_NAME"; name: string }
   | { type: "TASK_DONE" }
   | { type: "ADVANCE" } // blackout timers / monster dialogue continue
@@ -99,6 +109,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...initialGameState,
         stage: "intro_name",
         memory: action.motherColor ? { motherColor: action.motherColor } : {},
+        cordura: action.cordura !== undefined ? corduraStartingAt(action.cordura) : initialCordura,
       };
 
     case "SET_NAME":
@@ -110,6 +121,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const next: Partial<Record<GameStage, GameStage>> = {
         task_one: "blackout_one",
         task_two: "blackout_two",
+        task_music: "blackout_music",
         task_three: "blackout_three",
       };
       const stage = next[state.stage];
@@ -132,8 +144,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           return state.memory.favoriteColor ? { ...state, stage: "task_two" } : state;
         case "question_two":
           return state.memory.favoriteToy
-            ? { ...state, stage: "task_three", monsterLine: null }
+            ? { ...state, stage: "task_music", monsterLine: null }
             : state;
+        case "blackout_music":
+          return { ...state, stage: "task_three", monsterLine: null };
         case "blackout_three":
           return { ...state, stage: "goodnight_whisper" };
         case "goodnight_whisper":
@@ -193,9 +207,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
 /** What The Guest learned this run, for the ending screen. */
 export function guestNotes(state: Pick<GameState, "guest">): string[] {
-  return (["task_two", "task_three"] as const)
-    .map((s) => state.guest[s]?.noticed)
-    .filter((n): n is string => !!n);
+  return GUEST_SLOTS.map((s) => state.guest[s]?.noticed).filter((n): n is string => !!n);
 }
 
 /** What the UI may show for each answer: AI paraphrase, else the category label. */

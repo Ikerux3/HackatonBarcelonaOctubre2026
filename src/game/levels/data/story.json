@@ -2,7 +2,15 @@
   "story": {
     "task_one": "tidy_toys",
     "task_two": "table_for_three",
+    "task_music": "music_box",
     "task_three": "bedtime"
   },
-  "editorOrder": ["tidy_toys", "set_table", "bedtime", "tidy_toys_drag", "table_for_three"]
+  "editorOrder": [
+    "tidy_toys",
+    "set_table",
+    "bedtime",
+    "tidy_toys_drag",
+    "table_for_three",
+    "music_box"
+  ]
 }

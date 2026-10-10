@@ -16,7 +16,7 @@ import {
   type TargetZone,
 } from "@/game/levels/types";
 import { useCameraShake } from "@/game/cameraShake";
-import { useCorduraLight, useCorduraScare } from "@/game/cordura";
+import { useCordura100, useCorduraLight, useCorduraScare } from "@/game/cordura";
 import { observe } from "@/game/observer";
 import { ArtImage, ArtBackground, ArtDecor, artAsset } from "./ArtImage";
 import type { MinigameProps } from "./types";
@@ -170,6 +170,17 @@ export function TableForThreeMinigame({
     asking || showHowTo || scare || forcedDark || phase === "final" ? null : dark ? "dark" : "lit",
   );
   const corduraScare = useCorduraScare();
+  // D44: the bar hit 100 → same reset as this minigame's own scare (only this phase); the
+  // game screen already shows the scare, the light comes back on so the bar can drop
+  useCordura100(() => {
+    if (phase === "final") return;
+    setDanger(0);
+    setLight(true);
+    setSelected(null);
+    if (phase === "place" || phase === "place2")
+      setPlaced(phase === "place2" ? { ...checkpoint.current } : {});
+    say(table.lines.scare);
+  });
 
   // ── danger in the dark: eyes → warning → full scare (resets only this phase) ──
   useEffect(() => {

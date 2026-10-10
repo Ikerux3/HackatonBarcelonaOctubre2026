@@ -7,6 +7,7 @@ describe("corruption-driven music", () => {
   it("uses the same corruption arc as the visual layer", () => {
     expect(corruptionLevelForStage("task_one")).toBe(0);
     expect(corruptionLevelForStage("task_two")).toBe(1);
+    expect(corruptionLevelForStage("task_music")).toBe(2);
     expect(corruptionLevelForStage("task_three")).toBe(2);
     expect(corruptionLevelForStage("blackout_three")).toBe(3);
   });
