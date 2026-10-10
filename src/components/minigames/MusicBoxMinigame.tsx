@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useGuestVoice } from "@/components/game/GuestVoice";
-import { sfx, stopMusicBox } from "@/game/audio";
+import { setMusicCorruption, sfx, stopMusicBox } from "@/game/audio";
 import { useCameraShake } from "@/game/cameraShake";
 import { useCordura100, useCorduraLight } from "@/game/cordura";
 import { ASSETS, COLOR_HEX } from "@/game/levels/assets";
@@ -44,6 +44,11 @@ export function MusicBoxMinigame({ level, onComplete }: MinigameProps) {
   const { shakeClass, shake: camShake, raiseTension } = useCameraShake();
 
   const [light, setLight] = useState(true);
+  const [initialFlicker, setInitialFlicker] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setInitialFlicker(false), 1100);
+    return () => clearTimeout(t);
+  }, []);
   const [progress, setProgress] = useState<MusicBoxProgress>(initialMusicBox);
   const progressRef = useRef(progress);
   progressRef.current = progress;
@@ -84,6 +89,12 @@ export function MusicBoxMinigame({ level, onComplete }: MinigameProps) {
     setProgress(clearInput);
     setLight(true);
   });
+
+  // The tune goes subtly wrong in the dark, then sounds familiar once lit.
+  useEffect(() => {
+    setMusicCorruption(light ? 1 : 3);
+    if (!light && progress.round === 3 && !done) sfx.knock();
+  }, [light, progress.round, done]);
 
   // in the dark the song plays on the box, over and over, while rounds are left
   useEffect(() => {
@@ -162,7 +173,7 @@ export function MusicBoxMinigame({ level, onComplete }: MinigameProps) {
 
   return (
     <div
-      className={`g-stage relative w-full touch-none select-none overflow-hidden rounded-2xl border border-neutral-800 ${shakeClass}`}
+      className={`g-stage relative w-full touch-none select-none overflow-hidden rounded-2xl border border-neutral-800 ${shakeClass} ${initialFlicker ? "game-flicker" : ""}`}
       style={{ aspectRatio: "2 / 3" }}
       role="application"
       aria-label="The music box. Turn the light off to see its song, on to play it back."
@@ -199,6 +210,13 @@ export function MusicBoxMinigame({ level, onComplete }: MinigameProps) {
           </span>
         )}
       </div>
+
+      {/* Rounds 3/4: a silhouette in the window, and a knock only on round 4. */}
+      {!light && progress.round >= 2 && !allRounds && (
+        <div aria-hidden className="pointer-events-none absolute left-[7%] top-[24%] z-[20] flex h-20 w-10 items-center justify-center rounded-t-2xl border border-slate-500/40 bg-black/70 text-3xl text-slate-300/80">
+          👤
+        </div>
+      )}
 
       {/* The Guest, behind the box, once the song has played through */}
       {eyes && !light && (
