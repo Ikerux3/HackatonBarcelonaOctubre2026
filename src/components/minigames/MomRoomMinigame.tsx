@@ -404,7 +404,7 @@ export function MomRoomMinigame({ level, memory, onComplete }: MinigameProps) {
                 ? `The ${level.objects.find((o) => o.id === mr.order[1])?.label ?? "middle item"} belongs between the ${level.objects.find((o) => o.id === mr.order[0])?.label ?? "first item"} and the ${level.objects.find((o) => o.id === mr.order[2])?.label ?? "last item"}.`
                 : `The ${level.objects.find((o) => o.id === mr.order[0])?.label ?? "first item"} comes before the ${level.objects.find((o) => o.id === mr.order[1])?.label ?? "last item"}.`}</p>
               <p className="mt-2 font-medium">What symbols did you see on them in the dark?</p>
-            </div>       </ol>
+            </div>
             <button
               type="button"
               onClick={() => {
