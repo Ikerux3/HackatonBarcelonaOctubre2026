@@ -3,6 +3,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GuestVoiceControl, GuestVoiceProvider } from "@/components/game/GuestVoice";
 import { MonsterOverlay } from "@/components/game/MonsterOverlay";
+import { GUEST_VOICE_ID_KEY } from "@/game/guestVoice";
+
+const { synthesizeGuestVoiceMock } = vi.hoisted(() => ({
+  synthesizeGuestVoiceMock: vi.fn(),
+}));
+
+vi.mock("@/game/guestVoice.functions", () => ({
+  synthesizeGuestVoice: synthesizeGuestVoiceMock,
+}));
 
 class BrowserUtterance {
   static instances: BrowserUtterance[] = [];
@@ -26,7 +35,11 @@ describe("timed monster speech", () => {
     vi.useFakeTimers();
     BrowserUtterance.instances = [];
     systemVoices = [];
+    synthesizeGuestVoiceMock.mockReset();
+    synthesizeGuestVoiceMock.mockResolvedValue({ available: false });
     localStorage.clear();
+    // These tests exercise the deterministic browser fallback, not the remote provider.
+    localStorage.setItem(GUEST_VOICE_ID_KEY, "");
     Object.defineProperty(window, "SpeechSynthesisUtterance", {
       configurable: true,
       value: BrowserUtterance,
@@ -108,5 +121,25 @@ describe("timed monster speech", () => {
     expect(BrowserUtterance.instances).toHaveLength(1);
     expect(BrowserUtterance.instances[0]?.text).toBe("Can you hear me, sweetie?");
     expect(BrowserUtterance.instances[0]?.voice).toBe(selected);
+  });
+
+  it("falls back to browser speech when ElevenLabs is not configured", async () => {
+    systemVoices = [{ lang: "en-US", name: "Fallback" } as SpeechSynthesisVoice];
+    render(
+      <GuestVoiceProvider>
+        <GuestVoiceControl />
+      </GuestVoiceProvider>,
+    );
+
+    fireEvent.change(screen.getByRole("combobox", { name: "Guest voice" }), {
+      target: { value: "elevenlabs" },
+    });
+    await act(async () => Promise.resolve());
+
+    expect(synthesizeGuestVoiceMock).toHaveBeenCalledWith({
+      data: { role: "guest", text: "Can you hear me, sweetie?" },
+    });
+    expect(BrowserUtterance.instances).toHaveLength(1);
+    expect(BrowserUtterance.instances[0]?.text).toBe("Can you hear me, sweetie?");
   });
 });
