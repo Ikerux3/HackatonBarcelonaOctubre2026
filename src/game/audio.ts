@@ -1,6 +1,8 @@
 // Minimal WebAudio effects. Audio starts only after a user gesture
 // (the Play button) and every helper is a no-op if the context failed.
 
+import type { CorruptionLevel } from "./corruption";
+
 let ctx: AudioContext | null = null;
 
 export function initAudio(): void {
@@ -34,12 +36,46 @@ export function haptic(pattern: number | number[]): void {
   }
 }
 
-// ---- music box loop (intro + first task), detunes a little more every bar ----
-const MELODY = [784, 659, 523, 659, 784, 784, 784, 0, 698, 587, 494, 587, 698, 698, 698, 0];
+// ---- music box loop: C major slowly gives way to A minor as corruption rises ----
+const MELODIES: Record<CorruptionLevel, readonly number[]> = {
+  // C major: C-E-G followed by B-D-F tension resolving back toward C.
+  0: [784, 659, 523, 659, 784, 784, 784, 0, 698, 587, 494, 587, 698, 698, 698, 0],
+  // Pivot: the first phrase remains in C; the second establishes A-C-E.
+  1: [784, 659, 523, 659, 784, 784, 784, 0, 659, 523, 440, 523, 659, 659, 659, 0],
+  // A natural minor: same white-note collection, but A is now the tonal home.
+  2: [659, 523, 440, 523, 659, 659, 659, 0, 698, 587, 440, 587, 698, 523, 440, 0],
+  // A harmonic minor: G-sharp makes the final dominant pull more disturbing.
+  3: [659, 523, 440, 523, 659, 659, 659, 0, 831, 659, 494, 659, 831, 659, 440, 0],
+};
+
+export const MUSIC_MODE_BY_CORRUPTION = [
+  "C major",
+  "C major to A minor",
+  "A minor",
+  "A harmonic minor",
+] as const;
+
+export function musicModeForCorruption(level: CorruptionLevel) {
+  return MUSIC_MODE_BY_CORRUPTION[level];
+}
+
+export function musicMelodyForCorruption(level: CorruptionLevel): readonly number[] {
+  return MELODIES[level];
+}
+
 const NOTE_MS = 360;
 let musicTimer: ReturnType<typeof setInterval> | null = null;
 let musicStep = 0;
-let detuneCents = 0;
+let ageDetuneCents = 0;
+let requestedCorruption: CorruptionLevel = 0;
+let activeCorruption: CorruptionLevel = 0;
+
+const CORRUPTION_DETUNE_CENTS: Record<CorruptionLevel, number> = {
+  0: 0,
+  1: 8,
+  2: 22,
+  3: 42,
+};
 
 function chime(freq: number, cents: number): void {
   if (!ctx || !freq) return;
@@ -66,21 +102,30 @@ export function startMusicBox(): void {
   resume();
   if (!ctx || musicTimer) return;
   musicTimer = setInterval(() => {
-    chime(MELODY[musicStep % MELODY.length]!, detuneCents);
+    const melody = musicMelodyForCorruption(activeCorruption);
+    if (musicStep % melody.length === 0) activeCorruption = requestedCorruption;
+    const activeMelody = musicMelodyForCorruption(activeCorruption);
+    const cents = Math.min(CORRUPTION_DETUNE_CENTS[activeCorruption] + ageDetuneCents, 90);
+    chime(activeMelody[musicStep % activeMelody.length]!, cents);
     musicStep++;
-    if (musicStep % MELODY.length === 0) detuneCents = Math.min(detuneCents + 12, 90);
+    if (musicStep % activeMelody.length === 0) ageDetuneCents = Math.min(ageDetuneCents + 3, 18);
   }, NOTE_MS);
 }
-/** progress-based detune floor (0 = in tune) */
-export function setMusicDetune(cents: number): void {
-  detuneCents = Math.max(detuneCents, cents);
+
+/** Changes mode on the next full melody loop, avoiding an abrupt mid-phrase modulation. */
+export function setMusicCorruption(level: CorruptionLevel): void {
+  requestedCorruption = level;
+  if (!musicTimer) activeCorruption = level;
 }
+
 export function stopMusicBox(reset = false): void {
   if (musicTimer) clearInterval(musicTimer);
   musicTimer = null;
   if (reset) {
-    detuneCents = 0;
+    ageDetuneCents = 0;
     musicStep = 0;
+    requestedCorruption = 0;
+    activeCorruption = 0;
   }
 }
 

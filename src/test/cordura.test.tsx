@@ -1,8 +1,10 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import type { ReactNode } from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { EndingScreen } from "@/components/game/EndingScreen";
 import { EndingSequence } from "@/components/game/EndingSequence";
+import { GuestVoiceProvider } from "@/components/game/GuestVoice";
 import {
   CORDURA_RULES,
   corduraEnding,
@@ -15,6 +17,28 @@ import {
 import { gameReducer, initialGameState, type GameAction, type GameState } from "@/game/GameState";
 
 afterEach(cleanup);
+
+// The ending scenes speak The Guest's lines (Flash's GuestVoice): they need the provider
+// GameShell gives them, and jsdom has no speech synthesis, so stub a silent one.
+beforeEach(() => {
+  Object.defineProperty(window, "SpeechSynthesisUtterance", {
+    configurable: true,
+    value: class {
+      constructor(public text: string) {}
+    },
+  });
+  Object.defineProperty(window, "speechSynthesis", {
+    configurable: true,
+    value: {
+      addEventListener: vi.fn(),
+      cancel: vi.fn(),
+      getVoices: () => [],
+      removeEventListener: vi.fn(),
+      speak: vi.fn(),
+    },
+  });
+});
+const inShell = (ui: ReactNode) => render(<GuestVoiceProvider>{ui}</GuestVoiceProvider>);
 
 const run = (s: GameState, ...actions: GameAction[]) => actions.reduce(gameReducer, s);
 
@@ -141,13 +165,13 @@ describe("Barra de Cordura (Drive D28/D33/D34)", () => {
       colorText: "blue",
       onSkip: () => {},
     };
-    render(<EndingSequence stage="mom_returns" ending="crying" {...props} />);
+    inShell(<EndingSequence stage="mom_returns" ending="crying" {...props} />);
     expect(screen.getByText(/you're crying/)).toBeTruthy();
     cleanup();
-    render(<EndingSequence stage="mom_returns" ending="scared" {...props} />);
+    inShell(<EndingSequence stage="mom_returns" ending="scared" {...props} />);
     expect(screen.getByText(/Did you tidy up\?/)).toBeTruthy();
     cleanup();
-    render(<EndingSequence stage="unsettling_detail" ending="crying" {...props} />);
+    inShell(<EndingSequence stage="unsettling_detail" ending="crying" {...props} />);
     // the drawing is aria-hidden (the button's label describes the scene)
     expect(screen.getByRole("img", { name: "The child, crying", hidden: true })).toBeTruthy();
     expect(screen.getByRole("button").getAttribute("aria-label")).toMatch(/while you cry/);

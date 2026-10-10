@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { interpretAnswerSafe } from "@/ai/aiAdapter";
 import { MonsterOverlay } from "@/components/game/MonsterOverlay";
 import { QuestionInput } from "@/components/game/QuestionInput";
+import { useGuestVoice } from "@/components/game/GuestVoice";
 import { haptic, sfx } from "@/game/audio";
 import { ASSETS, COLOR_HEX, FOOD_EMOJI } from "@/game/levels/assets";
 import {
@@ -126,6 +127,7 @@ export function TableForThreeMinigame({
   const [illusion, setIllusion] = useState<string | null>(null);
   const [shake, setShake] = useState<string | null>(null);
   const [whisper, setWhisper] = useState<string | null>(null);
+  useGuestVoice(whisper);
   const [showHowTo, setShowHowTo] = useState(false);
   /** the switch pulses until the player has tried the dark once */
   const [triedDark, setTriedDark] = useState(false);

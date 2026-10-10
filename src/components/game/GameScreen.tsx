@@ -1,5 +1,5 @@
 import { CorduraContext, corduraEnding, finalCordura } from "@/game/cordura";
-import { useGameController } from "@/game/GameController";
+import { BLACKOUT_MAX_MS, BLACKOUT_MS, useGameController } from "@/game/GameController";
 import { colorLabel, guestNotes, toyLabel, type GuestSlot } from "@/game/GameState";
 import { applyGuestAction, guestOverlay } from "@/game/guestEffects";
 import { forgetGuestMemory, observe, rememberRun } from "@/game/observer";
@@ -13,12 +13,13 @@ import { useEffect, useRef, useState } from "react";
 import {
   haptic,
   initAudio,
-  setMusicDetune,
+  setMusicCorruption,
   startDrone,
   startMusicBox,
   stopDrone,
   stopMusicBox,
 } from "@/game/audio";
+import { corruptionLevelForStage } from "@/game/corruption";
 import { loadStoryLevels, type StoryLevels } from "@/game/demoProfile";
 import { STORY_LEVELS } from "@/game/levels/defaultLevels";
 import { MinigameHost } from "@/components/minigames/MinigameHost";
@@ -98,22 +99,25 @@ function GameScreenInner() {
     const st = state.stage;
     if (st === "intro") {
       startedAt.current = null;
+      setMusicCorruption(0);
       stopDrone();
       return;
     }
     if (st === "task_one" && startedAt.current === null) startedAt.current = Date.now();
     if (st === "ending" && startedAt.current !== null) setLastedMs(Date.now() - startedAt.current);
 
-    if (st === "intro_name" || st === "intro_leave" || st === "task_one") {
-      stopDrone();
-      startMusicBox();
-    } else if (st === "ending" || st === "mom_returns" || st === "unsettling_detail") {
+    if (st === "ending" || st === "mom_returns" || st === "unsettling_detail") {
       stopMusicBox(true);
       stopDrone();
     } else {
-      // every later stage is dark
-      stopMusicBox();
-      setMusicDetune(60);
+      setMusicCorruption(corruptionLevelForStage(st));
+      startMusicBox();
+    }
+
+    if (st === "intro_name" || st === "intro_leave" || st === "task_one") {
+      stopDrone();
+    } else if (st !== "ending" && st !== "mom_returns" && st !== "unsettling_detail") {
+      // Later stages keep the corrupted music box under the dark ambient drone.
       startDrone();
     }
     if (st === "question_one" || st === "question_two" || st === "goodnight_whisper")
@@ -133,6 +137,7 @@ function GameScreenInner() {
         onPointerDown={() => {
           // first touch on the title screen unlocks audio and starts the music box
           initAudio();
+          setMusicCorruption(0);
           startMusicBox();
         }}
         className="g-title-room relative flex h-full flex-col items-center justify-center gap-5 overflow-hidden px-6 text-center"
@@ -241,10 +246,8 @@ function GameScreenInner() {
   const baseLevel = story[slot];
   const level = plan ? applyGuestAction(baseLevel, plan.action) : baseLevel;
   const isQuestion = state.stage === "question_one" || state.stage === "question_two";
-  // visual-only decay: grows with each task, peaks at the final blackout
-  const corruption = (
-    stage === "blackout_three" ? 3 : slot === "task_one" ? 0 : slot === "task_two" ? 1 : 2
-  ) as 0 | 1 | 2 | 3;
+  // Art and music share the same stage-based corruption arc.
+  const corruption = corruptionLevelForStage(stage);
 
   return (
     <div
@@ -278,6 +281,9 @@ function GameScreenInner() {
         {isBlackout && (
           <div className="absolute inset-0 z-[55]">
             <MonsterOverlay
+              minimumMs={BLACKOUT_MS}
+              maxWaitMs={BLACKOUT_MAX_MS}
+              onReadyToAdvance={advance}
               line={
                 stage === "blackout_one"
                   ? story.task_one.type === "tidy_roles"
