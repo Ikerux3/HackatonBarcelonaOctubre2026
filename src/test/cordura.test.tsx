@@ -72,6 +72,8 @@ function atLastTask(cordura?: number): GameState {
     { type: "TASK_DONE" },
     { type: "ADVANCE" }, // → question_two
     { type: "AI_RESULT", monsterLine: "…", normalizedToy: "teddy" },
+    { type: "ADVANCE" }, // → task_music (the music box)
+    { type: "TASK_DONE" },
     { type: "ADVANCE" }, // → task_three
   );
   expect(s.stage).toBe("task_three");

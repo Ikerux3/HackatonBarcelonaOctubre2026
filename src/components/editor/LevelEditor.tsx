@@ -22,6 +22,7 @@ import {
   type StorySlot,
 } from "@/game/demoProfile";
 import { AITestBox } from "@/components/editor/AITestBox";
+import { GuestVoiceProvider } from "@/components/game/GuestVoice";
 import { MinigameHost } from "@/components/minigames/MinigameHost";
 import { SceneBackdrop } from "@/components/minigames/SceneBackdrop";
 import type { GameMemory } from "@/game/GameState";
@@ -29,12 +30,15 @@ import { ASSETS, ASSET_IDS, COLORS, COLOR_HEX, type AssetId } from "@/game/level
 import {
   BEDTIME,
   BUILT_IN_LEVELS,
+  MUSIC_BOX,
   SET_TABLE,
+  STORY_LEVELS,
   TIDY_TOYS,
   TIDY_TOYS_DRAG,
 } from "@/game/levels/defaultLevels";
 import type {
   FlashlightOptions,
+  MusicBoxOptions,
   TidyOptions,
   TidyRole,
   LevelConfig,
@@ -104,11 +108,14 @@ export function LevelEditor() {
 
   const [aiMode, setAiModeState] = useState<AIMode>("live");
   const [scripted, setScripted] = useState<ScriptedLines | null>(null);
-  const DEFAULT_KEYS: Record<StorySlot, string> = {
-    task_one: "builtin-0",
-    task_two: "builtin-1",
-    task_three: "builtin-2",
-  };
+  // what story.json plays in each slot, as editor keys (was hard-coded and had drifted:
+  // task_two pointed at "Set the table" while the story plays "Table for three")
+  const DEFAULT_KEYS = Object.fromEntries(
+    STORY_SLOTS.map((slot) => {
+      const i = BUILT_IN_LEVELS.findIndex((l) => l.id === STORY_LEVELS[slot].id);
+      return [slot, `builtin-${Math.max(0, i)}`];
+    }),
+  ) as Record<StorySlot, string>;
   const [storyKeys, setStoryKeys] = useState<Record<StorySlot, string>>(DEFAULT_KEYS);
   const [storyActive, setStoryActive] = useState(false);
   const [profileMsg, setProfileMsg] = useState<string[]>([]);
@@ -122,6 +129,7 @@ export function LevelEditor() {
       const extra: Entry[] = [];
       for (const slot of STORY_SLOTS) {
         const src = saved[slot].source;
+        if (!src) continue; // a slot the saved story didn't have yet: keep the built-in
         if (src.startsWith("builtin-") || drafts.some((d) => d.key === src)) keys[slot] = src;
         else {
           // the draft is gone: keep its snapshot as a new draft
@@ -163,6 +171,7 @@ export function LevelEditor() {
     return {
       task_one: pick("task_one"),
       task_two: pick("task_two"),
+      task_music: pick("task_music"),
       task_three: pick("task_three"),
     };
   };
@@ -203,6 +212,7 @@ export function LevelEditor() {
     const keys = { ...DEFAULT_KEYS };
     for (const slot of STORY_SLOTS) {
       const src = p.story[slot].source;
+      if (!src) continue; // an older profile without this slot: keep the built-in
       if (src.startsWith("builtin-") && Number(src.slice(8)) < BUILT_IN_LEVELS.length)
         keys[slot] = src;
       else if (merged.some((d) => d.key === src)) keys[slot] = src;
@@ -488,7 +498,7 @@ export function LevelEditor() {
             Reset to built-in
           </button>
         </div>
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-4">
           {STORY_SLOTS.map((slot, i) => (
             <label key={slot} className={label}>
               {slot} {storyChecks[i]!.ok ? "" : "⚠ invalid — built-in will play"}
@@ -643,6 +653,12 @@ export function LevelEditor() {
                       }
                     } else {
                       delete (l as { tidy?: unknown }).tidy;
+                    }
+                    if (l.type === "music_box") {
+                      l.musicBox ??= clone((MUSIC_BOX as { musicBox: MusicBoxOptions }).musicBox);
+                      l.musicBox.sequence = null; // the template's symbols may not exist here
+                    } else {
+                      delete (l as { musicBox?: unknown }).musicBox;
                     }
                   })
                 }
@@ -1390,13 +1406,16 @@ export function LevelEditor() {
           >
             {mode === "play" && check.ok ? (
               <>
-                <MinigameHost
-                  key={playRound}
-                  level={check.level}
-                  memory={mem}
-                  dark={dark}
-                  onComplete={() => setPlayDone(true)}
-                />
+                {/* minigames with Guest lines (table, music box) speak through this */}
+                <GuestVoiceProvider>
+                  <MinigameHost
+                    key={playRound}
+                    level={check.level}
+                    memory={mem}
+                    dark={dark}
+                    onComplete={() => setPlayDone(true)}
+                  />
+                </GuestVoiceProvider>
                 {playDone && (
                   <p className="mt-2 text-center text-sm font-bold text-emerald-400">
                     ✓ Level complete

@@ -13,6 +13,8 @@ export function corruptionLevelForStage(stage: GameStage): CorruptionLevel {
     case "blackout_two":
     case "question_two":
       return 1;
+    case "task_music":
+    case "blackout_music":
     case "task_three":
       return 2;
     case "blackout_three":

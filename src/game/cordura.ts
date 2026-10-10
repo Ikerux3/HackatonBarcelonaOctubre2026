@@ -127,7 +127,9 @@ export const CorduraContext = createContext<CorduraReporter>(NOOP);
 /** Minigames call this with the light the player is in right now. */
 export function useCorduraLight(light: CorduraLight | null) {
   const report = useContext(CorduraContext);
-  useEffect(() => report.light(light), [report, light]);
+  useEffect(() => {
+    report.light(light);
+  }, [report, light]);
   useEffect(() => () => report.light(null), [report]);
 }
 

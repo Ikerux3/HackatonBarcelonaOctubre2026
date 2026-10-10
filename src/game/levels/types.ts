@@ -270,8 +270,43 @@ export interface TableForThreeLevel extends LevelBase {
   table: TableOptions;
 }
 
+// ── music_box (Minigame 03 "La caja de música", Drive D38 → D41) ──
+
+export interface MusicBoxOptions {
+  /** symbols per round; each round's song starts with the previous one (D41: 3, 4, 5, 7) */
+  rounds: number[];
+  /** fixed song (object ids, at least as long as the last round); null = new every run */
+  sequence: string[] | null;
+  lightSwitch: Point;
+  /** the winding key that stops the music once every round is done */
+  key: Point;
+  /** taps on the key that stop the music */
+  keyTurns: number;
+  /** in the dark, each symbol glows for showMs, then gapMs; the song repeats after loopPauseMs */
+  showMs: number;
+  gapMs: number;
+  loopPauseMs: number;
+  hints: { lit: string; dark: string; key: string };
+  lines: { start: string; round: string; wrong: string; key: string; done: string };
+}
+
+/**
+ * Simon in the dark: the song (which symbols glow, in order) can ONLY be seen with the
+ * light off, and ONLY typed with the light on. Objects = the symbol buttons on the box
+ * (any asset); targets = the box itself. Rounds already done are kept.
+ */
+export interface MusicBoxLevel extends LevelBase {
+  type: "music_box";
+  musicBox: MusicBoxOptions;
+}
+
 export type LevelConfig =
-  DragToTargetLevel | PlaceItemsLevel | FlashlightFindLevel | TidyRolesLevel | TableForThreeLevel;
+  | DragToTargetLevel
+  | PlaceItemsLevel
+  | FlashlightFindLevel
+  | TidyRolesLevel
+  | TableForThreeLevel
+  | MusicBoxLevel;
 export type MinigameType = LevelConfig["type"];
 export const MINIGAME_TYPES: MinigameType[] = [
   "drag_to_target",
@@ -279,6 +314,7 @@ export const MINIGAME_TYPES: MinigameType[] = [
   "flashlight_find",
   "tidy_roles",
   "table_for_three",
+  "music_box",
 ];
 
 /** Table pieces: plate / glass / cutlery, by asset. */

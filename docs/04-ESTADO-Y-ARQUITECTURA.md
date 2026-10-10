@@ -1,6 +1,6 @@
 # 04 — ESTADO Y ARQUITECTURA | MOMMY WILL BE BACK
 
-Actualizado: **10 oct 2026, 05:40** · Autor: Unai + Claude Code · base `main` @ `516db18` (Cordura + dos finales ya en `main`) · QA de regresión en producción: `docs/07-QA-REGRESION-IA.md` · **Evento 100 de la Cordura (D44)** en la rama `unai/cordura100-musicbox` (pendiente de PR)
+Actualizado: **10 oct 2026, 05:40** · Autor: Unai + Claude Code · base `main` @ `516db18` (Cordura + dos finales ya en `main`) · QA de regresión en producción: `docs/07-QA-REGRESION-IA.md` · **Evento 100 de la Cordura (D44) + Minijuego 03 "La caja de música" (D41)** en la rama `unai/cordura100-musicbox` (pendiente de PR)
 
 > Documento de orden: qué hay hecho, cómo está construido y qué falta. Distingue **VERIFICADO** (probado con evidencia), **HECHO** (en el código, sin prueba completa) y **PENDIENTE**.
 
@@ -23,7 +23,7 @@ Actualizado: **10 oct 2026, 05:40** · Autor: Unai + Claude Code · base `main` 
 
 Un niño se queda solo en casa mientras mamá va a por la cena. Hace tareas (recoger juguetes, poner la mesa, prepararse para dormir) mientras se va la luz y **El Invitado**, un monstruo controlado por IA, le hace preguntas, **observa cómo juega** y usa todo lo que aprende para asustarle en la siguiente tarea.
 
-## 3. Flujo de una partida (≈3–4 min; medido en QA: 2:49–4:01)
+## 3. Flujo de una partida (≈3–4 min medidos en QA antes de la caja de música, que añade ~1–2 min)
 
 1. **Título** → Play. Aquí se sortea **una sola vez** el color del vestido de mamá para toda la partida.
 2. **Mamá se despide** (aparece con ese vestido — pista provisional hasta el cómic) y se interrumpe para preguntar tu **nombre** (validado en el móvil, nunca sale del dispositivo).
@@ -36,12 +36,13 @@ Un niño se queda solo en casa mientras mamá va a por la cena. Hace tareas (rec
    - Si sales y vuelves (o antes de la comprobación final), **intercambia dos piezas**.
    - Al terminar, coloca solo un **tercer servicio gigante**: *"How nice. Now we're all here."*
 6. **Apagón** → pregunta tu **juguete favorito de pequeño**.
-7. **Tarea 3 — Dormir con linterna**: buscar pijama, cepillo y **tu juguete**, que huye la primera vez.
-8. **Final** (decisión del equipo, 10 oct): susurro de tu nombre a oscuras → mamá vuelve de verdad (con su vestido) → **mamá y el niño en una habitación iluminada; en la de al lado, a oscuras, los ojos de El Invitado con tu juguete** → despedida del Invitado → **"What The Guest noticed about you"**. **Dos finales según la Cordura** (D34): de 0 a 64 mamá te encuentra algo asustado; de 65 a 100, llorando (lágrimas, otra frase de mamá y del Invitado). Mamá vuelve en los dos.
+7. **Tarea 3 — La caja de música** (Minijuego 03, D41, NUEVO): El Invitado ha dado cuerda a la caja de música y quiere que le cantes su canción. **Con la luz apagada** los símbolos de la caja (luna, estrella, campana, corazón) brillan en orden; **con la luz encendida** se tocan en ese orden. Cuatro rondas de **3, 4, 5 y 7** símbolos, cada una empieza con la canción de la anterior y **se guarda al superarla**. Fallar solo borra lo tecleado en esa ronda (sin susto); para volver a ver la canción, apagar otra vez (relecturas ilimitadas). A oscuras sube la Cordura y, tras una vuelta de la canción, aparecen los ojos del Invitado detrás de la caja. Al final se gira la **llave** (3 toques) y la música se para. Apagón sin pregunta: *"Shh… fine. It's quiet now."*
+8. **Tarea 4 — Dormir con linterna**: buscar pijama, cepillo y **tu juguete**, que huye la primera vez.
+9. **Final** (decisión del equipo, 10 oct): susurro de tu nombre a oscuras → mamá vuelve de verdad (con su vestido) → **mamá y el niño en una habitación iluminada; en la de al lado, a oscuras, los ojos de El Invitado con tu juguete** → despedida del Invitado → **"What The Guest noticed about you"**. **Dos finales según la Cordura** (D34): de 0 a 64 mamá te encuentra algo asustado; de 65 a 100, llorando (lágrimas, otra frase de mamá y del Invitado). Mamá vuelve en los dos.
 
 **Barra de Cordura** (D28/D33/D34; `src/game/cordura.ts`): de 0 a 100, cuanto más alta peor está el niño. Se ve arriba durante las tareas. **+1 cada 2 s a oscuras**, **+10 por susto completo**, **−1 cada 3 s con la luz encendida** (propuesta de MJ, **aprobada por Iker en D43**; se cambia en una línea).
 
-**Evento 100** (D44, rama `unai/cordura100-musicbox`): al llegar a 100 hay **un** susto completo (ojos rojos a pantalla completa 1,6 s, sonido y vibración) y el minijuego actual **reinicia solo su fase** — conserva lo ya guardado, las respuestas y la memoria — y vuelve la luz para poder recuperarse. **No se repite** mientras sigas en 100: solo se rearma cuando la luz baja la barra a **90** (`CORDURA_RULES.rearmAt`, ~30 s con luz). Si es el susto propio de un minijuego (+10) el que llega a 100, ese ya cuenta como el susto y no se encadena otro. Qué reinicia cada minijuego: **juguetes** → el juguete poseído salta a otro hueco, se suelta si lo arrastrabas y se enciende la luz principal (los juguetes guardados se quedan); **mesa** → lo mismo que su propio susto (vuelve al checkpoint o a vacío en esta fase, luz encendida); **linterna** → lo encontrado se queda, el juguete que huye vuelve a su sitio y huirá otra vez; **mesa simple** (`DragMinigame`, fuera de la historia) → solo el susto. Solo cuenta dentro de los minijuegos: se para en las preguntas (también la de la comida), los apagones entre tareas, la tarjeta de instrucciones y las escenas del monstruo (susto, intercambio, tercer servicio). Las fracciones de segundo se acumulan. Al **salir del último minijuego** se congela, y el final usa ese valor (no el máximo alcanzado); el apagón final y la vuelta de mamá no la cambian. Mientras no exista el minijuego del baño, el último es el de dormir con linterna, que cuenta **siempre como oscuridad** (la luz del cuarto está apagada; la linterna no cuenta como luz).
+**Evento 100** (D44, rama `unai/cordura100-musicbox`): al llegar a 100 hay **un** susto completo (ojos rojos a pantalla completa 1,6 s, sonido y vibración) y el minijuego actual **reinicia solo su fase** — conserva lo ya guardado, las respuestas y la memoria — y vuelve la luz para poder recuperarse. **No se repite** mientras sigas en 100: solo se rearma cuando la luz baja la barra a **90** (`CORDURA_RULES.rearmAt`, ~30 s con luz). Si es el susto propio de un minijuego (+10) el que llega a 100, ese ya cuenta como el susto y no se encadena otro. Qué reinicia cada minijuego: **juguetes** → el juguete poseído salta a otro hueco, se suelta si lo arrastrabas y se enciende la luz principal (los juguetes guardados se quedan); **mesa** → lo mismo que su propio susto (vuelve al checkpoint o a vacío en esta fase, luz encendida); **linterna** → lo encontrado se queda, el juguete que huye vuelve a su sitio y huirá otra vez; **caja de música** → solo se borra lo tecleado en la ronda actual (las rondas superadas se quedan) y se enciende la luz; **mesa simple** (`DragMinigame`, fuera de la historia) → solo el susto. Solo cuenta dentro de los minijuegos: se para en las preguntas (también la de la comida), los apagones entre tareas, la tarjeta de instrucciones y las escenas del monstruo (susto, intercambio, tercer servicio). Las fracciones de segundo se acumulan. Al **salir del último minijuego** se congela, y el final usa ese valor (no el máximo alcanzado); el apagón final y la vuelta de mamá no la cambian. Mientras no exista el minijuego del baño, el último es el de dormir con linterna, que cuenta **siempre como oscuridad** (la luz del cuarto está apagada; la linterna no cuenta como luz).
 
 **Temblor de cámara** (regla del equipo): cada minijuego tiene su propia tensión, que sube con apagones, sustos y movimientos del monstruo; las sacudidas son cortas (≤0,7 s), con pausa mínima de 1,2 s entre ellas, y al pasar al siguiente minijuego todo vuelve a cero. Respeta "reducir movimiento" del sistema.
 
@@ -85,7 +86,8 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 | `src/game/levels/data/` | **Un JSON por nivel** + `story.json` (qué nivel va en cada tarea). Ver `docs/05` |
 | `src/game/levels/` | Carga y validación de niveles (`defaultLevels.ts`, `types.ts`, `validate.ts`, `assets.ts`) |
 | `src/components/game/GameShell.tsx` | Contenedor móvil: ocupa la zona visible (se encoge con el teclado), sin scroll ni zoom |
-| `src/components/minigames/` | `TidyRolesMinigame` (juguetes), **`TableForThreeMinigame` (mesa para tres)**, `DragMinigame` (mesa simple), `FlashlightMinigame` (linterna) |
+| `src/components/minigames/` | `TidyRolesMinigame` (juguetes), **`TableForThreeMinigame` (mesa para tres)**, **`MusicBoxMinigame` (caja de música)**, `DragMinigame` (mesa simple), `FlashlightMinigame` (linterna) |
+| `src/game/musicBox.ts` | Reglas puras del Minijuego 03 (canción, rondas, fallo leve, qué brilla a oscuras en cada momento). La IA no las toca |
 | `src/game/observer.ts` | Lo que El Invitado observa de tu partida + memoria entre partidas |
 | `src/game/guestEffects.ts` | Traduce la acción elegida por la IA a efectos seguros en cada nivel |
 | `src/ai/` | Contrato (`contracts.ts`), funciones de servidor, adaptadores con respaldo y modos |
@@ -95,7 +97,7 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 | `src/game/cameraShake.ts` | Temblor de cámara por minijuego (tensión progresiva, ráfagas cortas con pausa, vuelve a cero) |
 | `src/game/cordura.ts` + `CorduraMeter.tsx` | **Barra de Cordura**: reglas y velocidades (`CORDURA_RULES`), congelación, final y **evento 100**. Cada minijuego avisa si estás con luz o a oscuras (`useCorduraLight`) y qué reinicia al llegar a 100 (`useCordura100`); el tiempo se cuenta en `GameController` y el susto del 100 lo pinta `GameScreen` |
 | `src/components/game/Figures.tsx` | Siluetas provisionales de mamá (con el color de su vestido) y del niño |
-| `src/test/` | Tests automáticos (51) |
+| `src/test/` | Tests automáticos (59) |
 
 ## 7. Cómo se ha construido (para los 20 puntos de "How you built it")
 
@@ -114,6 +116,7 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 ## 8. Estado
 
 **VERIFICADO**
+- **Minijuego 03 — caja de música (D41; local, Chromium 340×554, IA mock, rama `unai/cordura100-musicbox`)**: partida completa (con niveles cortos en las tareas 1 y 2 para llegar antes) → tras la pregunta del juguete sale la caja de música con la frase del Invitado y su plan (sombra que cruza); a oscuras brilla un símbolo cada vez (los demás tenues) y tras una vuelta aparecen sus ojos detrás de la caja; con luz se teclea; rondas 3 → 4 → 5 → 7 superadas, cada una empezando con la anterior (también con dos símbolos iguales seguidos); fallo en la ronda 2 → solo se borra esa ronda + *"No, no. That's not how my song goes."*; la Cordura sube a oscuras; llave 3 toques → *"Shh… fine. It's quiet now."* → apagón con esa frase → el Invitado planifica la tarea siguiente (`weak_flashlight`) → dormir con linterna. La fila de abajo y la llave quedan por encima del subtítulo del Invitado. Playtest en `/editor` OK. Tests (59/59): rondas 3/4/5/7 acumulativas, fallo leve, canciones aleatorias válidas, temporización del brillo, validador, componente jugado entero (solo se ve a oscuras, solo se teclea con luz, la llave lo termina, Cordura deja de contar), evento 100 / apagar la luz solo reinician la ronda actual, orden de etapas.
 - **Evento 100 (D44; local, Chromium 340×554, IA mock, rama `unai/cordura100-musicbox`, `?debug=1&cordura=97`)**: la barra empieza en 97 y baja con luz; juguetes 1–3 guardados; en el apagón del poseído sube de 82 a 100 → susto a pantalla completa 1,6 s → luz principal encendida y la barra baja (99, 97…), los 3 juguetes siguen guardados (3/5). Un apagón automático posterior la devuelve a 100 y **no** hay segundo susto (no se ha rearmado). Tests (51/51): un solo evento aunque sigas un minuto en 100; rearme solo al bajar a 90; el susto propio que llega a 100 no encadena otro; nada fuera de los minijuegos ni tras el último; el controlador avisa al minijuego activo una vez por evento; 0/64/65/100 siguen eligiendo el mismo final.
 - **QA de regresión tras el merge visual (10 oct ~04:15, producción, escritorio Edge, `main` @ `a93df9f`)** — detalle en `docs/07`:
   - Repo: 25/25 tests, `tsc` y build PASS; lint falla solo por formato (prettier) en archivos de la renovación visual; ningún secreto en el código del navegador.
@@ -146,10 +149,11 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 **PENDIENTE DE COORDINAR (Iker)**
 - Encajar el reinicio por fase y el desenlace con las decisiones generales anteriores (D14).
 - La silla de mamá se ilumina con su color **solo a oscuras** (con luz, colorearla revelaría qué sitio es de quién y el puzle de la oscuridad dejaría de tener sentido). Si se quiere siempre coloreada, es un cambio de una línea.
-- **Decisiones nuevas de Iker en Drive (D32–D35)**: barra de **Cordura** y **dos finales** → **implementados** (ver §3); velocidad con luz aprobada (D43); evento 100 (D44) implementado. Pendiente de Iker/MJ: confirmar que la linterna del dormitorio cuenta como oscuridad; el nombre "Cordura" en un juego en inglés; afinar el rearme a 90 tras probarlo. **Cinco minijuegos** (baño/pijama el último; MG03/MG04 los propone MJ y los aprueba Iker): **sin implementar**, el código sigue con 3 tareas.
+- **Decisiones nuevas de Iker en Drive (D32–D35)**: barra de **Cordura** y **dos finales** → **implementados** (ver §3); velocidad con luz aprobada (D43); evento 100 (D44) implementado. Pendiente de Iker/MJ: confirmar que la linterna del dormitorio cuenta como oscuridad; el nombre "Cordura" en un juego en inglés; afinar el rearme a 90 tras probarlo. **Cinco minijuegos**: MG03 (caja de música) **implementado** como 4.ª tarea (slot `task_music`); **MG04 (cuarto de mamá) pendiente** — irá en otro slot entre la caja de música y dormir.
+- **MG03, para MJ (dueña de las reglas)**: textos en inglés del Invitado y pistas (en `music_box.json`), tiempos de brillo (650 ms + 300 ms, pausa 1,6 s), 3 toques de llave, sin sonido propio por símbolo (de momento un "clic" en cada uno; **Flash** puede darle una nota a cada símbolo — C21), y la caja de música de fondo se para al girar la llave y no vuelve hasta dormir.
 
 **PENDIENTE (por prioridad)**
-1. PR de `unai/cordura100-musicbox` (evento 100) → merge a `main` + Publish.
+1. PR de `unai/cordura100-musicbox` (evento 100 + caja de música) → merge a `main` + Publish.
 2. Iker confirma qué commit está publicado en Lovable.
 3. QA en móvil físico (Unai/MJ).
 4. Arte (en curso) → integrar (sustituye a las siluetas provisionales de mamá y el niño).
@@ -162,6 +166,6 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 ## 9. Handoff
 
 - **Responsable**: Unai + Claude Code
-- **Estado**: `main` @ `516db18` (Cordura + dos finales fusionados). Evento 100 de la Cordura (D44) hecho y probado en local, **pendiente de PR y Publish**.
+- **Estado**: `main` @ `516db18` (Cordura + dos finales fusionados). Evento 100 de la Cordura (D44) y Minijuego 03 (caja de música, D41) hechos y probados en local, **pendientes de PR y Publish**.
 - **Rama / commit**: `unai/cordura100-musicbox` (sale de `main` @ `516db18`)
-- **Siguiente paso**: Minijuego 03 (caja de música, D41) en la misma rama; PR + merge + Publish; QA en móvil real; integrar arte cuando esté.
+- **Siguiente paso**: PR + merge + Publish; QA de MJ en móvil (caja de música a 375 px, evento 100); Minijuego 04 (cuarto de mamá, D42/D45) con Flash para las voces; integrar arte cuando esté.

@@ -1,6 +1,13 @@
 import { CorduraContext, corduraEnding, finalCordura } from "@/game/cordura";
 import { BLACKOUT_MAX_MS, BLACKOUT_MS, useGameController } from "@/game/GameController";
-import { colorLabel, guestNotes, toyLabel, type GuestSlot } from "@/game/GameState";
+import {
+  colorLabel,
+  guestNotes,
+  TASK_STAGES,
+  toyLabel,
+  type GameStage,
+  type GuestSlot,
+} from "@/game/GameState";
 import { applyGuestAction, guestOverlay } from "@/game/guestEffects";
 import { forgetGuestMemory, observe, rememberRun } from "@/game/observer";
 import { AIDebugBadge } from "./AIDebugBadge";
@@ -44,6 +51,20 @@ function debugCorduraStart(): number | undefined {
   const v = Number(q.get("cordura"));
   return q.get("debug") === "1" && q.has("cordura") && Number.isFinite(v) ? v : undefined;
 }
+
+/** Which story slot (level) is on screen at each in-game stage. */
+const SLOT_OF_STAGE: Partial<Record<GameStage, GuestSlot | "task_one">> = {
+  task_one: "task_one",
+  blackout_one: "task_one",
+  question_one: "task_one",
+  task_two: "task_two",
+  blackout_two: "task_two",
+  question_two: "task_two",
+  task_music: "task_music",
+  blackout_music: "task_music",
+  task_three: "task_three",
+  blackout_three: "task_three",
+};
 
 /** Mom's dress palette comes from the table level in the story (if any). */
 function motherPalette(story: StoryLevels) {
@@ -90,14 +111,21 @@ function GameScreenInner() {
   useEffect(() => {
     const st = state.stage;
     const s = storyRef.current;
-    if (st === "task_one" || st === "task_two" || st === "task_three") observe.taskStart();
-    if (st === "blackout_one" || st === "blackout_two" || st === "blackout_three")
+    if (TASK_STAGES.includes(st)) observe.taskStart();
+    if (
+      st === "blackout_one" ||
+      st === "blackout_two" ||
+      st === "blackout_music" ||
+      st === "blackout_three"
+    )
       observe.taskEnd();
     // ask the model while the lights are out and the player answers the question
     if (st === "blackout_one") requestGuest("task_two", s.task_two);
-    if (st === "blackout_two") requestGuest("task_three", s.task_three);
+    if (st === "blackout_two") requestGuest("task_music", s.task_music);
+    if (st === "blackout_music") requestGuest("task_three", s.task_three);
     // never start a task without a plan: rules decide if the model is late
     if (st === "task_two") ensureGuest("task_two", s.task_two);
+    if (st === "task_music") ensureGuest("task_music", s.task_music);
     if (st === "task_three") ensureGuest("task_three", s.task_three);
     if (st === "ending") rememberRun(state.memory.favoriteColor, state.memory.favoriteToy);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -120,6 +148,9 @@ function GameScreenInner() {
     if (st === "ending" || st === "mom_returns" || st === "unsettling_detail") {
       stopMusicBox(true);
       stopDrone();
+    } else if (st === "blackout_music") {
+      // the player just silenced the music box (Minigame 03): only the drone until bedtime
+      stopMusicBox();
     } else {
       setMusicCorruption(corruptionLevelForStage(st));
       startMusicBox();
@@ -258,14 +289,12 @@ function GameScreenInner() {
   const stage = state.stage;
   const dark = stage !== "task_one";
   const isBlackout =
-    stage === "blackout_one" || stage === "blackout_two" || stage === "blackout_three";
-  const isTask = stage === "task_one" || stage === "task_two" || stage === "task_three";
-  const slot: GuestSlot | "task_one" =
-    stage === "task_one" || stage === "blackout_one" || stage === "question_one"
-      ? "task_one"
-      : stage === "task_two" || stage === "blackout_two" || stage === "question_two"
-        ? "task_two"
-        : "task_three";
+    stage === "blackout_one" ||
+    stage === "blackout_two" ||
+    stage === "blackout_music" ||
+    stage === "blackout_three";
+  const isTask = TASK_STAGES.includes(stage);
+  const slot = SLOT_OF_STAGE[stage] ?? "task_three";
   const plan = slot === "task_one" ? undefined : state.guest[slot];
   const baseLevel = story[slot];
   const level = plan ? applyGuestAction(baseLevel, plan.action) : baseLevel;
@@ -328,7 +357,11 @@ function GameScreenInner() {
                     : "The lights went out…"
                   : stage === "blackout_two"
                     ? "It's back…"
-                    : "Lights out. Good night…"
+                    : stage === "blackout_music"
+                      ? story.task_music.type === "music_box"
+                        ? story.task_music.musicBox.lines.done || "It's quiet now…"
+                        : "It's quiet now…"
+                      : "Lights out. Good night…"
               }
             />
           </div>

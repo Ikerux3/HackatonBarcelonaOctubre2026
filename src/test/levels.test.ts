@@ -12,7 +12,7 @@ describe("level files", () => {
   });
 
   it("story.json points at existing, valid levels for every slot", () => {
-    for (const slot of ["task_one", "task_two", "task_three"] as const) {
+    for (const slot of ["task_one", "task_two", "task_music", "task_three"] as const) {
       const level = STORY_LEVELS[slot];
       expect(level.id, `story.${slot}`).toBe(manifest.story[slot]);
       expect(validateLevel(level).ok, `story.${slot} = "${level.id}"`).toBe(true);
