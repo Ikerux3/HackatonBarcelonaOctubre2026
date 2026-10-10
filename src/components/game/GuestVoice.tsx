@@ -16,6 +16,7 @@ import {
   getGuestSpeechRuntime,
   GUEST_VOICE_ID_KEY,
   GUEST_VOICE_MUTED_KEY,
+  GUEST_VOICE_PREVIEW_LINE,
   speakGuestLine,
   type GuestVoiceOption,
 } from "@/game/guestVoice";
@@ -40,6 +41,7 @@ export function GuestVoiceProvider({ children }: { children: ReactNode }) {
   const [supported, setSupported] = useState(false);
   const [voiceId, setVoiceIdState] = useState("");
   const [voices, setVoices] = useState<GuestVoiceOption[]>([]);
+  const voiceIdRef = useRef("");
 
   useEffect(() => {
     const runtime = getGuestSpeechRuntime();
@@ -49,7 +51,9 @@ export function GuestVoiceProvider({ children }: { children: ReactNode }) {
     runtime?.synthesis.addEventListener?.("voiceschanged", refreshVoices);
     try {
       setMutedState(localStorage.getItem(GUEST_VOICE_MUTED_KEY) === "true");
-      setVoiceIdState(localStorage.getItem(GUEST_VOICE_ID_KEY) ?? "");
+      const storedVoiceId = localStorage.getItem(GUEST_VOICE_ID_KEY) ?? "";
+      voiceIdRef.current = storedVoiceId;
+      setVoiceIdState(storedVoiceId);
     } catch {
       // Storage is optional too (private mode and hardened browsers can block it).
     }
@@ -63,11 +67,11 @@ export function GuestVoiceProvider({ children }: { children: ReactNode }) {
       if (!muted && supported)
         return speakGuestLine(line, undefined, {
           ...(onEnd ? { onEnd } : {}),
-          voiceId,
+          voiceId: voiceIdRef.current,
         });
       return false;
     },
-    [muted, supported, voiceId],
+    [muted, supported],
   );
   const setMuted = useCallback(
     (nextMuted: boolean) => {
@@ -84,7 +88,9 @@ export function GuestVoiceProvider({ children }: { children: ReactNode }) {
   const setVoiceId = useCallback(
     (nextVoiceId: string) => {
       cancel();
+      voiceIdRef.current = nextVoiceId;
       setVoiceIdState(nextVoiceId);
+      speakGuestLine(GUEST_VOICE_PREVIEW_LINE, undefined, { voiceId: nextVoiceId });
       try {
         localStorage.setItem(GUEST_VOICE_ID_KEY, nextVoiceId);
       } catch {

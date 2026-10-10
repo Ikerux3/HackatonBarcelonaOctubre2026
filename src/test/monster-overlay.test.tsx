@@ -1,7 +1,7 @@
-import { act, render } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { GuestVoiceProvider } from "@/components/game/GuestVoice";
+import { GuestVoiceControl, GuestVoiceProvider } from "@/components/game/GuestVoice";
 import { MonsterOverlay } from "@/components/game/MonsterOverlay";
 
 class BrowserUtterance {
@@ -20,9 +20,12 @@ class BrowserUtterance {
 }
 
 describe("timed monster speech", () => {
+  let systemVoices: SpeechSynthesisVoice[];
+
   beforeEach(() => {
     vi.useFakeTimers();
     BrowserUtterance.instances = [];
+    systemVoices = [];
     localStorage.clear();
     Object.defineProperty(window, "SpeechSynthesisUtterance", {
       configurable: true,
@@ -33,7 +36,7 @@ describe("timed monster speech", () => {
       value: {
         addEventListener: vi.fn(),
         cancel: vi.fn(),
-        getVoices: () => [],
+        getVoices: () => systemVoices,
         removeEventListener: vi.fn(),
         speak: vi.fn(),
       },
@@ -82,5 +85,28 @@ describe("timed monster speech", () => {
     expect(onReadyToAdvance).not.toHaveBeenCalled();
     act(() => vi.advanceTimersByTime(1));
     expect(onReadyToAdvance).toHaveBeenCalledOnce();
+  });
+
+  it("previews the newly selected voice with a sample line", () => {
+    const selected = {
+      lang: "en-US",
+      name: "Night Voice",
+      voiceURI: "night-voice",
+    } as SpeechSynthesisVoice;
+    systemVoices = [selected];
+
+    render(
+      <GuestVoiceProvider>
+        <GuestVoiceControl />
+      </GuestVoiceProvider>,
+    );
+
+    fireEvent.change(screen.getByRole("combobox", { name: "Guest voice" }), {
+      target: { value: "night-voice" },
+    });
+
+    expect(BrowserUtterance.instances).toHaveLength(1);
+    expect(BrowserUtterance.instances[0]?.text).toBe("Can you hear me, sweetie?");
+    expect(BrowserUtterance.instances[0]?.voice).toBe(selected);
   });
 });
