@@ -61,7 +61,7 @@ export function MinigameHost({
   return (
     <div className="flex w-full flex-col gap-2">
       <div className="flex items-center justify-between gap-2">
-        <p className="rounded-full bg-black/60 px-4 py-2 text-sm font-medium text-neutral-100">
+        <p className={`g-tag px-4 py-2 text-base leading-tight ${dark ? "g-tag-dark" : ""}`}>
           {check.level.instructions}
         </p>
         <button
@@ -71,7 +71,7 @@ export function MinigameHost({
             setRound((r) => r + 1);
           }}
           aria-label="Restart this task"
-          className="min-h-12 min-w-12 shrink-0 rounded-full bg-black/60 px-3 text-sm font-semibold text-neutral-100 active:scale-95"
+          className={`g-btn g-tag min-w-12 shrink-0 px-3 text-sm ${dark ? "g-tag-dark" : ""}`}
         >
           ↺ Restart
         </button>
