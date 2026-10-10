@@ -80,6 +80,8 @@ export function useGameController() {
       initAudio();
       sfx.click();
       observe.reset();
+      // The toy catapult may punish a quick player once per RUN, never on every retry.
+      try { sessionStorage.removeItem("guest-toy-catapult"); } catch { /* optional storage */ }
       const palette = motherPalette.length ? motherPalette : DEFAULT_MOTHER_COLORS;
       const motherColor = palette[Math.floor(Math.random() * palette.length)];
       dispatch({
