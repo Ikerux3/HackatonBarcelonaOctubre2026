@@ -15,14 +15,15 @@ interface Props {
   colorText: string;
   /** from the Cordura frozen when the last minigame ended (D34); mom comes home in both */
   ending: CorduraEnding;
+  finalValue: number;
   /** tap on the final detail skips to the ending screen */
   onSkip: () => void;
 }
 
 /** Final blackout whisper → mom really comes home → one detail is wrong. */
-export function EndingSequence({ stage, name, memory, toyText, colorText, ending, onSkip }: Props) {
+export function EndingSequence({ stage, name, memory, toyText, colorText, ending, finalValue, onSkip }: Props) {
   const momColor = COLOR_HEX[memory.motherColor ?? "pink"];
-  if (stage === "goodnight_whisper") return <Whisper name={name} />;
+  if (stage === "goodnight_whisper") return <Whisper name={name} intense={finalValue >= 100} />;
   if (stage === "mom_returns") return <MomHome name={name} momColor={momColor} ending={ending} />;
   return (
     <Detail
@@ -36,14 +37,14 @@ export function EndingSequence({ stage, name, memory, toyText, colorText, ending
   );
 }
 
-function Whisper({ name }: { name: string }) {
+function Whisper({ name, intense }: { name: string; intense: boolean }) {
   const line = `Good night, ${name}.`;
   useGuestVoice(line, true, 600);
   return (
     <div className="g-ink-veil relative flex h-full items-center justify-center overflow-hidden bg-black px-6 text-center">
       <div className="g-grain-dark" />
-      <svg
-        className="absolute left-1/2 top-[30%] h-5 w-16 -translate-x-1/2"
+      {intense && <svg
+        className="absolute left-1/2 top-[30%] h-5 w-16 -translate-x-1/2 motion-safe:animate-pulse"
         viewBox="0 0 40 14"
         aria-hidden
       >
@@ -51,8 +52,8 @@ function Whisper({ name }: { name: string }) {
           <ellipse cx="12" cy="7" rx="3" ry="1.6" className="g-eye" />
           <ellipse cx="28" cy="7" rx="3" ry="1.6" className="g-eye" />
         </g>
-      </svg>
-      <p className="g-guest-line relative text-3xl" aria-live="polite">
+      </svg>}
+      <p className={`g-guest-line relative text-3xl ${intense ? "text-red-400 motion-safe:animate-pulse" : ""}`} aria-live="polite">
         {line}
       </p>
     </div>
