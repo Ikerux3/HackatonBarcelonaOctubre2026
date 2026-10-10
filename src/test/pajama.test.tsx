@@ -41,7 +41,7 @@ describe("MG05 - pajamas and the laundry basket", () => {
     });
     expect(leftovers).toHaveLength(9);
     leftovers.forEach((button) => fireEvent.click(button));
-    expect(screen.getByText("Basket: 9/9")).toBeTruthy();
+    expect(screen.getByText(/Basket: 9\/9/)).toBeTruthy();
     expect(done).toHaveBeenCalledTimes(1);
   });
 
