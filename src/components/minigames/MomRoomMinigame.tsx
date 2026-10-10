@@ -398,26 +398,13 @@ export function MomRoomMinigame({ level, memory, onComplete }: MinigameProps) {
         <div className="absolute inset-0 z-[55] flex items-center justify-center bg-black/70 p-4">
           <div className="w-full rounded-2xl border-4 border-amber-900 bg-amber-50 p-4 text-amber-950 shadow-2xl">
             <p className="mb-3 text-center font-serif text-base italic">{mr.lines.card}</p>
-            <ol className="flex items-center justify-center gap-1" aria-label="The order">
-              {mr.order.map((id, i) => {
-                const o = level.objects.find((x) => x.id === id);
-                return (
-                  <li key={id} className="flex items-center gap-1">
-                    {i > 0 && (
-                      <span className="text-lg text-amber-900/60" aria-hidden>
-                        →
-                      </span>
-                    )}
-                    <span className="flex flex-col items-center">
-                      <span className="text-3xl" aria-hidden>
-                        {o ? ASSETS[o.asset].emoji : "?"}
-                      </span>
-                      <span className="text-[10px] font-bold uppercase">{o?.label ?? id}</span>
-                    </span>
-                  </li>
-                );
-              })}
-            </ol>
+            <div className="rounded-lg border border-amber-800/35 bg-amber-100 p-3 text-center text-sm leading-relaxed">
+              <p className="mb-2 font-serif italic">Mom left clues, not the combination:</p>
+              <p>{mr.order.length >= 3
+                ? `The ${level.objects.find((o) => o.id === mr.order[1])?.label ?? "middle item"} belongs between the ${level.objects.find((o) => o.id === mr.order[0])?.label ?? "first item"} and the ${level.objects.find((o) => o.id === mr.order[2])?.label ?? "last item"}.`
+                : `The ${level.objects.find((o) => o.id === mr.order[0])?.label ?? "first item"} comes before the ${level.objects.find((o) => o.id === mr.order[1])?.label ?? "last item"}.`}</p>
+              <p className="mt-2 font-medium">What symbols did you see on them in the dark?</p>
+            </div>       </ol>
             <button
               type="button"
               onClick={() => {
