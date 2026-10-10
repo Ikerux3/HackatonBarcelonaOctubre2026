@@ -2,6 +2,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 
 import { sfx } from "@/game/audio";
 import { ASSETS, COLOR_HEX, type AssetId } from "@/game/levels/assets";
+import { useCameraShake } from "@/game/cameraShake";
 import { observe } from "@/game/observer";
 import { zoneCovers, type Point, type SceneObject, type TidyOptions } from "@/game/levels/types";
 import type { MinigameProps } from "./types";
@@ -116,6 +117,7 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
 
   // ── possessed (role 4) ──
   const P = tidy?.possessed;
+  const { shakeClass, shake: camShake, raiseTension } = useCameraShake();
   const [poss, setPoss] = useState<Poss | null>(null);
   const [lights, setLights] = useState({ main: true, lamp: false });
   const [eyes, setEyes] = useState(false);
@@ -145,9 +147,12 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
     setWhisper(line);
     whisperT.current = setTimeout(() => setWhisper(null), ms);
   }, []);
-  useEffect(() => () => {
-    if (whisperT.current) clearTimeout(whisperT.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (whisperT.current) clearTimeout(whisperT.current);
+    },
+    [],
+  );
   const maskId = useId().replace(/:/g, "");
 
   const litAt = (p: Point, l = lights) =>
@@ -220,6 +225,9 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
       lastProgressRef.current = Date.now();
       setLights({ main: false, lamp: false });
       setPossHint(false);
+      // each blackout raises this minigame's tension: later bursts hit harder
+      camShake(2);
+      raiseTension(1);
       if (first) sfx.possessed();
       else {
         sfx.blackout();
@@ -235,7 +243,7 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
         setPoss({ ...cur, slot: nearestSlot(P.slots, d) });
       }
     },
-    [P],
+    [P, camShake, raiseTension],
   );
 
   const possess = (o: SceneObject) => {
@@ -443,7 +451,7 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
       ref={sceneRef}
       className={`relative w-full touch-none select-none overflow-hidden rounded-2xl border ${
         dark ? "game-room-dark border-neutral-800" : "game-room-cozy border-amber-200"
-      }`}
+      } ${shakeClass}`}
       style={{ aspectRatio: "2 / 3" }}
     >
       <SceneBackdrop theme={level.theme} dark={dark} />
@@ -665,35 +673,37 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
       )}
 
       {/* possessed: light hotspots */}
-      {possActive && P && (() => {
-        const slot = P.slots[poss!.slot]!;
-        const hintKey: "main" | "lamp" | null = !possHint
-          ? null
-          : P.lampZones.some((z) => zoneCovers(z, slot)) && !lights.lamp
-            ? "lamp"
-            : !lights.main
-              ? "main"
-              : "lamp";
-        return (["main", "lamp"] as const).map((k) => {
-          const at = k === "main" ? P.mainSwitch : P.lamp;
-          const on = lights[k];
-          return (
-            <button
-              key={k}
-              type="button"
-              aria-label={k === "main" ? "Main light switch" : "Small lamp"}
-              aria-pressed={on}
-              onClick={() => toggleLight(k)}
-              className={`absolute z-[45] flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl border-2 text-xl ${
-                on ? "border-amber-200 bg-amber-300/90" : "border-neutral-500 bg-neutral-800/90"
-              } ${hintKey === k ? "animate-pulse ring-4 ring-amber-300" : ""}`}
-              style={{ left: `${at.x}%`, top: `${at.y}%` }}
-            >
-              <span aria-hidden>{k === "main" ? "💡" : "🪔"}</span>
-            </button>
-          );
-        });
-      })()}
+      {possActive &&
+        P &&
+        (() => {
+          const slot = P.slots[poss!.slot]!;
+          const hintKey: "main" | "lamp" | null = !possHint
+            ? null
+            : P.lampZones.some((z) => zoneCovers(z, slot)) && !lights.lamp
+              ? "lamp"
+              : !lights.main
+                ? "main"
+                : "lamp";
+          return (["main", "lamp"] as const).map((k) => {
+            const at = k === "main" ? P.mainSwitch : P.lamp;
+            const on = lights[k];
+            return (
+              <button
+                key={k}
+                type="button"
+                aria-label={k === "main" ? "Main light switch" : "Small lamp"}
+                aria-pressed={on}
+                onClick={() => toggleLight(k)}
+                className={`absolute z-[45] flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl border-2 text-xl ${
+                  on ? "border-amber-200 bg-amber-300/90" : "border-neutral-500 bg-neutral-800/90"
+                } ${hintKey === k ? "animate-pulse ring-4 ring-amber-300" : ""}`}
+                style={{ left: `${at.x}%`, top: `${at.y}%` }}
+              >
+                <span aria-hidden>{k === "main" ? "💡" : "🪔"}</span>
+              </button>
+            );
+          });
+        })()}
 
       {/* hide and seek: clue + tappable spots */}
       {hideActive && H && !hide!.revealed && (
@@ -706,7 +716,11 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
               <div
                 aria-hidden
                 className={`pointer-events-none absolute z-[26] ${hideHint ? "animate-pulse" : ""}`}
-                style={{ left: `${sp.x + 8}%`, top: `${sp.y + 4}%`, transform: "translate(-50%,-50%)" }}
+                style={{
+                  left: `${sp.x + 8}%`,
+                  top: `${sp.y + 4}%`,
+                  transform: "translate(-50%,-50%)",
+                }}
               >
                 <span className="absolute left-1/2 top-full h-2 w-10 -translate-x-1/2 rounded-full bg-black/50 blur-[2px]" />
                 <span className="block rotate-[28deg] text-xl opacity-90">

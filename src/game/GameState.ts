@@ -25,6 +25,8 @@ export interface GameMemory {
   favoriteFood?: FoodCategory;
   /** validated locally, session memory only — never sent to the AI */
   playerName?: string;
+  /** mother's dress color: drawn once at Play, the same in the intro, the table and the ending */
+  motherColor?: NormalizedColor;
 }
 
 export interface GameState {
@@ -54,7 +56,7 @@ export const initialGameState: GameState = {
 };
 
 export type GameAction =
-  | { type: "START" }
+  | { type: "START"; motherColor?: NormalizedColor }
   | { type: "SET_NAME"; name: string }
   | { type: "TASK_DONE" }
   | { type: "ADVANCE" } // blackout timers / monster dialogue continue
@@ -74,7 +76,11 @@ export type GameAction =
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "START":
-      return { ...initialGameState, stage: "intro_name" };
+      return {
+        ...initialGameState,
+        stage: "intro_name",
+        memory: action.motherColor ? { motherColor: action.motherColor } : {},
+      };
 
     case "SET_NAME":
       return state.stage === "intro_name"

@@ -209,10 +209,16 @@
     "food": { "enabled": true, "question": "What's your favorite food?" },
     "swap": { "enabled": true },
     "hints": {
-      "kitchen": "Find two of everything: small for you ⭐, medium for mommy 👗.",
-      "dining": "Whose place is whose? Turn off the light to see.",
-      "dark": "Remember the marks… then turn the light back on.",
-      "finish": "Finish setting the table for two."
+      "kitchen": "Open the cupboards and drawers. Take 3 small ⭐ (yours) and 3 medium 👗 (mommy's).",
+      "dining": "Turn off the light 💡 to see whose place is whose.",
+      "dark": "⭐ your place · 👗 mommy's. Remember… and turn the light back on, quick.",
+      "finish": "Tap a piece in the tray, then tap its place.",
+      "howTo": [
+        "With the light on, both places look the same.",
+        "Turn the light OFF 💡: glowing marks show whose place is whose — ⭐ yours, 👗 mommy's.",
+        "Don't stay in the dark too long. Turn the light back ON.",
+        "Tap a piece in the tray, then tap its place. Small pieces are yours, medium ones are mommy's."
+      ]
     },
     "lines": {
       "decoy": "That one isn't for you. Not yet.",

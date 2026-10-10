@@ -14,6 +14,7 @@ import {
   type TableSide,
   type TargetZone,
 } from "@/game/levels/types";
+import { useCameraShake } from "@/game/cameraShake";
 import { observe } from "@/game/observer";
 import type { MinigameProps } from "./types";
 
@@ -89,9 +90,13 @@ export function TableForThreeMinigame({
   const [childSide] = useState<TableSide>(() =>
     table.childSide === "random" ? (Math.random() < 0.5 ? "left" : "right") : table.childSide,
   );
-  const [momColor] = useState(
+  // mother's dress color is drawn ONCE per run at Play (GameMemory.motherColor) and shown in
+  // the intro; the random pick here only covers the editor's playtest
+  const [fallbackMomColor] = useState(
     () => table.motherColors[Math.floor(Math.random() * table.motherColors.length)] ?? "pink",
   );
+  const momColor = memory.motherColor ?? fallbackMomColor;
+  const { shakeClass, shake: camShake, raiseTension } = useCameraShake();
   const ctx: TableCtx = { objects: level.objects, targets: level.targets, table, childSide };
   const childColor =
     memory.favoriteColor && memory.favoriteColor !== "other"
@@ -120,6 +125,9 @@ export function TableForThreeMinigame({
   const [illusion, setIllusion] = useState<string | null>(null);
   const [shake, setShake] = useState<string | null>(null);
   const [whisper, setWhisper] = useState<string | null>(null);
+  const [showHowTo, setShowHowTo] = useState(false);
+  /** the switch pulses until the player has tried the dark once */
+  const [triedDark, setTriedDark] = useState(false);
   const checkpoint = useRef<Record<string, string>>({});
   const leftAfterCheckpoint = useRef(false);
   const lastWrongKey = useRef("");
@@ -161,19 +169,26 @@ export function TableForThreeMinigame({
       setDanger(0);
       return;
     }
+    const { eyesMs, shakeMs, scareMs } = table.dark;
     const timers = [
       setTimeout(() => {
         setDanger(1);
         sfx.hum();
-      }, table.dark.eyesMs),
+        camShake(1);
+      }, eyesMs),
       setTimeout(() => {
         setDanger(2);
         haptic([40, 60, 40]);
-      }, table.dark.shakeMs),
+        camShake(2);
+      }, shakeMs),
+      // a second warning burst after a pause, only if there's time before the scare
+      ...(scareMs - shakeMs > 2600 ? [setTimeout(() => camShake(2), shakeMs + 1500)] : []),
       setTimeout(() => {
         setScare(true);
         sfx.possessed();
         haptic([120, 60, 220]);
+        raiseTension(2);
+        camShake(3);
         observe.fullScare();
         setTimeout(() => {
           setScare(false);
@@ -196,6 +211,7 @@ export function TableForThreeMinigame({
       Object.entries(placed).filter(([slot, obj]) => isCorrect(ctx, slot, obj)),
     );
     setPhase("place2");
+    raiseTension(1);
     if (table.food.enabled) {
       setLight(true);
       setSelected(null);
@@ -218,6 +234,8 @@ export function TableForThreeMinigame({
       setPlaced((p) => ({ ...p, [a]: p[b]!, [b]: p[a]! }));
       sfx.snap();
       setTimeout(() => sfx.snap(), 180);
+      raiseTension(1);
+      camShake(2);
       setForcedDark(false);
       setSwapped(true);
       setIllusion(a);
@@ -268,7 +286,11 @@ export function TableForThreeMinigame({
     sfx.click();
     setOpenBox(null);
     setScene("dining");
-    if (phase === "collect") setPhase("place");
+    if (phase === "collect") {
+      setPhase("place");
+      // first time in the dining room: explain the light/dark rule once
+      if (table.hints.howTo?.length) setShowHowTo(true);
+    }
   };
   const goKitchen = () => {
     if (swapping.current || asking || phase === "final") return;
@@ -373,7 +395,7 @@ export function TableForThreeMinigame({
 
   return (
     <div
-      className={`relative w-full touch-none select-none overflow-hidden rounded-2xl border border-neutral-800 ${danger === 2 ? "game-shake" : ""}`}
+      className={`relative w-full touch-none select-none overflow-hidden rounded-2xl border border-neutral-800 ${shakeClass}`}
       style={{ aspectRatio: "2 / 3" }}
     >
       {scene === "kitchen" ? <KitchenBackdrop /> : <DiningBackdrop final={phase === "final"} />}
@@ -599,16 +621,17 @@ export function TableForThreeMinigame({
           <button
             type="button"
             onClick={() => {
-              if (asking || forcedDark || scare || phase === "final") return;
+              if (asking || forcedDark || scare || phase === "final" || showHowTo) return;
               sfx.lightSwitch();
               setSelected(null);
+              if (light) setTriedDark(true);
               setLight((v) => !v);
             }}
             aria-label={light ? "Turn the light off" : "Turn the light on"}
             aria-pressed={light}
             className={`absolute z-[45] flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl border-2 text-xl ${
               light
-                ? "border-amber-200 bg-amber-300/90"
+                ? `border-amber-200 bg-amber-300/90 ${triedDark ? "" : "animate-pulse ring-4 ring-amber-400"}`
                 : "animate-pulse border-amber-200 bg-neutral-800"
             }`}
             style={{ left: `${table.lightSwitch.x}%`, top: `${table.lightSwitch.y}%` }}
@@ -620,6 +643,25 @@ export function TableForThreeMinigame({
 
       {/* darkness (marks render above it) */}
       {dark && <div className="pointer-events-none absolute inset-0 z-30 bg-black/90" />}
+      {/* in the dark the chairs glow in their owner's color too (mom = her dress color) */}
+      {scene === "dining" &&
+        !light &&
+        !forcedDark &&
+        (["left", "right"] as const).map((side) => {
+          const owner: TableOwner = side === childSide ? "child" : "mom";
+          return (
+            <div
+              key={side}
+              aria-hidden
+              className="pointer-events-none absolute top-[67%] z-40 h-[10%] w-[20%] rounded-b-lg rounded-t-md border-[3px]"
+              style={{
+                [side]: "19%",
+                borderColor: COLOR_HEX[colorOf(owner)],
+                boxShadow: `0 0 12px 2px ${COLOR_HEX[colorOf(owner)]}88`,
+              }}
+            />
+          );
+        })}
       {scene === "dining" && (danger >= 1 || forcedDark) && (
         <div
           className="game-eyes pointer-events-none absolute left-[18%] top-[20%] z-[41] flex gap-2"
@@ -632,11 +674,14 @@ export function TableForThreeMinigame({
 
       {/* tray: what you've collected */}
       <div className="absolute inset-x-[3%] bottom-[2%] z-[42] flex h-[13%] items-center justify-center gap-1.5 rounded-2xl border-2 border-amber-900/40 bg-amber-200/80 px-2">
+        <span className="absolute -top-2.5 left-2 rounded-full bg-amber-900 px-2 text-[10px] font-bold text-amber-50">
+          {scene === "kitchen"
+            ? `Found ${collected.length}/${level.objects.length}`
+            : `On the table ${placedIds.length}/${level.targets.length}`}
+        </span>
         {tray.length === 0 && (
           <span className="text-xs italic text-amber-900/70">
-            {scene === "kitchen"
-              ? `Tray ${collected.length}/${level.objects.length}`
-              : "Tray empty"}
+            {scene === "kitchen" ? "Open the cupboards and drawers" : "Tray empty"}
           </span>
         )}
         {tray.map((id) => (
@@ -674,6 +719,30 @@ export function TableForThreeMinigame({
           <div className="game-eyes flex gap-10">
             <span className="h-10 w-16 rounded-full bg-red-600 shadow-[0_0_40px_12px_var(--color-red-600)]" />
             <span className="h-10 w-16 rounded-full bg-red-600 shadow-[0_0_40px_12px_var(--color-red-600)]" />
+          </div>
+        </div>
+      )}
+
+      {/* how it works — shown once, the first time in the dining room */}
+      {showHowTo && (
+        <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/70 p-4">
+          <div className="w-full rounded-2xl border-4 border-amber-900 bg-amber-50 p-4 text-amber-950 shadow-2xl">
+            <p className="mb-2 text-center font-serif text-lg font-bold">Setting the table</p>
+            <ol className="list-decimal space-y-1.5 pl-5 text-sm leading-snug">
+              {table.hints.howTo?.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
+            <button
+              type="button"
+              onClick={() => {
+                sfx.click();
+                setShowHowTo(false);
+              }}
+              className="mx-auto mt-4 block min-h-12 rounded-xl bg-amber-900 px-6 text-base font-bold text-amber-50 active:scale-95"
+            >
+              Got it
+            </button>
           </div>
         </div>
       )}

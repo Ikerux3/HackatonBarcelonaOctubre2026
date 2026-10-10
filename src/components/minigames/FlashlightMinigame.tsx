@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { sfx } from "@/game/audio";
 import { resolveInterventions } from "@/game/interventions";
+import { useCameraShake } from "@/game/cameraShake";
 import { observe } from "@/game/observer";
 import { ASSETS, COLOR_HEX } from "@/game/levels/assets";
 import type { Point, SceneObject } from "@/game/levels/types";
@@ -29,6 +30,7 @@ export function FlashlightMinigame({ level, memory, onComplete }: MinigameProps)
   const evasive = opts.evasive;
   const radius = opts.radius;
   const iv = useMemo(() => resolveInterventions(level, memory, true), [level, memory]);
+  const { shakeClass, shake: camShake } = useCameraShake();
 
   const [light, setLight] = useState<Point>({ x: 50, y: 62 });
   const [collected, setCollected] = useState<string[]>([]);
@@ -66,6 +68,7 @@ export function FlashlightMinigame({ level, memory, onComplete }: MinigameProps)
       setFled(true);
       if (spot) setMoved((m) => ({ ...m, [o.id]: spot }));
       sfx.hum();
+      camShake(1);
       setWhisper(evasive.whisper || null);
       setTimeout(() => setWhisper(null), 3200);
     }, 350);
@@ -131,7 +134,7 @@ export function FlashlightMinigame({ level, memory, onComplete }: MinigameProps)
       onPointerMove={onMove}
       onPointerUp={onUp}
       onPointerCancel={() => (down.current = null)}
-      className="game-room-dark relative w-full cursor-none touch-none select-none overflow-hidden rounded-2xl border border-neutral-800"
+      className={`game-room-dark relative w-full cursor-none touch-none select-none overflow-hidden rounded-2xl border border-neutral-800 ${shakeClass}`}
       style={{ aspectRatio: "2 / 3" }}
       role="application"
       aria-label="Dark bedroom. Drag to move the flashlight, tap lit objects to collect them."

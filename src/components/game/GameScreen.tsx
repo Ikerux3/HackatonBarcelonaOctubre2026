@@ -30,6 +30,12 @@ const QUESTIONS = {
   question_two: "What was your favorite childhood toy?",
 } as const;
 
+/** Mom's dress palette comes from the table level in the story (if any). */
+function motherPalette(story: StoryLevels) {
+  const table = Object.values(story).find((l) => l.type === "table_for_three");
+  return table?.type === "table_for_three" ? table.table.motherColors : undefined;
+}
+
 export function GameScreen() {
   return (
     <GameShell>
@@ -136,7 +142,7 @@ function GameScreenInner() {
         </p>
         <button
           type="button"
-          onClick={start}
+          onClick={() => start(motherPalette(story))}
           className="min-h-14 rounded-2xl bg-amber-900 px-10 py-4 text-lg font-bold text-amber-50 shadow-lg active:scale-95"
         >
           Play
@@ -162,6 +168,7 @@ function GameScreenInner() {
     return (
       <IntroName
         stage={state.stage}
+        motherColor={state.memory.motherColor}
         name={state.memory.playerName ?? null}
         onName={setName}
         onDone={advance}

@@ -242,7 +242,14 @@ export interface TableOptions {
   food: { enabled: boolean; question: string };
   /** after leaving and coming back (or before the last check) the monster swaps two pieces */
   swap: { enabled: boolean };
-  hints: { kitchen: string; dining: string; dark: string; finish: string };
+  hints: {
+    kitchen: string;
+    dining: string;
+    dark: string;
+    finish: string;
+    /** optional numbered steps shown once, the first time in the dining room */
+    howTo?: string[];
+  };
   lines: {
     decoy: string;
     needAll: string;

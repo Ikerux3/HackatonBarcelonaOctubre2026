@@ -353,6 +353,48 @@ html.game-shell-root input {
   );
 }
 
+/* camera shake bursts (see src/game/cameraShake.ts): short, rate-limited, per minigame */
+@keyframes game-cam-shake {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  15% {
+    transform: translate(calc(var(--amp) * -1), calc(var(--amp) * 0.5)) rotate(-0.4deg);
+  }
+  30% {
+    transform: translate(var(--amp), calc(var(--amp) * -0.5)) rotate(0.4deg);
+  }
+  45% {
+    transform: translate(calc(var(--amp) * -0.7), var(--amp)) rotate(-0.2deg);
+  }
+  60% {
+    transform: translate(calc(var(--amp) * 0.7), calc(var(--amp) * -0.7));
+  }
+  80% {
+    transform: translate(calc(var(--amp) * -0.3), calc(var(--amp) * 0.3));
+  }
+}
+.game-cam-shake-1 {
+  --amp: 2px;
+  animation: game-cam-shake 0.35s ease-out;
+}
+.game-cam-shake-2 {
+  --amp: 4px;
+  animation: game-cam-shake 0.5s ease-out;
+}
+.game-cam-shake-3 {
+  --amp: 8px;
+  animation: game-cam-shake 0.7s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-cam-shake-1,
+  .game-cam-shake-2,
+  .game-cam-shake-3 {
+    animation: none;
+  }
+}
+
 /* The Guest crossing the room once, left to right, slightly blurred */
 @keyframes game-shadow-pass {
   0% {

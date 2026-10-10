@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useReducer, useRef } from "react";
 
 import { interpretAnswerSafe } from "@/ai/aiAdapter";
-import type { FoodCategory, GuestRequest, QuestionType } from "@/ai/contracts";
+import type { FoodCategory, GuestRequest, NormalizedColor, QuestionType } from "@/ai/contracts";
 import { decideGuest } from "@/ai/guestAdapter";
 import { ruleGuestDecision } from "@/ai/guestFacts";
 import {
@@ -34,6 +34,16 @@ function buildGuestRequest(s: GameState, level: LevelConfig): GuestRequest {
   };
 }
 
+/** used when no level defines mom's palette */
+export const DEFAULT_MOTHER_COLORS: NormalizedColor[] = [
+  "red",
+  "purple",
+  "pink",
+  "green",
+  "orange",
+  "yellow",
+];
+
 /** how long a blackout lingers before the question appears */
 export const BLACKOUT_MS = 3200;
 
@@ -53,11 +63,14 @@ export function useGameController() {
   const stateRef = useRef(state);
   stateRef.current = state;
 
-  const start = useCallback(() => {
+  /** `motherPalette`: colors mom's dress may have this run — one is drawn, once. */
+  const start = useCallback((motherPalette: NormalizedColor[] = DEFAULT_MOTHER_COLORS) => {
     initAudio();
     sfx.click();
     observe.reset();
-    dispatch({ type: "START" });
+    const palette = motherPalette.length ? motherPalette : DEFAULT_MOTHER_COLORS;
+    const motherColor = palette[Math.floor(Math.random() * palette.length)];
+    dispatch({ type: "START", ...(motherColor ? { motherColor } : {}) });
   }, []);
 
   /** During a blackout: ask The Guest (real model) what it does in the next task. */

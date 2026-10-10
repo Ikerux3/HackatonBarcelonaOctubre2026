@@ -1,9 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 
+import type { NormalizedColor } from "@/ai/contracts";
+import { COLOR_HEX } from "@/game/levels/assets";
 import { DEFAULT_NAME, sanitizeName } from "@/game/playerName";
+import { MomFigure } from "./Figures";
 
 interface Props {
   stage: "intro_name" | "intro_leave";
+  /** mom's dress color for this run (provisional cue until the comic intro exists) */
+  motherColor: NormalizedColor | undefined;
   name: string | null;
   onName: (name: string) => void;
   /** tap to skip the goodbye (the stage also advances on its own) */
@@ -26,7 +31,7 @@ function useTypewriter(text: string, speed = 45) {
 }
 
 /** Mom's goodbye with a pause for the player's name. No monster, no blackout. */
-export function IntroName({ stage, name, onName, onDone }: Props) {
+export function IntroName({ stage, motherColor, name, onName, onDone }: Props) {
   const first = useTypewriter(FIRST);
   const second = useTypewriter(stage === "intro_leave" ? rest(name ?? DEFAULT_NAME) : "");
   const [value, setValue] = useState("");
@@ -42,6 +47,7 @@ export function IntroName({ stage, name, onName, onDone }: Props) {
       className="game-room-cozy flex h-full flex-col items-center justify-center gap-4 px-6 py-6 text-center"
       onClick={() => stage === "intro_leave" && second.finished && onDone()}
     >
+      {motherColor && <MomFigure color={COLOR_HEX[motherColor]} className="h-24" />}
       <p className="text-xs uppercase tracking-[0.3em] text-amber-900/70">Mom</p>
       <p className="min-h-[5.5rem] max-w-xs font-serif text-xl italic leading-relaxed text-amber-950">
         “{first.shown}

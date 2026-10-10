@@ -351,6 +351,11 @@ function validateTable(l: Loose, objects: Loose[], targets: Loose[], e: string[]
   const h = t.hints;
   if (!isObj(h) || !["kitchen", "dining", "dark", "finish"].every((k) => txt(h[k], 100)))
     e.push("table.hints needs kitchen, dining, dark, finish (max 100).");
+  else if (
+    h.howTo !== undefined &&
+    !(Array.isArray(h.howTo) && h.howTo.length <= 4 && h.howTo.every((s: unknown) => txt(s, 140)))
+  )
+    e.push("table.hints.howTo must be up to 4 steps (max 140 chars each).");
   const ln = t.lines;
   if (
     !isObj(ln) ||

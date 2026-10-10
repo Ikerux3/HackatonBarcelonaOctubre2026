@@ -74,11 +74,11 @@ El test **"level files"** falla si algún nivel tiene un error (campo que falta,
 | `decoys` | Vajilla gigante (señuelo): nunca se puede coger |
 | `owners` / `sides` | De quién es cada pieza y en qué lado está cada hueco (3 y 3, una de cada tipo) |
 | `childSide` | `"left"`, `"right"` o `"random"` (cambia cada partida) |
-| `motherColors` | Colores posibles del vestido de mamá |
 | `dark` | Milisegundos a oscuras hasta los ojos (`eyesMs`), el temblor (`shakeMs`) y el susto (`scareMs`) |
 | `checkpointAt` | Cuántas piezas bien hacen el checkpoint (y lanzan la pregunta de comida) |
 | `food.enabled` / `swap.enabled` | Activar o quitar la pregunta de comida y el intercambio |
-| `hints` / `lines` | Todos los textos de pistas y del monstruo |
+| `hints` / `lines` | Todos los textos de pistas y del monstruo. `hints.howTo` (opcional, hasta 4 pasos) es la tarjeta "Setting the table" que sale la primera vez en el comedor |
+| `motherColors` | Colores posibles del vestido de mamá: se sortea **uno al pulsar Play** y se usa igual en toda la partida |
 
 Las posiciones de los huecos de la mesa son los `targets` del nivel (`x`,`y`,`w`,`h` en %). El editor todavía no tiene un panel específico para este tipo: el bloque `table` se edita en el JSON y se prueba con **Playtest** en `/editor` o jugando.
 

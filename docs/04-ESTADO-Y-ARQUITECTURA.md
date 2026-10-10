@@ -1,6 +1,6 @@
 # 04 — ESTADO Y ARQUITECTURA | MOMMY WILL BE BACK
 
-Actualizado: **10 oct 2026, 02:30** · Autor: Unai + Claude Code · Base: `main` @ `b887c4b` + rama `unai/table-for-three` (Minijuego 02)
+Actualizado: **10 oct 2026, 03:20** · Autor: Unai + Claude Code · Base: `main` @ `a006ad9` + rama `unai/tension-ending` (aclaraciones del equipo del 10 oct)
 
 > Documento de orden: qué hay hecho, cómo está construido y qué falta. Distingue **VERIFICADO** (probado con evidencia), **HECHO** (en el código, sin prueba completa) y **PENDIENTE**.
 
@@ -23,19 +23,21 @@ Un niño se queda solo en casa mientras mamá va a por la cena. Hace tareas (rec
 
 ## 3. Flujo de una partida (≈3 min)
 
-1. **Título** → Play.
-2. **Mamá se despide** y se interrumpe para preguntar tu **nombre** (validado en el móvil, nunca sale del dispositivo).
+1. **Título** → Play. Aquí se sortea **una sola vez** el color del vestido de mamá para toda la partida.
+2. **Mamá se despide** (aparece con ese vestido — pista provisional hasta el cómic) y se interrumpe para preguntar tu **nombre** (validado en el móvil, nunca sale del dispositivo).
 3. **Tarea 1 — Recoger 5 juguetes** (Minijuego 01, rol según el orden): 1º arrastrar · 2º debajo del cojín · 3º dentro del cajón · **4º poseído** (apagón, se mueve en la oscuridad, se congela al iluminarlo) · 5º **escondido** (pistas visuales y sonoras).
 4. **Apagón** → El Invitado pregunta tu **color favorito** (texto libre, cualquier idioma).
 5. **Tarea 2 — La mesa para tres** (Minijuego 02, NUEVO):
    - **Cocina**: abrir armarios y cajones, recoger 6 piezas a la bandeja (pequeñas ⭐ para ti, en tu color; medianas 👗 para mamá, en el color de su vestido). La vajilla **gigante** es un señuelo.
-   - **Comedor**: con luz se colocan las piezas; los dos sitios parecen iguales. **Apagando la luz** aparecen las marcas de quién se sienta dónde (cambia cada partida), pero El Invitado se acerca: ojos → temblor → **susto completo**, que reinicia **solo la fase actual**.
+   - **Comedor**: la primera vez sale una tarjeta "Setting the table" con los pasos. Con luz se colocan las piezas; los dos sitios parecen iguales. **Apagando la luz** aparecen las marcas y las sillas brillan con el color de cada uno (mamá = su vestido), pero El Invitado se acerca: ojos + temblor pequeño → temblor mediano → **susto completo**, que reinicia **solo la fase actual**.
    - Al llegar a 3 piezas bien (**checkpoint**): El Invitado pregunta tu **comida favorita** (IA) y aparece en la mesa… y se mancha de tinta.
    - Si sales y vuelves (o antes de la comprobación final), **intercambia dos piezas**.
    - Al terminar, coloca solo un **tercer servicio gigante**: *"How nice. Now we're all here."*
 6. **Apagón** → pregunta tu **juguete favorito de pequeño**.
 7. **Tarea 3 — Dormir con linterna**: buscar pijama, cepillo y **tu juguete**, que huye la primera vez.
-8. **Final**: susurro de tu nombre a oscuras → mamá vuelve de verdad → tu juguete sobre la mesa y falta tu color → despedida del Invitado → **"What The Guest noticed about you"**.
+8. **Final** (decisión del equipo, 10 oct): susurro de tu nombre a oscuras → mamá vuelve de verdad (con su vestido) → **mamá y el niño en una habitación iluminada; en la de al lado, a oscuras, los ojos de El Invitado con tu juguete** → despedida del Invitado → **"What The Guest noticed about you"**. No hay final malo.
+
+**Temblor de cámara** (regla del equipo): cada minijuego tiene su propia tensión, que sube con apagones, sustos y movimientos del monstruo; las sacudidas son cortas (≤0,7 s), con pausa mínima de 1,2 s entre ellas, y al pasar al siguiente minijuego todo vuelve a cero. Respeta "reducir movimiento" del sistema.
 
 ## 4. La IA dentro del juego (VERIFICADO en producción, 10 oct 01:45)
 
@@ -81,7 +83,9 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 | `src/game/guestEffects.ts` | Traduce la acción elegida por la IA a efectos seguros en cada nivel |
 | `src/ai/` | Contrato (`contracts.ts`), funciones de servidor, adaptadores con respaldo y modos |
 | `src/components/game/` | Pantallas: intro, preguntas, overlay del Invitado, final |
-| `src/test/` | Tests automáticos (19) |
+| `src/game/cameraShake.ts` | Temblor de cámara por minijuego (tensión progresiva, ráfagas cortas con pausa, vuelve a cero) |
+| `src/components/game/Figures.tsx` | Siluetas provisionales de mamá (con el color de su vestido) y del niño |
+| `src/test/` | Tests automáticos (21) |
 
 ## 7. Cómo se ha construido (para los 20 puntos de "How you built it")
 
@@ -103,20 +107,28 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 - Versión móvil: sin scroll ni barra lateral, el campo de respuesta queda sobre el teclado, sin zoom.
 - Niveles modulares + 19 tests automáticos + TypeScript sin errores.
 
+- **Producción (10 oct 02:50, `?debug=1`)**: decisión del Invitado `live` 787 ms; color `live` 857 ms; **comida `live` 1107 ms** ("los macarrones con queso de mi abuela" → 🍝, frase del modelo sobre la abuela).
+- Aclaraciones del equipo (local, móvil simulado): mamá con el color sorteado en la intro y el mismo en su vajilla y silla; tarjeta de instrucciones; temblor nivel 1 a los 4 s y nivel 2 a los 7 s a oscuras, con pausas; la tensión empieza de cero en cada minijuego; final con dos habitaciones.
+
 **HECHO, falta probar**
-- Pregunta de comida con la IA real (en producción, tras el merge + Publish).
 - Intercambio al salir y volver al comedor (probado el caso "antes de la comprobación final").
 - Controles táctiles en iPhone Safari y Android Chrome reales.
 
-**DECISIONES PENDIENTES DEL EQUIPO**
-- **Regla del susto (D14 vs Minijuego 02)**: implementado tal como dice el diseño de MJ (susto completo → se repite solo la fase actual y suma un error relevante). Iker tiene que confirmarlo; se cambia en el JSON (`table.dark`) sin código.
-- **Color del vestido de mamá**: el diseño dice que se muestra en la intro cómic, que aún no existe; de momento se elige al azar y se ve en las marcas 👗.
-- **Final malo por corrupción**: los sustos ya se cuentan (`fullScares`), pero no hay umbral ni final malo hasta que Iker y MJ lo decidan.
+**DECISIONES DEL EQUIPO (aclaración 10 oct) — IMPLEMENTADAS**
+- Susto completo → reinicia **solo la fase actual**, conserva todo lo anterior; un susto no pasa al siguiente minijuego; errores pequeños no penalizan.
+- Temblor progresivo, limitado y con pausas por minijuego; vuelve a cero en el siguiente.
+- Vestido de mamá: sorteado una vez al pulsar Play (`GameMemory.motherColor`); mismo color en la intro (figura provisional), su vajilla, sus marcas, su silla (a oscuras) y el final. No se vuelve a sortear.
+- No hay final malo. Final: mamá y el niño en la habitación iluminada, El Invitado insinuado en la de al lado a oscuras.
+- Sin cambios en los contratos de IA.
+
+**PENDIENTE DE COORDINAR (Iker)**
+- Encajar el reinicio por fase y el desenlace con las decisiones generales anteriores (D14).
+- La silla de mamá se ilumina con su color **solo a oscuras** (con luz, colorearla revelaría qué sitio es de quién y el puzle de la oscuridad dejaría de tener sentido). Si se quiere siempre coloreada, es un cambio de una línea.
 - **Seis minijuegos**: objetivo del producto; ahora hay tres en la historia.
 
 **PENDIENTE (por prioridad)**
-1. Merge de `unai/table-for-three` + Publish en Lovable + probar la pregunta de comida en producción con `?debug=1`.
-2. Arte (en curso) → integrar.
+1. Merge de `unai/tension-ending` + Publish en Lovable.
+2. Arte (en curso) → integrar (sustituye a las siluetas provisionales de mamá y el niño).
 3. Prueba en móviles reales.
 4. Vídeo de respaldo de la demo + guion de 2–3 min.
 5. Registro de "cómo lo construimos" con créditos y tokens.
@@ -126,6 +138,6 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 ## 9. Handoff
 
 - **Responsable**: Unai + Claude Code
-- **Estado**: Minijuego 02 implementado y jugado de principio a fin en local; pendiente de merge y prueba en producción.
-- **Rama / commit**: `unai/table-for-three` (sobre `main` @ `b887c4b`)
-- **Siguiente paso**: merge + Publish; probar comida con IA real; integrar arte cuando esté.
+- **Estado**: Minijuego 02 en producción y verificado con IA real; aclaraciones del equipo (temblor, color de mamá, final) implementadas y probadas en local.
+- **Rama / commit**: `unai/tension-ending` (sobre `main` @ `a006ad9`)
+- **Siguiente paso**: merge + Publish; integrar arte cuando esté; pruebas en móvil real.

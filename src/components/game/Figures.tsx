@@ -1,0 +1,27 @@
+// Placeholder silhouettes until the team's illustrations arrive.
+
+/** Mom: dark silhouette in a dress of this run's color. */
+export function MomFigure({ color, className = "" }: { color: string; className?: string }) {
+  return (
+    <svg viewBox="0 0 60 120" className={className} aria-label="Mom" role="img">
+      <circle cx="30" cy="14" r="10" fill="#3b2a20" />
+      <path d="M22 10c2-8 14-8 16 0 4 2 5 10 2 16H20c-3-6-2-14 2-16z" fill="#2a1d16" />
+      <rect x="26" y="23" width="8" height="6" fill="#3b2a20" />
+      <path d="M20 29h20l14 62H6z" fill={color} stroke="#2a1d16" strokeWidth="2" />
+      <path d="M20 31l-7 30M40 31l7 30" stroke="#3b2a20" strokeWidth="5" strokeLinecap="round" />
+      <path d="M22 91v24M38 91v24" stroke="#3b2a20" strokeWidth="5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** The child: smaller, neutral pajamas. */
+export function ChildFigure({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 40 80" className={className} aria-label="The child" role="img">
+      <circle cx="20" cy="12" r="9" fill="#3b2a20" />
+      <path d="M11 22h18l3 30H8z" fill="#cbd5e1" stroke="#2a1d16" strokeWidth="2" />
+      <path d="M11 24l-5 18M29 24l5 18" stroke="#3b2a20" strokeWidth="4" strokeLinecap="round" />
+      <path d="M14 52v24M26 52v24" stroke="#3b2a20" strokeWidth="4" strokeLinecap="round" />
+    </svg>
+  );
+}
