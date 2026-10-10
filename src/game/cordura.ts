@@ -11,9 +11,10 @@ export const CORDURA_RULES = {
   /** a full scare (the monster got you) */
   fullScare: 10,
   /** +1 for every 2 s with the light off (D28 — never +1 per second) */
-  darkMsPerPoint: 2000,
+  darkMsPerPoint: 1000,
+  darkPointsPerInterval: 3,
   /** −1 for every 3 s with the light on (MJ's D36, ratified by Iker in D43) */
-  litMsPerPoint: 3000,
+  litMsPerPoint: 2000,
   /** D34: 0–64 mom finds the child a little scared · 65–100 crying and very scared */
   cryingFrom: 65,
   /**
@@ -66,7 +67,7 @@ export function tickCordura(c: Cordura, light: CorduraLight, ms: number): Cordur
   if (light === "dark") {
     const banked = c.darkMs + ms;
     const points = Math.floor(banked / CORDURA_RULES.darkMsPerPoint);
-    const value = clamp(c.value + points);
+    const value = clamp(c.value + points * CORDURA_RULES.darkPointsPerInterval);
     // at the top nothing is banked: the light starts bringing it down right away
     const darkMs = value === CORDURA_RULES.max ? 0 : banked - points * CORDURA_RULES.darkMsPerPoint;
     return latch100({ ...c, value, darkMs });
@@ -86,12 +87,24 @@ export function tickCordura(c: Cordura, light: CorduraLight, ms: number): Cordur
 export function scareCordura(c: Cordura): Cordura {
   if (c.final !== null) return c;
   const value = clamp(c.value + CORDURA_RULES.fullScare);
-  return { ...c, value, armed100: value >= CORDURA_RULES.max ? false : c.armed100 };
+  return latch100({ ...c, value });
 }
 
 /** Dev/QA start value (`?debug=1&cordura=95`), so the 100 event can be tested quickly. */
 export function corduraStartingAt(value: number): Cordura {
   return { ...initialCordura, value: clamp(Math.round(value)) };
+}
+
+/** At 100% start the SAME level again at 50%; earlier story memory is retained. */
+export function resetCorduraAtCheckpoint(c: Cordura): Cordura {
+  return { ...c, value: 50, darkMs: 0, litMs: 0, armed100: true, final: null };
+}
+
+/** The final 6-second darkness is exceptional: exactly +5, with NO 100% restart. */
+export function freezeFinalCordura(c: Cordura): Cordura {
+  if (c.final !== null) return c;
+  const value = clamp(c.value + 5);
+  return { ...c, value, darkMs: 0, litMs: 0, final: value };
 }
 
 /** Snapshot taken when the last minigame ends. */
