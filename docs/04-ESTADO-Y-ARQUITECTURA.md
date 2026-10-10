@@ -1,6 +1,6 @@
 # 04 — ESTADO Y ARQUITECTURA | MOMMY WILL BE BACK
 
-Actualizado: **10 oct 2026, 03:20** · Autor: Unai + Claude Code · Base: `main` @ `a006ad9` + rama `unai/tension-ending` (aclaraciones del equipo del 10 oct)
+Actualizado: **10 oct 2026, 04:00** · Autor: Unai + Claude Code · Rama `unai/tension-ending` = `main` @ `3a251d8` (renovación visual de Lovable/Iker + sprites de juguetes de Codex) + aclaraciones del equipo del 10 oct, ya fusionadas sin conflictos
 
 > Documento de orden: qué hay hecho, cómo está construido y qué falta. Distingue **VERIFICADO** (probado con evidencia), **HECHO** (en el código, sin prueba completa) y **PENDIENTE**.
 
@@ -83,9 +83,11 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 | `src/game/guestEffects.ts` | Traduce la acción elegida por la IA a efectos seguros en cada nivel |
 | `src/ai/` | Contrato (`contracts.ts`), funciones de servidor, adaptadores con respaldo y modos |
 | `src/components/game/` | Pantallas: intro, preguntas, overlay del Invitado, final |
+| `src/styles/game-art.css` + `CorruptionLayer.tsx` | **Capa visual** (Lovable/Iker): tipografías, salas tipo diorama, marcos de madera, grano, tinta/corrupción por tarea (0–3), estilo del Invitado. Solo presentación: nunca guarda estado del juego |
+| `public/assets/toys/` + `ToySprite.tsx` | Sprites reales de juguetes (Codex), con variante "poseído" para algunos |
 | `src/game/cameraShake.ts` | Temblor de cámara por minijuego (tensión progresiva, ráfagas cortas con pausa, vuelve a cero) |
 | `src/components/game/Figures.tsx` | Siluetas provisionales de mamá (con el color de su vestido) y del niño |
-| `src/test/` | Tests automáticos (21) |
+| `src/test/` | Tests automáticos (25) |
 
 ## 7. Cómo se ha construido (para los 20 puntos de "How you built it")
 
@@ -94,7 +96,10 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 | Diseño y coordinación | Equipo + ChatGPT (3 cuentas) | Concepto, documentos 00–03, El Invitado, Minijuegos 01 y 02 |
 | Iteraciones 1–10 | Iker + **Lovable** (prompts redactados con ayuda de Claude) | Base del juego, minijuegos, editor, IA de interpretación, final |
 | Iteraciones 11–14 | Unai + **Claude Code** (Claude Opus 5.5) | Bugs del poseído, remate del final, El Invitado adaptativo, versión móvil, niveles modulares, **Minijuego 02**, pregunta de comida, tests, verificación en producción |
-| Arte | Flash / MJ / Iker + ChatGPT (imágenes) | En curso |
+| Renovación visual | Iker + **Lovable** | Capa de arte `game-art.css`, corrupción, nuevas pantallas de título, nombre, preguntas y final |
+| Sprites de juguetes | **Codex** | Juguetes en imagen (`public/assets/toys/`) + test visual |
+| Fusión | Unai + **Claude Code** | Merge de la renovación visual con las aclaraciones del equipo (6 conflictos resueltos, probado de punta a punta) |
+| Arte restante | Flash / MJ / Iker + ChatGPT (imágenes) | En curso (fondos pintados, cómic de intro) |
 
 **PENDIENTE**: anotar créditos de Lovable gastados y tokens consumidos por cada cuenta (ChatGPT, Claude).
 
@@ -139,5 +144,5 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 
 - **Responsable**: Unai + Claude Code
 - **Estado**: Minijuego 02 en producción y verificado con IA real; aclaraciones del equipo (temblor, color de mamá, final) implementadas y probadas en local.
-- **Rama / commit**: `unai/tension-ending` (sobre `main` @ `a006ad9`)
+- **Rama / commit**: `unai/tension-ending` (incluye `main` @ `3a251d8`; el merge a `main` sale limpio)
 - **Siguiente paso**: merge + Publish; integrar arte cuando esté; pruebas en móvil real.
