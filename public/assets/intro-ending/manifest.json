@@ -1,0 +1,870 @@
+{
+  "version": 1,
+  "sourceCommit": "a93df9fe046182abfc3aa4d16063e7e5823af9da",
+  "medium": "generated raster 2D; no editable 3D source",
+  "aspect": [
+    2,
+    3
+  ],
+  "scenePixels": [
+    1024,
+    1536
+  ],
+  "coordinates": "center normalized 0..100; w scene width percent; h scene height percent",
+  "background": "backgrounds/clean.webp",
+  "assets": {
+    "mother-standing": {
+      "path": "sprites/mother-standing.webp",
+      "dimensions": [
+        481,
+        768
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        481,
+        768
+      ],
+      "sourceDimensions": [
+        528,
+        843
+      ],
+      "bytes": 144242
+    },
+    "mother-rescue": {
+      "path": "sprites/mother-rescue.webp",
+      "dimensions": [
+        593,
+        740
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        593,
+        740
+      ],
+      "sourceDimensions": [
+        593,
+        740
+      ],
+      "bytes": 142320
+    },
+    "child-worried": {
+      "path": "sprites/child-worried.webp",
+      "dimensions": [
+        251,
+        512
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        251,
+        512
+      ],
+      "sourceDimensions": [
+        295,
+        602
+      ],
+      "bytes": 60904
+    },
+    "child-crying": {
+      "path": "sprites/child-crying.webp",
+      "dimensions": [
+        256,
+        512
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        256,
+        512
+      ],
+      "sourceDimensions": [
+        720,
+        1440
+      ],
+      "bytes": 60152
+    },
+    "guest-eyes": {
+      "path": "sprites/guest-eyes.webp",
+      "dimensions": [
+        512,
+        154
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        512,
+        154
+      ],
+      "sourceDimensions": [
+        695,
+        209
+      ],
+      "bytes": 31048
+    },
+    "mother-standing-dress-mask": {
+      "path": "sprites/mother-standing-dress-mask.webp",
+      "dimensions": [
+        481,
+        768
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        481,
+        768
+      ],
+      "sourceDimensions": [
+        528,
+        843
+      ],
+      "bytes": 143890
+    },
+    "mother-standing-dress-shading": {
+      "path": "sprites/mother-standing-dress-shading.webp",
+      "dimensions": [
+        481,
+        768
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        481,
+        768
+      ],
+      "sourceDimensions": [
+        528,
+        843
+      ],
+      "bytes": 187512
+    },
+    "mother-standing-red": {
+      "path": "states/mother-standing-red.webp",
+      "dimensions": [
+        481,
+        768
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "state": "red",
+      "derivedFrom": "mother-standing",
+      "note": "deterministic tint using extracted dress matte; review edges at final scale",
+      "exportDimensions": [
+        481,
+        768
+      ],
+      "sourceDimensions": [
+        528,
+        843
+      ],
+      "bytes": 164184
+    },
+    "mother-standing-purple": {
+      "path": "states/mother-standing-purple.webp",
+      "dimensions": [
+        481,
+        768
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "state": "purple",
+      "derivedFrom": "mother-standing",
+      "note": "deterministic tint using extracted dress matte; review edges at final scale",
+      "exportDimensions": [
+        481,
+        768
+      ],
+      "sourceDimensions": [
+        528,
+        843
+      ],
+      "bytes": 165890
+    },
+    "mother-standing-pink": {
+      "path": "states/mother-standing-pink.webp",
+      "dimensions": [
+        481,
+        768
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "state": "pink",
+      "derivedFrom": "mother-standing",
+      "note": "deterministic tint using extracted dress matte; review edges at final scale",
+      "exportDimensions": [
+        481,
+        768
+      ],
+      "sourceDimensions": [
+        528,
+        843
+      ],
+      "bytes": 171712
+    },
+    "mother-standing-green": {
+      "path": "states/mother-standing-green.webp",
+      "dimensions": [
+        481,
+        768
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "state": "green",
+      "derivedFrom": "mother-standing",
+      "note": "deterministic tint using extracted dress matte; review edges at final scale",
+      "exportDimensions": [
+        481,
+        768
+      ],
+      "sourceDimensions": [
+        528,
+        843
+      ],
+      "bytes": 166026
+    },
+    "mother-standing-orange": {
+      "path": "states/mother-standing-orange.webp",
+      "dimensions": [
+        481,
+        768
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "state": "orange",
+      "derivedFrom": "mother-standing",
+      "note": "deterministic tint using extracted dress matte; review edges at final scale",
+      "exportDimensions": [
+        481,
+        768
+      ],
+      "sourceDimensions": [
+        528,
+        843
+      ],
+      "bytes": 171596
+    },
+    "mother-standing-yellow": {
+      "path": "states/mother-standing-yellow.webp",
+      "dimensions": [
+        481,
+        768
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "state": "yellow",
+      "derivedFrom": "mother-standing",
+      "note": "deterministic tint using extracted dress matte; review edges at final scale",
+      "exportDimensions": [
+        481,
+        768
+      ],
+      "sourceDimensions": [
+        528,
+        843
+      ],
+      "bytes": 174346
+    },
+    "mother-rescue-dress-mask": {
+      "path": "sprites/mother-rescue-dress-mask.webp",
+      "dimensions": [
+        593,
+        740
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        593,
+        740
+      ],
+      "sourceDimensions": [
+        593,
+        740
+      ],
+      "bytes": 82894
+    },
+    "mother-rescue-dress-shading": {
+      "path": "sprites/mother-rescue-dress-shading.webp",
+      "dimensions": [
+        593,
+        740
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        593,
+        740
+      ],
+      "sourceDimensions": [
+        593,
+        740
+      ],
+      "bytes": 174660
+    },
+    "mother-rescue-red": {
+      "path": "states/mother-rescue-red.webp",
+      "dimensions": [
+        593,
+        740
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "state": "red",
+      "derivedFrom": "mother-rescue",
+      "note": "deterministic tint using extracted dress matte; review edges at final scale",
+      "exportDimensions": [
+        593,
+        740
+      ],
+      "sourceDimensions": [
+        593,
+        740
+      ],
+      "bytes": 160266
+    },
+    "mother-rescue-purple": {
+      "path": "states/mother-rescue-purple.webp",
+      "dimensions": [
+        593,
+        740
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "state": "purple",
+      "derivedFrom": "mother-rescue",
+      "note": "deterministic tint using extracted dress matte; review edges at final scale",
+      "exportDimensions": [
+        593,
+        740
+      ],
+      "sourceDimensions": [
+        593,
+        740
+      ],
+      "bytes": 163590
+    },
+    "mother-rescue-pink": {
+      "path": "states/mother-rescue-pink.webp",
+      "dimensions": [
+        593,
+        740
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "state": "pink",
+      "derivedFrom": "mother-rescue",
+      "note": "deterministic tint using extracted dress matte; review edges at final scale",
+      "exportDimensions": [
+        593,
+        740
+      ],
+      "sourceDimensions": [
+        593,
+        740
+      ],
+      "bytes": 169772
+    },
+    "mother-rescue-green": {
+      "path": "states/mother-rescue-green.webp",
+      "dimensions": [
+        593,
+        740
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "state": "green",
+      "derivedFrom": "mother-rescue",
+      "note": "deterministic tint using extracted dress matte; review edges at final scale",
+      "exportDimensions": [
+        593,
+        740
+      ],
+      "sourceDimensions": [
+        593,
+        740
+      ],
+      "bytes": 163930
+    },
+    "mother-rescue-orange": {
+      "path": "states/mother-rescue-orange.webp",
+      "dimensions": [
+        593,
+        740
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "state": "orange",
+      "derivedFrom": "mother-rescue",
+      "note": "deterministic tint using extracted dress matte; review edges at final scale",
+      "exportDimensions": [
+        593,
+        740
+      ],
+      "sourceDimensions": [
+        593,
+        740
+      ],
+      "bytes": 169232
+    },
+    "mother-rescue-yellow": {
+      "path": "states/mother-rescue-yellow.webp",
+      "dimensions": [
+        593,
+        740
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "state": "yellow",
+      "derivedFrom": "mother-rescue",
+      "note": "deterministic tint using extracted dress matte; review edges at final scale",
+      "exportDimensions": [
+        593,
+        740
+      ],
+      "sourceDimensions": [
+        593,
+        740
+      ],
+      "bytes": 173378
+    }
+  },
+  "layers": [
+    {
+      "asset": "guest-eyes",
+      "x": 14,
+      "y": 32,
+      "w": 9,
+      "h": 2,
+      "z": 1,
+      "previewHidden": true,
+      "narrativeOnly": true
+    },
+    {
+      "asset": "mother-rescue-pink",
+      "x": 44,
+      "y": 66,
+      "w": 54,
+      "h": 44,
+      "z": 5
+    },
+    {
+      "asset": "child-worried",
+      "x": 71,
+      "y": 72,
+      "w": 23,
+      "h": 32,
+      "z": 6
+    }
+  ],
+  "status": "narrative asset candidates; script/runtime binding pending",
+  "motherColors": {
+    "red": "#d95555",
+    "purple": "#9a6fd0",
+    "pink": "#e08ab8",
+    "green": "#63a86b",
+    "orange": "#e0904a",
+    "yellow": "#d9b84a"
+  },
+  "sourcePalette": "src/game/levels/assets.ts COLOR_HEX at a93df9f",
+  "colorRule": "Use SAME existing motherColor for intro, rescue and Table for Three; do not sample new color.",
+  "variants": {
+    "intro": {
+      "mother": "mother-standing-{motherColor}",
+      "child": "child-worried"
+    },
+    "rescue-worried": {
+      "mother": "mother-rescue-{motherColor}",
+      "child": "child-worried"
+    },
+    "rescue-crying": {
+      "mother": "mother-rescue-{motherColor}",
+      "child": "child-crying"
+    }
+  },
+  "narrative": "Both variants: mother genuinely returns and comforts child; optional Guest evidence confined to separate dark left room.",
+  "selection": "Existing approved Drive snapshot chooses variant; this pack does not implement thresholds, scoring, timers or endings logic.",
+  "limitations": [
+    "Generated 2D variants; child crying is identity-matched but not pixel-registered animation.",
+    "Dress mattes derived from color; inspect warm stitching and edges before final integration.",
+    "Intro child uses worried base expression; replace only if approved script requires other mood.",
+    "Static plates do not implement five-second blackout or running sequence."
+  ],
+  "contactShadow": {
+    "path": "overlays/contact-shadow.webp",
+    "dimensions": [
+      256,
+      96
+    ],
+    "pivot": [
+      0.5,
+      0.5
+    ],
+    "blend": "normal",
+    "opacity": 0.45,
+    "placement": "under object, separate layer; hide/lift when held; scene art placement only"
+  },
+  "mobileExportPolicy": "Background750x1125; WebP alpha longest edge512, bed/table/mother768. PNG high-resolution sources preserved separately. Load only current scene.",
+  "fileInventory": [
+    {
+      "path": "backgrounds/clean.webp",
+      "bytes": 205902,
+      "dimensions": [
+        750,
+        1125
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "overlays/contact-shadow.png",
+      "bytes": 7810,
+      "dimensions": [
+        256,
+        96
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "overlays/contact-shadow.webp",
+      "bytes": 3966,
+      "dimensions": [
+        256,
+        96
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "qa/alpha-check.json",
+      "bytes": 1099
+    },
+    {
+      "path": "qa/anchors-375.png",
+      "bytes": 441377,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "qa/beauty-1024.webp",
+      "bytes": 441134,
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/beauty-375.png",
+      "bytes": 387611,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/intro-1024.webp",
+      "bytes": 444936,
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/intro-375.png",
+      "bytes": 438867,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "qa/mother-colors.jpg",
+      "bytes": 133527,
+      "dimensions": [
+        1200,
+        500
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/rescue-crying-1024.webp",
+      "bytes": 443138,
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/rescue-crying-375.png",
+      "bytes": 388190,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/rescue-worried-1024.webp",
+      "bytes": 441468,
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/rescue-worried-375.png",
+      "bytes": 387773,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "README.md",
+      "bytes": 720
+    },
+    {
+      "path": "sprites/child-crying.webp",
+      "bytes": 60152,
+      "dimensions": [
+        256,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/child-worried.webp",
+      "bytes": 60904,
+      "dimensions": [
+        251,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/guest-eyes.webp",
+      "bytes": 31048,
+      "dimensions": [
+        512,
+        154
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/mother-rescue-dress-mask.webp",
+      "bytes": 82894,
+      "dimensions": [
+        593,
+        740
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/mother-rescue-dress-shading.webp",
+      "bytes": 174660,
+      "dimensions": [
+        593,
+        740
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/mother-rescue.webp",
+      "bytes": 142320,
+      "dimensions": [
+        593,
+        740
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/mother-standing-dress-mask.webp",
+      "bytes": 143890,
+      "dimensions": [
+        481,
+        768
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/mother-standing-dress-shading.webp",
+      "bytes": 187512,
+      "dimensions": [
+        481,
+        768
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/mother-standing.webp",
+      "bytes": 144242,
+      "dimensions": [
+        481,
+        768
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/mother-rescue-green.webp",
+      "bytes": 163930,
+      "dimensions": [
+        593,
+        740
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/mother-rescue-orange.webp",
+      "bytes": 169232,
+      "dimensions": [
+        593,
+        740
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/mother-rescue-pink.webp",
+      "bytes": 169772,
+      "dimensions": [
+        593,
+        740
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/mother-rescue-purple.webp",
+      "bytes": 163590,
+      "dimensions": [
+        593,
+        740
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/mother-rescue-red.webp",
+      "bytes": 160266,
+      "dimensions": [
+        593,
+        740
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/mother-rescue-yellow.webp",
+      "bytes": 173378,
+      "dimensions": [
+        593,
+        740
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/mother-standing-green.webp",
+      "bytes": 166026,
+      "dimensions": [
+        481,
+        768
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/mother-standing-orange.webp",
+      "bytes": 171596,
+      "dimensions": [
+        481,
+        768
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/mother-standing-pink.webp",
+      "bytes": 171712,
+      "dimensions": [
+        481,
+        768
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/mother-standing-purple.webp",
+      "bytes": 165890,
+      "dimensions": [
+        481,
+        768
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/mother-standing-red.webp",
+      "bytes": 164184,
+      "dimensions": [
+        481,
+        768
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/mother-standing-yellow.webp",
+      "bytes": 174346,
+      "dimensions": [
+        481,
+        768
+      ],
+      "mode": "RGBA"
+    }
+  ],
+  "anchorRecheck": {
+    "mainHEAD": "69c529c16760aa7b186190292a6ef4e739cb2bf7",
+    "result": "tidy_toys.json, table_for_three.json, bedtime.json unchanged from a93df9f"
+  },
+  "highResolutionSources": "External companion archive THE-MENDED-HOUSE-sources-v1.zip"
+}

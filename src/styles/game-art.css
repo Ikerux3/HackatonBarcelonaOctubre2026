@@ -92,11 +92,7 @@
 .g-wallpaper-dining {
   background-color: #6e2f2a;
   background-image:
-    repeating-linear-gradient(
-      90deg,
-      rgba(255, 220, 170, 0.08) 0 10px,
-      transparent 10px 20px
-    ),
+    repeating-linear-gradient(90deg, rgba(255, 220, 170, 0.08) 0 10px, transparent 10px 20px),
     linear-gradient(180deg, #7a3a30 0%, #8a4636 50%, #6a2e26 100%);
 }
 .g-wainscot {
@@ -109,17 +105,18 @@
 }
 .g-floor {
   background:
-    repeating-linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 0.22) 0 2px,
-      transparent 2px 12.5%
-    ),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.22) 0 2px, transparent 2px 12.5%),
     linear-gradient(180deg, #9a6233 0%, #7b4a24 55%, #5a3416 100%);
   box-shadow: inset 0 14px 18px -8px rgba(0, 0, 0, 0.45);
 }
 .g-rug {
   background:
-    radial-gradient(ellipse at center, transparent 50%, rgba(80, 20, 20, 0.5) 51% 55%, transparent 56%),
+    radial-gradient(
+      ellipse at center,
+      transparent 50%,
+      rgba(80, 20, 20, 0.5) 51% 55%,
+      transparent 56%
+    ),
     radial-gradient(ellipse at center, #b9554b 0%, #8e3a35 70%, #6d2a26 100%);
   box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.5);
 }
@@ -127,7 +124,12 @@
   pointer-events: none;
   position: absolute;
   border-radius: 9999px;
-  background: radial-gradient(circle, var(--g-ember-soft) 0%, rgba(255, 190, 90, 0.18) 40%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    var(--g-ember-soft) 0%,
+    rgba(255, 190, 90, 0.18) 40%,
+    transparent 70%
+  );
   mix-blend-mode: soft-light;
 }
 .g-vignette {
@@ -184,7 +186,12 @@
 .g-stain {
   position: absolute;
   border-radius: 46% 54% 60% 40% / 50% 42% 58% 50%;
-  background: radial-gradient(circle at 40% 40%, rgba(20, 10, 6, 0.75), rgba(20, 10, 6, 0.35) 55%, transparent 72%);
+  background: radial-gradient(
+    circle at 40% 40%,
+    rgba(20, 10, 6, 0.75),
+    rgba(20, 10, 6, 0.35) 55%,
+    transparent 72%
+  );
   filter: url(#g-ink-wobble);
   animation: g-stain-breathe 7s ease-in-out infinite;
 }
@@ -218,8 +225,12 @@
 
 /* ── The Guest: ink, not a creature ── */
 .g-ink-veil {
-  background:
-    radial-gradient(ellipse at 50% 70%, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.92) 60%, #000 100%);
+  background: radial-gradient(
+    ellipse at 50% 70%,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.92) 60%,
+    #000 100%
+  );
 }
 .g-guest-body {
   filter: drop-shadow(0 0 18px rgba(0, 0, 0, 0.95));
@@ -273,7 +284,13 @@
   position: absolute;
   height: 14px;
   border-radius: 9999px;
-  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.9) 20%, rgba(0, 0, 0, 0.6) 80%, transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 0, 0, 0.9) 20%,
+    rgba(0, 0, 0, 0.6) 80%,
+    transparent
+  );
   filter: blur(2px);
   animation: g-smear 5s ease-in-out infinite;
 }
@@ -290,7 +307,9 @@
 }
 /* the Guest arrives: the scene is "rewritten" for a moment */
 .g-guest-in {
-  animation: g-guest-in 1.1s steps(1) both, g-fade-in 1.1s ease both;
+  animation:
+    g-guest-in 1.1s steps(1) both,
+    g-fade-in 1.1s ease both;
 }
 @keyframes g-guest-in {
   0% {
@@ -330,8 +349,7 @@
   letter-spacing: 0.01em;
 }
 .g-guest-note {
-  background:
-    linear-gradient(180deg, rgba(10, 6, 5, 0.92), rgba(18, 8, 7, 0.92));
+  background: linear-gradient(180deg, rgba(10, 6, 5, 0.92), rgba(18, 8, 7, 0.92));
   border: 1px solid rgba(201, 48, 44, 0.35);
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.8),
@@ -446,12 +464,16 @@
 
 /* ── title / screens ── */
 .g-title-room {
-  background:
-    radial-gradient(ellipse at 50% 30%, #ffe2a3 0%, #e7b46d 30%, #7a3e1d 70%, #1a0c05 100%);
+  background: radial-gradient(
+    ellipse at 50% 30%,
+    #ffe2a3 0%,
+    #e7b46d 30%,
+    #7a3e1d 70%,
+    #1a0c05 100%
+  );
 }
 .g-ending-room {
-  background:
-    radial-gradient(ellipse at 50% 35%, #1a1210 0%, #0b0706 60%, #000 100%);
+  background: radial-gradient(ellipse at 50% 35%, #1a1210 0%, #0b0706 60%, #000 100%);
 }
 .g-house-window {
   background: radial-gradient(circle, #ffe7a8 0%, #f2b54a 60%, #b8681f 100%);
@@ -568,5 +590,25 @@
   .g-blackout-in,
   .g-push-in {
     animation: none;
+  }
+}
+
+/* Astra raster layers stay decorative; game masks, coordinates and input remain authoritative. */
+.g-art-image {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.g-art-prop:has(> .g-art-image[data-loaded="true"]) {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+.g-art-prop > .g-art-image {
+  transition: transform 0.35s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .g-art-prop > .g-art-image {
+    transition: none;
   }
 }

@@ -8,6 +8,8 @@ import { observe } from "@/game/observer";
 import { ASSETS, COLOR_HEX } from "@/game/levels/assets";
 import type { Point, SceneObject } from "@/game/levels/types";
 import type { MinigameProps } from "./types";
+import { ArtImage, artAsset } from "./ArtImage";
+import { ToySprite } from "./ToySprite";
 import { SceneBackdrop } from "./SceneBackdrop";
 
 /** scene is 2:3, so 1% of height = 1.5% of width */
@@ -174,8 +176,19 @@ export function FlashlightMinigame({ level, memory, onComplete }: MinigameProps)
               transition: "left .5s ease, top .5s ease, transform .4s ease, opacity .4s ease",
             }}
           >
-            <span className="text-2xl leading-none" aria-hidden>
-              {ASSETS[assetOf(o)].emoji}
+            <span
+              className="absolute inset-x-0 top-0 bottom-3 flex items-center justify-center"
+              aria-hidden
+            >
+              {o.asset === "pajamas" || o.asset === "toothbrush" ? (
+                <ArtImage
+                  src={artAsset("scenes/bedroom", o.asset)}
+                  className="h-full w-full object-contain"
+                  fallback={ASSETS[assetOf(o)].emoji}
+                />
+              ) : (
+                <ToySprite asset={assetOf(o)} />
+              )}
             </span>
             <span className="mt-0.5 text-[9px] font-bold text-white drop-shadow">{o.label}</span>
           </div>

@@ -1,0 +1,523 @@
+{
+  "version": 1,
+  "sourceCommit": "a93df9fe046182abfc3aa4d16063e7e5823af9da",
+  "medium": "generated raster 2D; no editable 3D source",
+  "aspect": [
+    2,
+    3
+  ],
+  "scenePixels": [
+    1024,
+    1536
+  ],
+  "coordinates": "center normalized 0..100; w scene width percent; h scene height percent",
+  "background": "backgrounds/clean.webp",
+  "assets": {
+    "tabletop": {
+      "path": "sprites/tabletop.webp",
+      "dimensions": [
+        768,
+        326
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        768,
+        326
+      ],
+      "sourceDimensions": [
+        1040,
+        442
+      ],
+      "bytes": 105246
+    },
+    "underframe": {
+      "path": "sprites/underframe.webp",
+      "dimensions": [
+        512,
+        253
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        512,
+        253
+      ],
+      "sourceDimensions": [
+        782,
+        386
+      ],
+      "bytes": 39648
+    },
+    "chair": {
+      "path": "sprites/chair.webp",
+      "dimensions": [
+        260,
+        512
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        260,
+        512
+      ],
+      "sourceDimensions": [
+        319,
+        629
+      ],
+      "bytes": 80998
+    },
+    "plate": {
+      "path": "sprites/plate.webp",
+      "dimensions": [
+        512,
+        285
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        512,
+        285
+      ],
+      "sourceDimensions": [
+        865,
+        481
+      ],
+      "bytes": 36534
+    },
+    "glass": {
+      "path": "sprites/glass.webp",
+      "dimensions": [
+        431,
+        507
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        431,
+        507
+      ],
+      "sourceDimensions": [
+        431,
+        507
+      ],
+      "bytes": 92380
+    },
+    "fork": {
+      "path": "sprites/fork.webp",
+      "dimensions": [
+        273,
+        512
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        273,
+        512
+      ],
+      "sourceDimensions": [
+        305,
+        573
+      ],
+      "bytes": 74458
+    },
+    "tray": {
+      "path": "sprites/tray.webp",
+      "dimensions": [
+        483,
+        282
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        483,
+        282
+      ],
+      "sourceDimensions": [
+        483,
+        282
+      ],
+      "bytes": 55308
+    },
+    "switch": {
+      "path": "sprites/switch.webp",
+      "dimensions": [
+        338,
+        447
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        338,
+        447
+      ],
+      "sourceDimensions": [
+        338,
+        447
+      ],
+      "bytes": 34970
+    }
+  },
+  "layers": [
+    {
+      "asset": "chair",
+      "x": 29,
+      "y": 72,
+      "w": 20,
+      "h": 26,
+      "z": 1
+    },
+    {
+      "asset": "chair",
+      "x": 71,
+      "y": 72,
+      "w": 20,
+      "h": 26,
+      "z": 1
+    },
+    {
+      "asset": "underframe",
+      "x": 50,
+      "y": 70,
+      "w": 77,
+      "h": 24,
+      "z": 2
+    },
+    {
+      "asset": "tabletop",
+      "x": 50,
+      "y": 47,
+      "w": 88,
+      "h": 40,
+      "z": 3
+    },
+    {
+      "asset": "switch",
+      "x": 89,
+      "y": 15,
+      "w": 8,
+      "h": 7,
+      "z": 4,
+      "anchor": "table.lightSwitch"
+    },
+    {
+      "asset": "glass",
+      "x": 29,
+      "y": 35,
+      "w": 13.5,
+      "h": 8.1,
+      "z": 5,
+      "anchor": "slot_left_glass",
+      "demoOnly": true
+    },
+    {
+      "asset": "plate",
+      "x": 29,
+      "y": 49,
+      "w": 18.0,
+      "h": 11.700000000000001,
+      "z": 5,
+      "anchor": "slot_left_plate",
+      "demoOnly": true
+    },
+    {
+      "asset": "fork",
+      "x": 13,
+      "y": 49,
+      "w": 9.0,
+      "h": 11.700000000000001,
+      "z": 5,
+      "anchor": "slot_left_cutlery",
+      "demoOnly": true
+    },
+    {
+      "asset": "glass",
+      "x": 71,
+      "y": 35,
+      "w": 13.5,
+      "h": 8.1,
+      "z": 5,
+      "anchor": "slot_right_glass",
+      "demoOnly": true
+    },
+    {
+      "asset": "plate",
+      "x": 71,
+      "y": 49,
+      "w": 18.0,
+      "h": 11.700000000000001,
+      "z": 5,
+      "anchor": "slot_right_plate",
+      "demoOnly": true
+    },
+    {
+      "asset": "fork",
+      "x": 87,
+      "y": 49,
+      "w": 9.0,
+      "h": 11.700000000000001,
+      "z": 5,
+      "anchor": "slot_right_cutlery",
+      "demoOnly": true
+    },
+    {
+      "asset": "chair",
+      "x": 50,
+      "y": 23,
+      "w": 30,
+      "h": 23,
+      "z": 1,
+      "anchor": "final.thirdChair",
+      "previewHidden": true,
+      "visibleWhen": "phase === final"
+    }
+  ],
+  "status": "candidate 2D visual pack; runtime integration pending",
+  "sourceLevel": "table_for_three.json",
+  "targets": [
+    {
+      "id": "slot_left_glass",
+      "x": 29,
+      "y": 35,
+      "w": 15,
+      "h": 9,
+      "kind": "glass"
+    },
+    {
+      "id": "slot_left_plate",
+      "x": 29,
+      "y": 49,
+      "w": 20,
+      "h": 13,
+      "kind": "plate"
+    },
+    {
+      "id": "slot_left_cutlery",
+      "x": 13,
+      "y": 49,
+      "w": 10,
+      "h": 13,
+      "kind": "fork"
+    },
+    {
+      "id": "slot_right_glass",
+      "x": 71,
+      "y": 35,
+      "w": 15,
+      "h": 9,
+      "kind": "glass"
+    },
+    {
+      "id": "slot_right_plate",
+      "x": 71,
+      "y": 49,
+      "w": 20,
+      "h": 13,
+      "kind": "plate"
+    },
+    {
+      "id": "slot_right_cutlery",
+      "x": 87,
+      "y": 49,
+      "w": 10,
+      "h": 13,
+      "kind": "fork"
+    }
+  ],
+  "ownerPolicy": "Both places identical in light. Apply star/dress and motherColor ONLY to existing dark reveal layer. Resolve random childSide from runtime. Never bake fixed left/right ownership.",
+  "dishSizes": {
+    "child": 13,
+    "mom": 17,
+    "decoy": "runtime giant"
+  },
+  "occlusion": "tabletop in front of chairs/underframe; plate/glass/fork above tabletop",
+  "limits": [
+    "Front camera sprites are rescaled to existing table footprint.",
+    "No new timing, scare, placement or ownership rules.",
+    "Darkness is a composition layer; no real relighting pass."
+  ],
+  "contactShadow": {
+    "path": "overlays/contact-shadow.webp",
+    "dimensions": [
+      256,
+      96
+    ],
+    "pivot": [
+      0.5,
+      0.5
+    ],
+    "blend": "normal",
+    "opacity": 0.45,
+    "placement": "under object, separate layer; hide/lift when held; scene art placement only"
+  },
+  "mobileExportPolicy": "Background750x1125; WebP alpha longest edge512, bed/table/mother768. PNG high-resolution sources preserved separately. Load only current scene.",
+  "fileInventory": [
+    {
+      "path": "backgrounds/clean.webp",
+      "bytes": 213584,
+      "dimensions": [
+        750,
+        1125
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "overlays/contact-shadow.png",
+      "bytes": 7810,
+      "dimensions": [
+        256,
+        96
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "overlays/contact-shadow.webp",
+      "bytes": 3966,
+      "dimensions": [
+        256,
+        96
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "overlays/dark-wash.svg",
+      "bytes": 138
+    },
+    {
+      "path": "overlays/mark-dress.svg",
+      "bytes": 156
+    },
+    {
+      "path": "overlays/mark-star.svg",
+      "bytes": 167
+    },
+    {
+      "path": "qa/alpha-check.json",
+      "bytes": 874
+    },
+    {
+      "path": "qa/anchors-375.png",
+      "bytes": 434526,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "qa/beauty-1024.webp",
+      "bytes": 437356,
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/beauty-375.png",
+      "bytes": 382351,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "README.md",
+      "bytes": 695
+    },
+    {
+      "path": "sprites/chair.webp",
+      "bytes": 80998,
+      "dimensions": [
+        260,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/fork.webp",
+      "bytes": 74458,
+      "dimensions": [
+        273,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/glass.webp",
+      "bytes": 92380,
+      "dimensions": [
+        431,
+        507
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/plate.webp",
+      "bytes": 36534,
+      "dimensions": [
+        512,
+        285
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/switch.webp",
+      "bytes": 34970,
+      "dimensions": [
+        338,
+        447
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/tabletop.webp",
+      "bytes": 105246,
+      "dimensions": [
+        768,
+        326
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/tray.webp",
+      "bytes": 55308,
+      "dimensions": [
+        483,
+        282
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/underframe.webp",
+      "bytes": 39648,
+      "dimensions": [
+        512,
+        253
+      ],
+      "mode": "RGBA"
+    }
+  ],
+  "anchorRecheck": {
+    "mainHEAD": "69c529c16760aa7b186190292a6ef4e739cb2bf7",
+    "result": "tidy_toys.json, table_for_three.json, bedtime.json unchanged from a93df9f"
+  },
+  "highResolutionSources": "External companion archive THE-MENDED-HOUSE-sources-v1.zip"
+}

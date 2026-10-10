@@ -1,0 +1,745 @@
+{
+  "version": "1.0",
+  "status": "raster asset candidate; needs game integration review",
+  "sourceCommit": "a93df9fe046182abfc3aa4d16063e7e5823af9da",
+  "sourceLevel": "src/game/levels/data/table_for_three.json",
+  "sceneAspect": [
+    2,
+    3
+  ],
+  "scenePixels": [
+    1024,
+    1536
+  ],
+  "coordinateSystem": "centers 0..100, width % scene width, height % scene height",
+  "background": "backgrounds/kitchen-clean.webp",
+  "assets": {
+    "cupboard-interior": {
+      "path": "sprites/cupboard-interior.webp",
+      "width": 437,
+      "height": 435,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        437,
+        435
+      ],
+      "sourceDimensions": [
+        437,
+        435
+      ],
+      "bytes": 64508
+    },
+    "cupboard-door": {
+      "path": "sprites/cupboard-door.webp",
+      "width": 430,
+      "height": 435,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        430,
+        435
+      ],
+      "sourceDimensions": [
+        430,
+        435
+      ],
+      "bytes": 92580
+    },
+    "drawer-interior": {
+      "path": "sprites/drawer-interior.webp",
+      "width": 512,
+      "height": 234,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        512,
+        234
+      ],
+      "sourceDimensions": [
+        513,
+        234
+      ],
+      "bytes": 46368
+    },
+    "drawer-front": {
+      "path": "sprites/drawer-front.webp",
+      "width": 453,
+      "height": 169,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        453,
+        169
+      ],
+      "sourceDimensions": [
+        453,
+        169
+      ],
+      "bytes": 39362
+    },
+    "tray": {
+      "path": "sprites/tray.webp",
+      "width": 483,
+      "height": 282,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        483,
+        282
+      ],
+      "sourceDimensions": [
+        483,
+        282
+      ],
+      "bytes": 55308
+    },
+    "low-interior": {
+      "path": "sprites/low-interior.webp",
+      "width": 439,
+      "height": 428,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        439,
+        428
+      ],
+      "sourceDimensions": [
+        439,
+        428
+      ],
+      "bytes": 63550
+    },
+    "plate": {
+      "path": "sprites/plate.webp",
+      "width": 512,
+      "height": 285,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        512,
+        285
+      ],
+      "sourceDimensions": [
+        865,
+        481
+      ],
+      "bytes": 36534
+    },
+    "glass": {
+      "path": "sprites/glass.webp",
+      "width": 431,
+      "height": 507,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        431,
+        507
+      ],
+      "sourceDimensions": [
+        431,
+        507
+      ],
+      "bytes": 92380
+    },
+    "fork": {
+      "path": "sprites/fork.webp",
+      "width": 273,
+      "height": 512,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        273,
+        512
+      ],
+      "sourceDimensions": [
+        305,
+        573
+      ],
+      "bytes": 74458
+    }
+  },
+  "containers": [
+    {
+      "id": "cupboard_left",
+      "x": 26,
+      "y": 22,
+      "w": 30,
+      "h": 18,
+      "kind": "cupboard",
+      "contents": [
+        "mom_glass",
+        "decoy_glass"
+      ],
+      "interior": "cupboard-interior",
+      "front": "cupboard-door",
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "hinge": [
+        0,
+        0.5
+      ],
+      "states": {
+        "closed": {
+          "frontScaleX": 1,
+          "frontOffsetY": 0,
+          "path": "states/cupboard_left-closed.webp"
+        },
+        "open": {
+          "frontScaleX": 0.18,
+          "frontOffsetY": 0,
+          "path": "states/cupboard_left-open.webp"
+        }
+      },
+      "occlusion": "front sprite; contains real alpha",
+      "visualOpening": "2D compressed door; no true 3D backface"
+    },
+    {
+      "id": "cupboard_right",
+      "x": 70,
+      "y": 22,
+      "w": 30,
+      "h": 18,
+      "kind": "cupboard",
+      "contents": [
+        "child_plate",
+        "decoy_plate"
+      ],
+      "interior": "cupboard-interior",
+      "front": "cupboard-door",
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "hinge": [
+        0,
+        0.5
+      ],
+      "states": {
+        "closed": {
+          "frontScaleX": 1,
+          "frontOffsetY": 0,
+          "path": "states/cupboard_right-closed.webp"
+        },
+        "open": {
+          "frontScaleX": 0.18,
+          "frontOffsetY": 0,
+          "path": "states/cupboard_right-open.webp"
+        }
+      },
+      "occlusion": "front sprite; contains real alpha",
+      "visualOpening": "2D compressed door; no true 3D backface"
+    },
+    {
+      "id": "drawer_top",
+      "x": 27,
+      "y": 58,
+      "w": 34,
+      "h": 8,
+      "kind": "drawer",
+      "contents": [
+        "child_cutlery"
+      ],
+      "interior": "drawer-interior",
+      "front": "drawer-front",
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "hinge": null,
+      "states": {
+        "closed": {
+          "frontScaleX": 1,
+          "frontOffsetY": 0,
+          "path": "states/drawer_top-closed.webp"
+        },
+        "open": {
+          "frontScaleX": 1,
+          "frontOffsetY": 0.68,
+          "path": "states/drawer_top-open.webp"
+        }
+      },
+      "occlusion": "front sprite; contains real alpha",
+      "visualOpening": "drawer front moves down over visible interior"
+    },
+    {
+      "id": "drawer_bottom",
+      "x": 27,
+      "y": 69,
+      "w": 34,
+      "h": 8,
+      "kind": "drawer",
+      "contents": [
+        "mom_cutlery",
+        "decoy_fork"
+      ],
+      "interior": "drawer-interior",
+      "front": "drawer-front",
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "hinge": null,
+      "states": {
+        "closed": {
+          "frontScaleX": 1,
+          "frontOffsetY": 0,
+          "path": "states/drawer_bottom-closed.webp"
+        },
+        "open": {
+          "frontScaleX": 1,
+          "frontOffsetY": 0.68,
+          "path": "states/drawer_bottom-open.webp"
+        }
+      },
+      "occlusion": "front sprite; contains real alpha",
+      "visualOpening": "drawer front moves down over visible interior"
+    },
+    {
+      "id": "cupboard_low",
+      "x": 72,
+      "y": 65,
+      "w": 30,
+      "h": 20,
+      "kind": "cupboard",
+      "contents": [
+        "mom_plate",
+        "child_glass"
+      ],
+      "interior": "low-interior",
+      "front": "cupboard-door",
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "hinge": [
+        0,
+        0.5
+      ],
+      "states": {
+        "closed": {
+          "frontScaleX": 1,
+          "frontOffsetY": 0,
+          "path": "states/cupboard_low-closed.webp"
+        },
+        "open": {
+          "frontScaleX": 0.18,
+          "frontOffsetY": 0,
+          "path": "states/cupboard_low-open.webp"
+        }
+      },
+      "occlusion": "front sprite; contains real alpha",
+      "visualOpening": "2D compressed door; no true 3D backface"
+    }
+  ],
+  "navigation": {
+    "toDining": {
+      "x": 86,
+      "y": 44
+    }
+  },
+  "dishBindings": {
+    "child_plate": {
+      "asset": "plate",
+      "owner": "child",
+      "sceneSize": 13,
+      "mark": "star",
+      "color": "runtime; never baked"
+    },
+    "child_glass": {
+      "asset": "glass",
+      "owner": "child",
+      "sceneSize": 13,
+      "mark": "star",
+      "color": "runtime; never baked"
+    },
+    "child_cutlery": {
+      "asset": "fork",
+      "owner": "child",
+      "sceneSize": 13,
+      "mark": "star",
+      "color": "runtime; never baked"
+    },
+    "mom_plate": {
+      "asset": "plate",
+      "owner": "mom",
+      "sceneSize": 17,
+      "mark": "dress",
+      "color": "runtime; never baked"
+    },
+    "mom_glass": {
+      "asset": "glass",
+      "owner": "mom",
+      "sceneSize": 17,
+      "mark": "dress",
+      "color": "runtime; never baked"
+    },
+    "mom_cutlery": {
+      "asset": "fork",
+      "owner": "mom",
+      "sceneSize": 17,
+      "mark": "dress",
+      "color": "runtime; never baked"
+    },
+    "decoy_plate": {
+      "asset": "plate",
+      "size": "use existing giant runtime sizing",
+      "owner": null
+    },
+    "decoy_glass": {
+      "asset": "glass",
+      "size": "use existing giant runtime sizing",
+      "owner": null
+    },
+    "decoy_fork": {
+      "asset": "fork",
+      "size": "use existing giant runtime sizing",
+      "owner": null
+    }
+  },
+  "layerOrder": [
+    "background",
+    "contact-shadow",
+    "interior",
+    "contents (runtime)",
+    "front/occluder",
+    "existing inventory and navigation"
+  ],
+  "lighting": "baked kitchen warm key; no gameplay light switch in kitchen; dining reveal remains runtime",
+  "limitations": [
+    "Generated 2D raster, no editable 3D scene.",
+    "Door open view uses same front compressed; no physically correct reverse face.",
+    "Contents currently open in existing inventory panel, not inside furniture. Do not change logic to match demo.",
+    "Tray preview location is not a new gameplay hotspot.",
+    "No arbitrary owner marks or colors baked into plates.",
+    "Background architectural window/counter need no hit targets."
+  ],
+  "contactShadow": {
+    "path": "overlays/contact-shadow.webp",
+    "dimensions": [
+      256,
+      96
+    ],
+    "pivot": [
+      0.5,
+      0.5
+    ],
+    "blend": "normal",
+    "opacity": 0.45,
+    "placement": "under object, separate layer; hide/lift when held; scene art placement only"
+  },
+  "mobileExportPolicy": "Background750x1125; WebP alpha longest edge512, bed/table/mother768. PNG high-resolution sources preserved separately. Load only current scene.",
+  "fileInventory": [
+    {
+      "path": "backgrounds/kitchen-clean.webp",
+      "bytes": 150584,
+      "dimensions": [
+        750,
+        1125
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "index.html",
+      "bytes": 9204
+    },
+    {
+      "path": "overlays/cabinet-contact-shadow.png",
+      "bytes": 27823,
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "overlays/cabinet-contact-shadow.webp",
+      "bytes": 8100,
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "overlays/contact-shadow.png",
+      "bytes": 7810,
+      "dimensions": [
+        256,
+        96
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "overlays/contact-shadow.webp",
+      "bytes": 3966,
+      "dimensions": [
+        256,
+        96
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "qa/alpha-check.json",
+      "bytes": 1107
+    },
+    {
+      "path": "qa/browser-375.png",
+      "bytes": 394104,
+      "dimensions": [
+        375,
+        992
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/browser-check.json",
+      "bytes": 175
+    },
+    {
+      "path": "qa/kitchen-anchors-375.png",
+      "bytes": 419683,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "qa/kitchen-closed-1024.webp",
+      "bytes": 435560,
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/kitchen-closed-375.png",
+      "bytes": 368231,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/kitchen-open-1024.webp",
+      "bytes": 396024,
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/kitchen-open-375.png",
+      "bytes": 360393,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "README.md",
+      "bytes": 989
+    },
+    {
+      "path": "sprites/cupboard-door.webp",
+      "bytes": 92580,
+      "dimensions": [
+        430,
+        435
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/cupboard-interior.webp",
+      "bytes": 64508,
+      "dimensions": [
+        437,
+        435
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/drawer-front.webp",
+      "bytes": 39362,
+      "dimensions": [
+        453,
+        169
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/drawer-interior.webp",
+      "bytes": 46368,
+      "dimensions": [
+        512,
+        234
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/fork.webp",
+      "bytes": 74458,
+      "dimensions": [
+        273,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/glass.webp",
+      "bytes": 92380,
+      "dimensions": [
+        431,
+        507
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/low-interior.webp",
+      "bytes": 63550,
+      "dimensions": [
+        439,
+        428
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/plate.webp",
+      "bytes": 36534,
+      "dimensions": [
+        512,
+        285
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/tray.webp",
+      "bytes": 55308,
+      "dimensions": [
+        483,
+        282
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/cupboard_left-closed.webp",
+      "bytes": 33720,
+      "dimensions": [
+        307,
+        276
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/cupboard_left-open.webp",
+      "bytes": 28688,
+      "dimensions": [
+        307,
+        276
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/cupboard_low-closed.webp",
+      "bytes": 37024,
+      "dimensions": [
+        307,
+        307
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/cupboard_low-open.webp",
+      "bytes": 31514,
+      "dimensions": [
+        307,
+        307
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/cupboard_right-closed.webp",
+      "bytes": 33720,
+      "dimensions": [
+        307,
+        276
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/cupboard_right-open.webp",
+      "bytes": 28688,
+      "dimensions": [
+        307,
+        276
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/drawer_bottom-closed.webp",
+      "bytes": 17182,
+      "dimensions": [
+        348,
+        123
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/drawer_bottom-open.webp",
+      "bytes": 16840,
+      "dimensions": [
+        348,
+        123
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/drawer_top-closed.webp",
+      "bytes": 17182,
+      "dimensions": [
+        348,
+        123
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "states/drawer_top-open.webp",
+      "bytes": 16840,
+      "dimensions": [
+        348,
+        123
+      ],
+      "mode": "RGBA"
+    }
+  ],
+  "anchorRecheck": {
+    "mainHEAD": "69c529c16760aa7b186190292a6ef4e739cb2bf7",
+    "result": "tidy_toys.json, table_for_three.json, bedtime.json unchanged from a93df9f"
+  },
+  "highResolutionSources": "External companion archive THE-MENDED-HOUSE-sources-v1.zip"
+}

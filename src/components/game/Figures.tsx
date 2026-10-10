@@ -1,7 +1,34 @@
-// Placeholder silhouettes until the team's illustrations arrive.
+import { ArtImage } from "@/components/minigames/ArtImage";
+import { COLOR_HEX } from "@/game/levels/assets";
+
+// Astra figures with the original SVGs retained as load-failure fallbacks.
 
 /** Mom: dark silhouette in a dress of this run's color. */
-export function MomFigure({ color, className = "" }: { color: string; className?: string }) {
+export function MomFigure({
+  color,
+  className = "",
+  rescue = false,
+}: {
+  color: string;
+  className?: string;
+  rescue?: boolean;
+}) {
+  const colorName = Object.entries(COLOR_HEX).find(
+    ([name, hex]) => hex === color && name !== "blue" && name !== "other",
+  )?.[0];
+  if (colorName)
+    return (
+      <span role="img" aria-label="Mom" className={`inline-block ${className}`}>
+        <ArtImage
+          src={`/assets/intro-ending/states/mother-${rescue ? "rescue" : "standing"}-${colorName}.webp`}
+          className="h-full w-auto object-contain"
+          fallback={<MomFallback color={color} />}
+        />
+      </span>
+    );
+  return <MomFallback color={color} className={className} />;
+}
+function MomFallback({ color, className = "h-full" }: { color: string; className?: string }) {
   return (
     <svg viewBox="0 0 60 120" className={className} aria-label="Mom" role="img">
       <circle cx="30" cy="14" r="10" fill="#3b2a20" />
@@ -22,6 +49,22 @@ export function ChildFigure({
   className?: string;
   crying?: boolean;
 }) {
+  return (
+    <span
+      role="img"
+      aria-label={crying ? "The child, crying" : "The child"}
+      className={`inline-block ${className}`}
+    >
+      <ArtImage
+        src={`/assets/intro-ending/sprites/child-${crying ? "crying" : "worried"}.webp`}
+        className="h-full w-auto object-contain"
+        fallback={<ChildFallback crying={crying} />}
+      />
+    </span>
+  );
+}
+function ChildFallback({ crying }: { crying: boolean }) {
+  const className = "h-full";
   return (
     <svg
       viewBox="0 0 40 80"

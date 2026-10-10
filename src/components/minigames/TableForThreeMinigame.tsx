@@ -18,6 +18,7 @@ import {
 import { useCameraShake } from "@/game/cameraShake";
 import { useCordura100, useCorduraLight, useCorduraScare } from "@/game/cordura";
 import { observe } from "@/game/observer";
+import { ArtImage, ArtBackground, ArtDecor, artAsset } from "./ArtImage";
 import type { MinigameProps } from "./types";
 
 // ── pure rules (exported for tests) ──
@@ -378,7 +379,13 @@ export function TableForThreeMinigame({
           opacity: dim ? 0.35 : 1,
         }}
       >
-        <span className={`${EMOJI_SIZE[owner]} leading-none`}>{ASSETS[o.asset].emoji}</span>
+        <ArtImage
+          src={artAsset("scenes/dining", o.asset)}
+          className="h-[85%] w-[85%] object-contain"
+          fallback={
+            <span className={`${EMOJI_SIZE[owner]} leading-none`}>{ASSETS[o.asset].emoji}</span>
+          }
+        />
         <span className="absolute -right-1 -top-1 rounded-full bg-white/90 px-0.5 text-[10px] leading-tight">
           {SYMBOL[owner]}
         </span>
@@ -443,7 +450,7 @@ export function TableForThreeMinigame({
                 sfx.click();
                 setOpenBox(c.id);
               }}
-              className={`absolute z-10 flex items-center justify-center border-4 border-amber-950 shadow-md active:scale-95 ${
+              className={`g-art-prop absolute z-10 flex items-center justify-center border-4 border-amber-950 shadow-md active:scale-95 ${
                 c.kind === "drawer" ? "rounded-md bg-amber-700" : "rounded-lg bg-amber-800"
               }`}
               style={{
@@ -460,6 +467,33 @@ export function TableForThreeMinigame({
                     : "h-6 w-1.5 rounded-full bg-amber-300"
                 }
                 aria-hidden
+              />
+              <ArtImage
+                src={artAsset(
+                  "scenes/kitchen",
+                  c.kind === "drawer"
+                    ? "drawer-interior"
+                    : c.id === "cupboard_low"
+                      ? "low-interior"
+                      : "cupboard-interior",
+                )}
+                className="absolute inset-0 h-full w-full object-fill"
+              />
+              <ArtImage
+                src={artAsset(
+                  "scenes/kitchen",
+                  c.kind === "drawer" ? "drawer-front" : "cupboard-door",
+                )}
+                className="absolute inset-0 h-full w-full object-fill"
+                style={{
+                  transform:
+                    openBox === c.id
+                      ? c.kind === "drawer"
+                        ? "translateY(68%) scaleY(.4)"
+                        : "scaleX(.18)"
+                      : undefined,
+                  transformOrigin: "left center",
+                }}
               />
               {left.length === 0 && (
                 <span className="absolute bottom-0.5 right-1 text-[9px] font-bold text-amber-200/80">
@@ -509,7 +543,11 @@ export function TableForThreeMinigame({
                       style={{ width: `${TILE.giant * 1.6}%` }}
                     >
                       <span className={`${EMOJI_SIZE.giant} leading-none grayscale`}>
-                        {ASSETS[decoy.asset].emoji}
+                        <ArtImage
+                          src={artAsset("scenes/dining", decoy.asset)}
+                          className="h-full w-full object-contain"
+                          fallback={ASSETS[decoy.asset].emoji}
+                        />
                       </span>
                     </button>
                   );
@@ -622,9 +660,27 @@ export function TableForThreeMinigame({
           aria-label="A third, giant place has been set"
           role="img"
         >
-          <span className="text-3xl grayscale">🍴</span>
-          <span className="text-5xl grayscale">🍽️</span>
-          <span className="text-3xl grayscale">🥛</span>
+          <span className="text-3xl grayscale">
+            <ArtImage
+              src={artAsset("scenes/dining", "fork")}
+              className="h-12 w-12 object-contain"
+              fallback="🍴"
+            />
+          </span>
+          <span className="text-5xl grayscale">
+            <ArtImage
+              src={artAsset("scenes/dining", "plate")}
+              className="h-12 w-12 object-contain"
+              fallback="🍽️"
+            />
+          </span>
+          <span className="text-3xl grayscale">
+            <ArtImage
+              src={artAsset("scenes/dining", "glass")}
+              className="h-12 w-12 object-contain"
+              fallback="🥛"
+            />
+          </span>
         </div>
       )}
 
@@ -657,7 +713,11 @@ export function TableForThreeMinigame({
             }`}
             style={{ left: `${table.lightSwitch.x}%`, top: `${table.lightSwitch.y}%` }}
           >
-            💡
+            <ArtImage
+              src={artAsset("scenes/dining", "switch")}
+              className="h-full w-full object-contain"
+              fallback="💡"
+            />
           </button>
         </>
       )}
@@ -680,7 +740,12 @@ export function TableForThreeMinigame({
                 borderColor: COLOR_HEX[colorOf(owner)],
                 boxShadow: `0 0 12px 2px ${COLOR_HEX[colorOf(owner)]}88`,
               }}
-            />
+            >
+              <ArtImage
+                src={artAsset("scenes/dining", "chair")}
+                className="h-full w-full object-fill"
+              />
+            </div>
           );
         })}
       {scene === "dining" && (danger >= 1 || forcedDark) && (
@@ -688,8 +753,11 @@ export function TableForThreeMinigame({
           className="game-eyes pointer-events-none absolute left-[18%] top-[20%] z-[41] flex gap-2"
           aria-hidden
         >
-          <span className="h-2 w-3 rounded-full bg-red-500 shadow-[0_0_8px_var(--color-red-500)]" />
-          <span className="h-2 w-3 rounded-full bg-red-500 shadow-[0_0_8px_var(--color-red-500)]" />
+          <ArtImage
+            src={artAsset("guest", "eyes")}
+            className="h-3 w-8 object-contain"
+            fallback="••"
+          />
         </div>
       )}
 
@@ -784,6 +852,7 @@ function KitchenBackdrop() {
       {/* counter */}
       <div className="absolute inset-x-[4%] top-[45%] h-[5%] rounded-sm bg-stone-400 shadow" />
       <div className="absolute inset-x-[4%] top-[50%] h-[30%] bg-amber-900/30" />
+      <ArtBackground scene="scenes/kitchen" />
     </div>
   );
 }
@@ -805,6 +874,8 @@ function DiningBackdrop({ final }: { final: boolean }) {
       )}
       {/* tabletop */}
       <div className="absolute left-[6%] right-[6%] top-[27%] h-[40%] rounded-[2rem] border-4 border-amber-800 bg-amber-700 shadow-xl" />
+      <ArtBackground scene="scenes/dining" />
+      <ArtDecor scene="scenes/dining" final={final} />
     </div>
   );
 }

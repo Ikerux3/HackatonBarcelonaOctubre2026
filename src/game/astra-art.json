@@ -1,0 +1,413 @@
+{
+  "scenes/kitchen": {
+    "background": "backgrounds/kitchen-clean.webp",
+    "assets": {
+      "cupboard-interior": "sprites/cupboard-interior.webp",
+      "cupboard-door": "sprites/cupboard-door.webp",
+      "drawer-interior": "sprites/drawer-interior.webp",
+      "drawer-front": "sprites/drawer-front.webp",
+      "tray": "sprites/tray.webp",
+      "low-interior": "sprites/low-interior.webp",
+      "plate": "sprites/plate.webp",
+      "glass": "sprites/glass.webp",
+      "fork": "sprites/fork.webp"
+    },
+    "layers": []
+  },
+  "scenes/playroom": {
+    "background": "backgrounds/clean.webp",
+    "assets": {
+      "sofa": "sprites/sofa.webp",
+      "cushion": "sprites/cushion.webp",
+      "chest": "sprites/chest.webp",
+      "chest-lid": "sprites/chest-lid.webp",
+      "window": "sprites/window.webp",
+      "curtain": "sprites/curtain.webp",
+      "switch": "sprites/switch.webp",
+      "lamp": "sprites/lamp.webp",
+      "drawer-interior": "sprites/drawer-interior.webp",
+      "drawer-front": "sprites/drawer-front.webp",
+      "ball__normal": "sprites/ball__normal.webp",
+      "blocks__normal": "sprites/blocks__normal.webp",
+      "doll__normal": "sprites/doll__normal.webp",
+      "dino__normal": "sprites/dino__normal.webp",
+      "teddy__normal": "sprites/teddy__normal.webp",
+      "car__normal": "sprites/car__normal.webp",
+      "robot__normal": "sprites/robot__normal.webp",
+      "rabbit__normal": "sprites/rabbit__normal.webp"
+    },
+    "layers": [
+      {
+        "asset": "window",
+        "x": 16,
+        "y": 18,
+        "w": 23,
+        "h": 24,
+        "z": 1
+      },
+      {
+        "asset": "curtain",
+        "x": 16,
+        "y": 18,
+        "w": 28,
+        "h": 27,
+        "z": 2,
+        "anchor": "hideSeek.curtain",
+        "states": {
+          "closed": {
+            "scaleX": 1
+          },
+          "open": {
+            "scaleX": 0.28,
+            "origin": "left center"
+          }
+        }
+      },
+      {
+        "asset": "sofa",
+        "x": 50,
+        "y": 49,
+        "w": 45,
+        "h": 20,
+        "z": 3,
+        "anchor": "hideSeek.sofa"
+      },
+      {
+        "asset": "cushion",
+        "x": 50,
+        "y": 44,
+        "w": 22,
+        "h": 10,
+        "z": 4,
+        "anchor": "tidy.cushion",
+        "states": {
+          "normal": {
+            "x": 50,
+            "y": 44
+          },
+          "moved": {
+            "visualOnly": true,
+            "translateX": "85%"
+          }
+        }
+      },
+      {
+        "asset": "drawer-interior",
+        "x": 18,
+        "y": 40,
+        "w": 27,
+        "h": 9,
+        "z": 2,
+        "anchor": "tidy.drawer"
+      },
+      {
+        "asset": "drawer-front",
+        "x": 18,
+        "y": 40,
+        "w": 27,
+        "h": 9,
+        "z": 3,
+        "anchor": "tidy.drawer",
+        "states": {
+          "closed": {
+            "translateY": 0
+          },
+          "open": {
+            "translateY": ".65h",
+            "scaleY": 0.4
+          }
+        }
+      },
+      {
+        "asset": "drawer-interior",
+        "x": 84,
+        "y": 40,
+        "w": 27,
+        "h": 9,
+        "z": 2,
+        "anchor": "hideSeek.drawer"
+      },
+      {
+        "asset": "drawer-front",
+        "x": 84,
+        "y": 40,
+        "w": 27,
+        "h": 9,
+        "z": 3,
+        "anchor": "hideSeek.drawer",
+        "states": {
+          "closed": {
+            "translateY": 0
+          },
+          "open": {
+            "translateY": ".65h",
+            "scaleY": 0.4
+          }
+        }
+      },
+      {
+        "asset": "chest",
+        "x": 80,
+        "y": 80,
+        "w": 30,
+        "h": 18,
+        "z": 10,
+        "anchor": "toy_box"
+      },
+      {
+        "asset": "chest-lid",
+        "x": 80,
+        "y": 70,
+        "w": 30,
+        "h": 5,
+        "z": 9,
+        "anchor": "toy_box.lid"
+      },
+      {
+        "asset": "switch",
+        "x": 93,
+        "y": 26,
+        "w": 8,
+        "h": 7,
+        "z": 4,
+        "anchor": "possessed.mainSwitch"
+      },
+      {
+        "asset": "lamp",
+        "x": 30,
+        "y": 92,
+        "w": 15,
+        "h": 13,
+        "z": 11,
+        "anchor": "possessed.lamp"
+      }
+    ]
+  },
+  "scenes/dining": {
+    "background": "backgrounds/clean.webp",
+    "assets": {
+      "tabletop": "sprites/tabletop.webp",
+      "underframe": "sprites/underframe.webp",
+      "chair": "sprites/chair.webp",
+      "plate": "sprites/plate.webp",
+      "glass": "sprites/glass.webp",
+      "fork": "sprites/fork.webp",
+      "tray": "sprites/tray.webp",
+      "switch": "sprites/switch.webp"
+    },
+    "layers": [
+      {
+        "asset": "chair",
+        "x": 29,
+        "y": 72,
+        "w": 20,
+        "h": 26,
+        "z": 1
+      },
+      {
+        "asset": "chair",
+        "x": 71,
+        "y": 72,
+        "w": 20,
+        "h": 26,
+        "z": 1
+      },
+      {
+        "asset": "underframe",
+        "x": 50,
+        "y": 70,
+        "w": 77,
+        "h": 24,
+        "z": 2
+      },
+      {
+        "asset": "tabletop",
+        "x": 50,
+        "y": 47,
+        "w": 88,
+        "h": 40,
+        "z": 3
+      },
+      {
+        "asset": "switch",
+        "x": 89,
+        "y": 15,
+        "w": 8,
+        "h": 7,
+        "z": 4,
+        "anchor": "table.lightSwitch"
+      },
+      {
+        "asset": "chair",
+        "x": 50,
+        "y": 23,
+        "w": 30,
+        "h": 23,
+        "z": 1,
+        "anchor": "final.thirdChair",
+        "previewHidden": true,
+        "visibleWhen": "phase === final"
+      }
+    ]
+  },
+  "scenes/bedroom": {
+    "background": "backgrounds/clean.webp",
+    "assets": {
+      "bed": "sprites/bed.webp",
+      "pajamas": "sprites/pajamas.webp",
+      "toothbrush": "sprites/toothbrush.webp",
+      "shelf": "sprites/shelf.webp",
+      "cabinet": "sprites/cabinet.webp",
+      "toy-demo": "sprites/toy-demo.webp"
+    },
+    "layers": [
+      {
+        "asset": "bed",
+        "x": 50,
+        "y": 59,
+        "w": 48,
+        "h": 38,
+        "z": 2
+      },
+      {
+        "asset": "shelf",
+        "x": 20,
+        "y": 37,
+        "w": 27,
+        "h": 4,
+        "z": 1
+      },
+      {
+        "asset": "shelf",
+        "x": 72,
+        "y": 36,
+        "w": 27,
+        "h": 4,
+        "z": 1
+      },
+      {
+        "asset": "cabinet",
+        "x": 80,
+        "y": 85,
+        "w": 22,
+        "h": 16,
+        "z": 1
+      },
+      {
+        "asset": "pajamas",
+        "x": 20,
+        "y": 30,
+        "w": 16,
+        "h": 10.666666666666666,
+        "z": 4,
+        "anchor": "pajamas"
+      },
+      {
+        "asset": "toothbrush",
+        "x": 80,
+        "y": 74,
+        "w": 16,
+        "h": 10.666666666666666,
+        "z": 4,
+        "anchor": "toothbrush"
+      }
+    ]
+  },
+  "guest": {
+    "background": null,
+    "assets": {
+      "eyes": "sprites/eyes.webp",
+      "hand": "sprites/hand.webp",
+      "silhouette": "sprites/silhouette.webp",
+      "ink-corner": "sprites/ink-corner.webp"
+    },
+    "layers": [
+      {
+        "asset": "eyes",
+        "x": 52,
+        "y": 16,
+        "w": 20,
+        "h": 5,
+        "z": 30
+      },
+      {
+        "asset": "silhouette",
+        "x": 72,
+        "y": 17,
+        "w": 16,
+        "h": 23,
+        "z": 29
+      },
+      {
+        "asset": "hand",
+        "x": 82,
+        "y": 5,
+        "w": 23,
+        "h": 9,
+        "z": 30
+      },
+      {
+        "asset": "ink-corner",
+        "x": 1,
+        "y": 48,
+        "w": 10,
+        "h": 30,
+        "z": 30
+      }
+    ]
+  },
+  "intro-ending": {
+    "background": "backgrounds/clean.webp",
+    "assets": {
+      "mother-standing": "sprites/mother-standing.webp",
+      "mother-rescue": "sprites/mother-rescue.webp",
+      "child-worried": "sprites/child-worried.webp",
+      "child-crying": "sprites/child-crying.webp",
+      "guest-eyes": "sprites/guest-eyes.webp",
+      "mother-standing-dress-mask": "sprites/mother-standing-dress-mask.webp",
+      "mother-standing-dress-shading": "sprites/mother-standing-dress-shading.webp",
+      "mother-standing-red": "states/mother-standing-red.webp",
+      "mother-standing-purple": "states/mother-standing-purple.webp",
+      "mother-standing-pink": "states/mother-standing-pink.webp",
+      "mother-standing-green": "states/mother-standing-green.webp",
+      "mother-standing-orange": "states/mother-standing-orange.webp",
+      "mother-standing-yellow": "states/mother-standing-yellow.webp",
+      "mother-rescue-dress-mask": "sprites/mother-rescue-dress-mask.webp",
+      "mother-rescue-dress-shading": "sprites/mother-rescue-dress-shading.webp",
+      "mother-rescue-red": "states/mother-rescue-red.webp",
+      "mother-rescue-purple": "states/mother-rescue-purple.webp",
+      "mother-rescue-pink": "states/mother-rescue-pink.webp",
+      "mother-rescue-green": "states/mother-rescue-green.webp",
+      "mother-rescue-orange": "states/mother-rescue-orange.webp",
+      "mother-rescue-yellow": "states/mother-rescue-yellow.webp"
+    },
+    "layers": [
+      {
+        "asset": "guest-eyes",
+        "x": 14,
+        "y": 32,
+        "w": 9,
+        "h": 2,
+        "z": 1,
+        "previewHidden": true,
+        "narrativeOnly": true
+      },
+      {
+        "asset": "mother-rescue-pink",
+        "x": 44,
+        "y": 66,
+        "w": 54,
+        "h": 44,
+        "z": 5
+      },
+      {
+        "asset": "child-worried",
+        "x": 71,
+        "y": 72,
+        "w": 23,
+        "h": 32,
+        "z": 6
+      }
+    ]
+  }
+}

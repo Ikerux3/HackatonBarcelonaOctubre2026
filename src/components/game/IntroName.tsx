@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import type { NormalizedColor } from "@/ai/contracts";
 import { COLOR_HEX } from "@/game/levels/assets";
 import { DEFAULT_NAME, sanitizeName } from "@/game/playerName";
+import { ArtBackground } from "@/components/minigames/ArtImage";
 import { MomFigure } from "./Figures";
 
 interface Props {
@@ -47,10 +48,9 @@ export function IntroName({ stage, motherColor, name, onName, onDone }: Props) {
       className="g-title-room relative flex h-full flex-col items-center justify-center gap-4 overflow-hidden px-6 py-6 text-center"
       onClick={() => stage === "intro_leave" && second.finished && onDone()}
     >
+      <ArtBackground scene="intro-ending" />
       <div className="g-grain" />
-      {motherColor && (
-        <MomFigure color={COLOR_HEX[motherColor]} className="relative h-24" />
-      )}
+      {motherColor && <MomFigure color={COLOR_HEX[motherColor]} className="relative h-24" />}
       <p className="font-display-sc relative text-sm tracking-[0.3em] text-[#5a2d12]">Mom</p>
       <p className="g-paper-card relative min-h-[5.5rem] max-w-xs px-5 py-4 font-display text-xl italic leading-relaxed text-[#3a2010]">
         “{first.shown}
@@ -83,17 +83,16 @@ export function IntroName({ stage, motherColor, name, onName, onDone }: Props) {
             placeholder="Your name"
             className="g-input g-input-paper min-h-12 w-full px-4 py-3 text-center"
           />
-          <button
-            type="submit"
-            className="g-btn g-btn-warm px-6 py-3 text-lg"
-          >
+          <button type="submit" className="g-btn g-btn-warm px-6 py-3 text-lg">
             That's me
           </button>
         </form>
       )}
 
       {stage === "intro_leave" && second.finished && (
-        <p className="relative font-display text-base italic text-[#f6dcae]">…the front door closes.</p>
+        <p className="relative font-display text-base italic text-[#f6dcae]">
+          …the front door closes.
+        </p>
       )}
     </div>
   );

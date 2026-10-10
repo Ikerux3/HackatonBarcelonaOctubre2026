@@ -1,0 +1,280 @@
+{
+  "version": 1,
+  "sourceCommit": "a93df9fe046182abfc3aa4d16063e7e5823af9da",
+  "medium": "generated raster 2D; no editable 3D source",
+  "aspect": [
+    2,
+    3
+  ],
+  "scenePixels": [
+    1024,
+    1536
+  ],
+  "coordinates": "center normalized 0..100; w scene width percent; h scene height percent",
+  "background": null,
+  "assets": {
+    "eyes": {
+      "path": "sprites/eyes.webp",
+      "dimensions": [
+        512,
+        154
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        512,
+        154
+      ],
+      "sourceDimensions": [
+        695,
+        209
+      ],
+      "bytes": 31048
+    },
+    "hand": {
+      "path": "sprites/hand.webp",
+      "dimensions": [
+        512,
+        274
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        512,
+        274
+      ],
+      "sourceDimensions": [
+        687,
+        367
+      ],
+      "bytes": 34254
+    },
+    "silhouette": {
+      "path": "sprites/silhouette.webp",
+      "dimensions": [
+        512,
+        465
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        512,
+        465
+      ],
+      "sourceDimensions": [
+        664,
+        603
+      ],
+      "bytes": 59974
+    },
+    "ink-corner": {
+      "path": "sprites/ink-corner.webp",
+      "dimensions": [
+        512,
+        510
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        512,
+        510
+      ],
+      "sourceDimensions": [
+        621,
+        619
+      ],
+      "bytes": 72872
+    }
+  },
+  "layers": [
+    {
+      "asset": "eyes",
+      "x": 52,
+      "y": 16,
+      "w": 20,
+      "h": 5,
+      "z": 30
+    },
+    {
+      "asset": "silhouette",
+      "x": 72,
+      "y": 17,
+      "w": 16,
+      "h": 23,
+      "z": 29
+    },
+    {
+      "asset": "hand",
+      "x": 82,
+      "y": 5,
+      "w": 23,
+      "h": 9,
+      "z": 30
+    },
+    {
+      "asset": "ink-corner",
+      "x": 1,
+      "y": 48,
+      "w": 10,
+      "h": 30,
+      "z": 30
+    }
+  ],
+  "status": "reusable preapproved visual candidates; runtime binding pending",
+  "previewBackground": "composite living QA only; not shipped as playable background",
+  "presets": {
+    "C0": [],
+    "C1": [
+      "eyes, briefly visible"
+    ],
+    "C2": [
+      "eyes",
+      "hand",
+      "small corner stain"
+    ],
+    "C3": [
+      "silhouette",
+      "larger stains clipped to safe regions"
+    ]
+  },
+  "rules": [
+    "Cosmetic only; no AI-authored CSS, URLs or arbitrary asset paths.",
+    "Select known asset ID from allowlist after existing validated output.",
+    "pointer-events:none; never cover interactive targets or hint text.",
+    "No flashing loop; short stepped motion optional; disable motion under prefers-reduced-motion."
+  ],
+  "inkLanguage": "flat black ink/charcoal, does not follow scene light",
+  "limits": [
+    "No gameplay thresholds assigned to C0..C3.",
+    "Preview locations are visual suggestions, not new hotspots.",
+    "Hand shape is stylized, not anatomical animation."
+  ],
+  "contactShadow": {
+    "path": "overlays/contact-shadow.webp",
+    "dimensions": [
+      256,
+      96
+    ],
+    "pivot": [
+      0.5,
+      0.5
+    ],
+    "blend": "normal",
+    "opacity": 0.45,
+    "placement": "under object, separate layer; hide/lift when held; scene art placement only"
+  },
+  "mobileExportPolicy": "Background750x1125; WebP alpha longest edge512, bed/table/mother768. PNG high-resolution sources preserved separately. Load only current scene.",
+  "fileInventory": [
+    {
+      "path": "overlays/contact-shadow.png",
+      "bytes": 7810,
+      "dimensions": [
+        256,
+        96
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "overlays/contact-shadow.webp",
+      "bytes": 3966,
+      "dimensions": [
+        256,
+        96
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "qa/alpha-check.json",
+      "bytes": 443
+    },
+    {
+      "path": "qa/anchors-375.png",
+      "bytes": 467798,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "qa/beauty-1024.webp",
+      "bytes": 543876,
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/beauty-375.png",
+      "bytes": 412919,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/components.jpg",
+      "bytes": 85484,
+      "dimensions": [
+        1000,
+        760
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "README.md",
+      "bytes": 655
+    },
+    {
+      "path": "sprites/eyes.webp",
+      "bytes": 31048,
+      "dimensions": [
+        512,
+        154
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/hand.webp",
+      "bytes": 34254,
+      "dimensions": [
+        512,
+        274
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/ink-corner.webp",
+      "bytes": 72872,
+      "dimensions": [
+        512,
+        510
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/silhouette.webp",
+      "bytes": 59974,
+      "dimensions": [
+        512,
+        465
+      ],
+      "mode": "RGBA"
+    }
+  ],
+  "anchorRecheck": {
+    "mainHEAD": "69c529c16760aa7b186190292a6ef4e739cb2bf7",
+    "result": "tidy_toys.json, table_for_three.json, bedtime.json unchanged from a93df9f"
+  },
+  "highResolutionSources": "External companion archive THE-MENDED-HOUSE-sources-v1.zip"
+}

@@ -1,0 +1,911 @@
+{
+  "version": 1,
+  "sourceCommit": "a93df9fe046182abfc3aa4d16063e7e5823af9da",
+  "medium": "generated raster 2D; no editable 3D source",
+  "aspect": [
+    2,
+    3
+  ],
+  "scenePixels": [
+    1024,
+    1536
+  ],
+  "coordinates": "center normalized 0..100; w scene width percent; h scene height percent",
+  "background": "backgrounds/clean.webp",
+  "assets": {
+    "sofa": {
+      "path": "sprites/sofa.webp",
+      "dimensions": [
+        512,
+        239
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        512,
+        239
+      ],
+      "sourceDimensions": [
+        833,
+        389
+      ],
+      "bytes": 66510
+    },
+    "cushion": {
+      "path": "sprites/cushion.webp",
+      "dimensions": [
+        512,
+        335
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        512,
+        335
+      ],
+      "sourceDimensions": [
+        531,
+        347
+      ],
+      "bytes": 96390
+    },
+    "chest": {
+      "path": "sprites/chest.webp",
+      "dimensions": [
+        512,
+        280
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        512,
+        280
+      ],
+      "sourceDimensions": [
+        710,
+        388
+      ],
+      "bytes": 65724
+    },
+    "chest-lid": {
+      "path": "sprites/chest-lid.webp",
+      "dimensions": [
+        512,
+        227
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        512,
+        227
+      ],
+      "sourceDimensions": [
+        655,
+        290
+      ],
+      "bytes": 56110
+    },
+    "window": {
+      "path": "sprites/window.webp",
+      "dimensions": [
+        413,
+        512
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        413,
+        512
+      ],
+      "sourceDimensions": [
+        457,
+        566
+      ],
+      "bytes": 102694
+    },
+    "curtain": {
+      "path": "sprites/curtain.webp",
+      "dimensions": [
+        497,
+        512
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        497,
+        512
+      ],
+      "sourceDimensions": [
+        631,
+        650
+      ],
+      "bytes": 149284
+    },
+    "switch": {
+      "path": "sprites/switch.webp",
+      "dimensions": [
+        338,
+        447
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        338,
+        447
+      ],
+      "sourceDimensions": [
+        338,
+        447
+      ],
+      "bytes": 34970
+    },
+    "lamp": {
+      "path": "sprites/lamp.webp",
+      "dimensions": [
+        512,
+        485
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        512,
+        485
+      ],
+      "sourceDimensions": [
+        515,
+        488
+      ],
+      "bytes": 65874
+    },
+    "drawer-interior": {
+      "path": "sprites/drawer-interior.webp",
+      "dimensions": [
+        512,
+        234
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        512,
+        234
+      ],
+      "sourceDimensions": [
+        513,
+        234
+      ],
+      "bytes": 46368
+    },
+    "drawer-front": {
+      "path": "sprites/drawer-front.webp",
+      "dimensions": [
+        453,
+        169
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        453,
+        169
+      ],
+      "sourceDimensions": [
+        453,
+        169
+      ],
+      "bytes": 39362
+    },
+    "ball__normal": {
+      "path": "sprites/ball__normal.webp",
+      "dimensions": [
+        256,
+        256
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        256,
+        256
+      ],
+      "sourceDimensions": [
+        256,
+        256
+      ],
+      "bytes": 16728
+    },
+    "blocks__normal": {
+      "path": "sprites/blocks__normal.webp",
+      "dimensions": [
+        256,
+        256
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        256,
+        256
+      ],
+      "sourceDimensions": [
+        256,
+        256
+      ],
+      "bytes": 15880
+    },
+    "doll__normal": {
+      "path": "sprites/doll__normal.webp",
+      "dimensions": [
+        256,
+        256
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        256,
+        256
+      ],
+      "sourceDimensions": [
+        256,
+        256
+      ],
+      "bytes": 19556
+    },
+    "dino__normal": {
+      "path": "sprites/dino__normal.webp",
+      "dimensions": [
+        256,
+        256
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        256,
+        256
+      ],
+      "sourceDimensions": [
+        256,
+        256
+      ],
+      "bytes": 19366
+    },
+    "teddy__normal": {
+      "path": "sprites/teddy__normal.webp",
+      "dimensions": [
+        256,
+        256
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        256,
+        256
+      ],
+      "sourceDimensions": [
+        256,
+        256
+      ],
+      "bytes": 19214
+    },
+    "car__normal": {
+      "path": "sprites/car__normal.webp",
+      "dimensions": [
+        256,
+        256
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        256,
+        256
+      ],
+      "sourceDimensions": [
+        256,
+        256
+      ],
+      "bytes": 15452
+    },
+    "robot__normal": {
+      "path": "sprites/robot__normal.webp",
+      "dimensions": [
+        256,
+        256
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        256,
+        256
+      ],
+      "sourceDimensions": [
+        256,
+        256
+      ],
+      "bytes": 16066
+    },
+    "rabbit__normal": {
+      "path": "sprites/rabbit__normal.webp",
+      "dimensions": [
+        256,
+        256
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "exportDimensions": [
+        256,
+        256
+      ],
+      "sourceDimensions": [
+        256,
+        256
+      ],
+      "bytes": 16944
+    }
+  },
+  "layers": [
+    {
+      "asset": "window",
+      "x": 16,
+      "y": 18,
+      "w": 23,
+      "h": 24,
+      "z": 1
+    },
+    {
+      "asset": "curtain",
+      "x": 16,
+      "y": 18,
+      "w": 28,
+      "h": 27,
+      "z": 2,
+      "anchor": "hideSeek.curtain",
+      "states": {
+        "closed": {
+          "scaleX": 1
+        },
+        "open": {
+          "scaleX": 0.28,
+          "origin": "left center"
+        }
+      }
+    },
+    {
+      "asset": "sofa",
+      "x": 50,
+      "y": 49,
+      "w": 45,
+      "h": 20,
+      "z": 3,
+      "anchor": "hideSeek.sofa"
+    },
+    {
+      "asset": "cushion",
+      "x": 50,
+      "y": 44,
+      "w": 22,
+      "h": 10,
+      "z": 4,
+      "anchor": "tidy.cushion",
+      "states": {
+        "normal": {
+          "x": 50,
+          "y": 44
+        },
+        "moved": {
+          "visualOnly": true,
+          "translateX": "85%"
+        }
+      }
+    },
+    {
+      "asset": "drawer-interior",
+      "x": 18,
+      "y": 40,
+      "w": 27,
+      "h": 9,
+      "z": 2,
+      "anchor": "tidy.drawer"
+    },
+    {
+      "asset": "drawer-front",
+      "x": 18,
+      "y": 40,
+      "w": 27,
+      "h": 9,
+      "z": 3,
+      "anchor": "tidy.drawer",
+      "states": {
+        "closed": {
+          "translateY": 0
+        },
+        "open": {
+          "translateY": ".65h",
+          "scaleY": 0.4
+        }
+      }
+    },
+    {
+      "asset": "drawer-interior",
+      "x": 84,
+      "y": 40,
+      "w": 27,
+      "h": 9,
+      "z": 2,
+      "anchor": "hideSeek.drawer"
+    },
+    {
+      "asset": "drawer-front",
+      "x": 84,
+      "y": 40,
+      "w": 27,
+      "h": 9,
+      "z": 3,
+      "anchor": "hideSeek.drawer",
+      "states": {
+        "closed": {
+          "translateY": 0
+        },
+        "open": {
+          "translateY": ".65h",
+          "scaleY": 0.4
+        }
+      }
+    },
+    {
+      "asset": "chest",
+      "x": 80,
+      "y": 80,
+      "w": 30,
+      "h": 18,
+      "z": 10,
+      "anchor": "toy_box"
+    },
+    {
+      "asset": "chest-lid",
+      "x": 80,
+      "y": 70,
+      "w": 30,
+      "h": 5,
+      "z": 9,
+      "anchor": "toy_box.lid"
+    },
+    {
+      "asset": "switch",
+      "x": 93,
+      "y": 26,
+      "w": 8,
+      "h": 7,
+      "z": 4,
+      "anchor": "possessed.mainSwitch"
+    },
+    {
+      "asset": "lamp",
+      "x": 30,
+      "y": 92,
+      "w": 15,
+      "h": 13,
+      "z": 11,
+      "anchor": "possessed.lamp"
+    },
+    {
+      "asset": "teddy__normal",
+      "x": 16,
+      "y": 60,
+      "w": 17,
+      "h": 11.333333333333334,
+      "z": 12,
+      "anchor": "toy_1",
+      "demoOnly": true
+    },
+    {
+      "asset": "dino__normal",
+      "x": 44,
+      "y": 64,
+      "w": 17,
+      "h": 11.333333333333334,
+      "z": 12,
+      "anchor": "toy_2",
+      "demoOnly": true
+    },
+    {
+      "asset": "car__normal",
+      "x": 16,
+      "y": 84,
+      "w": 17,
+      "h": 11.333333333333334,
+      "z": 12,
+      "anchor": "toy_3",
+      "demoOnly": true
+    },
+    {
+      "asset": "doll__normal",
+      "x": 44,
+      "y": 86,
+      "w": 17,
+      "h": 11.333333333333334,
+      "z": 12,
+      "anchor": "toy_4",
+      "demoOnly": true
+    },
+    {
+      "asset": "rabbit__normal",
+      "x": 70,
+      "y": 56,
+      "w": 17,
+      "h": 11.333333333333334,
+      "z": 12,
+      "anchor": "toy_5",
+      "demoOnly": true
+    }
+  ],
+  "status": "candidate visual layer pack; game integration pending",
+  "toyPoolAlias": {
+    "book": "rabbit__normal"
+  },
+  "toyPolicy": "Reuse existing runtime ToySprite and IDs. Copies included for standalone preview; do not overwrite current repo sprites.",
+  "anchorsFrom": "src/game/levels/data/tidy_toys.json",
+  "lightZones": {
+    "main": [
+      [
+        58,
+        60,
+        32
+      ]
+    ],
+    "lamp": [
+      [
+        16,
+        66,
+        28
+      ]
+    ]
+  },
+  "possessedSlots": [
+    [
+      8,
+      56
+    ],
+    [
+      14,
+      80
+    ],
+    [
+      56,
+      44
+    ],
+    [
+      86,
+      58
+    ]
+  ],
+  "occlusion": "sofa, cushion, curtain, drawer front and chest front are independent alpha sprites; no baked toys in background",
+  "limitations": [
+    "Furniture state changes are compositing transforms, not registered 3D animation.",
+    "Baked warm shading is present even where lights are disabled; masks supply gameplay legibility, not physically relit geometry.",
+    "Light circle radii are in width units. Runtime logic remains authoritative.",
+    "Furniture display dimensions are art proposal; listed centers are existing JSON anchors."
+  ],
+  "contactShadow": {
+    "path": "overlays/contact-shadow.webp",
+    "dimensions": [
+      256,
+      96
+    ],
+    "pivot": [
+      0.5,
+      0.5
+    ],
+    "blend": "normal",
+    "opacity": 0.45,
+    "placement": "under object, separate layer; hide/lift when held; scene art placement only"
+  },
+  "mobileExportPolicy": "Background750x1125; WebP alpha longest edge512, bed/table/mother768. PNG high-resolution sources preserved separately. Load only current scene.",
+  "fileInventory": [
+    {
+      "path": "backgrounds/clean.webp",
+      "bytes": 228376,
+      "dimensions": [
+        750,
+        1125
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "overlays/contact-shadow.png",
+      "bytes": 7810,
+      "dimensions": [
+        256,
+        96
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "overlays/contact-shadow.webp",
+      "bytes": 3966,
+      "dimensions": [
+        256,
+        96
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "overlays/light-mask-both.webp",
+      "bytes": 17130,
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "overlays/light-mask-lamp.webp",
+      "bytes": 8622,
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "overlays/light-mask-main.webp",
+      "bytes": 13652,
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "overlays/light-mask-off.webp",
+      "bytes": 114,
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "qa/alpha-check.json",
+      "bytes": 2033
+    },
+    {
+      "path": "qa/anchors-375.png",
+      "bytes": 457276,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "qa/beauty-1024.webp",
+      "bytes": 555010,
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/beauty-375.png",
+      "bytes": 406265,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "qa/main-light-375.png",
+      "bytes": 265726,
+      "dimensions": [
+        375,
+        563
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "README.md",
+      "bytes": 672
+    },
+    {
+      "path": "sprites/ball__normal.webp",
+      "bytes": 16728,
+      "dimensions": [
+        256,
+        256
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/blocks__normal.webp",
+      "bytes": 15880,
+      "dimensions": [
+        256,
+        256
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/car__normal.webp",
+      "bytes": 15452,
+      "dimensions": [
+        256,
+        256
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/chest-lid.webp",
+      "bytes": 56110,
+      "dimensions": [
+        512,
+        227
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/chest.webp",
+      "bytes": 65724,
+      "dimensions": [
+        512,
+        280
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/curtain.webp",
+      "bytes": 149284,
+      "dimensions": [
+        497,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/cushion.webp",
+      "bytes": 96390,
+      "dimensions": [
+        512,
+        335
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/dino__normal.webp",
+      "bytes": 19366,
+      "dimensions": [
+        256,
+        256
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/doll__normal.webp",
+      "bytes": 19556,
+      "dimensions": [
+        256,
+        256
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/drawer-front.webp",
+      "bytes": 39362,
+      "dimensions": [
+        453,
+        169
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/drawer-interior.webp",
+      "bytes": 46368,
+      "dimensions": [
+        512,
+        234
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/lamp.webp",
+      "bytes": 65874,
+      "dimensions": [
+        512,
+        485
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/rabbit__normal.webp",
+      "bytes": 16944,
+      "dimensions": [
+        256,
+        256
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/robot__normal.webp",
+      "bytes": 16066,
+      "dimensions": [
+        256,
+        256
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/sofa.webp",
+      "bytes": 66510,
+      "dimensions": [
+        512,
+        239
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/switch.webp",
+      "bytes": 34970,
+      "dimensions": [
+        338,
+        447
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/teddy__normal.webp",
+      "bytes": 19214,
+      "dimensions": [
+        256,
+        256
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sprites/window.webp",
+      "bytes": 102694,
+      "dimensions": [
+        413,
+        512
+      ],
+      "mode": "RGBA"
+    }
+  ],
+  "anchorRecheck": {
+    "mainHEAD": "69c529c16760aa7b186190292a6ef4e739cb2bf7",
+    "result": "tidy_toys.json, table_for_three.json, bedtime.json unchanged from a93df9f"
+  },
+  "highResolutionSources": "External companion archive THE-MENDED-HOUSE-sources-v1.zip"
+}
