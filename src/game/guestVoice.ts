@@ -1,6 +1,7 @@
 export const GUEST_VOICE_MUTED_KEY = "mommy-will-be-back:guest-voice-muted";
 export const GUEST_VOICE_ID_KEY = "mommy-will-be-back:guest-voice-id";
 export const GUEST_VOICE_PREVIEW_LINE = "Can you hear me, sweetie?";
+export const ELEVENLABS_VOICE_ID = "elevenlabs";
 
 export interface GuestSpeechRuntime {
   synthesis: Pick<SpeechSynthesis, "cancel" | "getVoices" | "speak"> &

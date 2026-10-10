@@ -12,6 +12,7 @@ import { Volume2, VolumeX } from "lucide-react";
 
 import {
   cancelGuestSpeech,
+  ELEVENLABS_VOICE_ID,
   getGuestVoiceOptions,
   getGuestSpeechRuntime,
   GUEST_VOICE_ID_KEY,
@@ -20,6 +21,7 @@ import {
   speakGuestLine,
   type GuestVoiceOption,
 } from "@/game/guestVoice";
+import { synthesizeGuestVoice, type GuestVoiceRole } from "@/game/guestVoice.functions";
 
 interface GuestVoiceContextValue {
   cancel: () => void;
@@ -27,7 +29,7 @@ interface GuestVoiceContextValue {
   ready: boolean;
   setMuted: (muted: boolean) => void;
   setVoiceId: (voiceId: string) => void;
-  speak: (line: string, onEnd?: () => void) => boolean;
+  speak: (line: string, onEnd?: () => void, role?: GuestVoiceRole) => boolean;
   supported: boolean;
   voiceId: string;
   voices: GuestVoiceOption[];
@@ -39,19 +41,21 @@ export function GuestVoiceProvider({ children }: { children: ReactNode }) {
   const [muted, setMutedState] = useState(false);
   const [ready, setReady] = useState(false);
   const [supported, setSupported] = useState(false);
-  const [voiceId, setVoiceIdState] = useState("");
+  const [voiceId, setVoiceIdState] = useState(ELEVENLABS_VOICE_ID);
   const [voices, setVoices] = useState<GuestVoiceOption[]>([]);
-  const voiceIdRef = useRef("");
+  const voiceIdRef = useRef(ELEVENLABS_VOICE_ID);
+  const remoteAudioRef = useRef<{ audio: HTMLAudioElement; url: string } | null>(null);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     const runtime = getGuestSpeechRuntime();
-    setSupported(runtime !== null);
+    setSupported(runtime !== null || typeof Audio !== "undefined");
     const refreshVoices = () => setVoices(getGuestVoiceOptions(runtime));
     refreshVoices();
     runtime?.synthesis.addEventListener?.("voiceschanged", refreshVoices);
     try {
       setMutedState(localStorage.getItem(GUEST_VOICE_MUTED_KEY) === "true");
-      const storedVoiceId = localStorage.getItem(GUEST_VOICE_ID_KEY) ?? "";
+      const storedVoiceId = localStorage.getItem(GUEST_VOICE_ID_KEY) ?? ELEVENLABS_VOICE_ID;
       voiceIdRef.current = storedVoiceId;
       setVoiceIdState(storedVoiceId);
     } catch {
@@ -61,17 +65,78 @@ export function GuestVoiceProvider({ children }: { children: ReactNode }) {
     return () => runtime?.synthesis.removeEventListener?.("voiceschanged", refreshVoices);
   }, []);
 
-  const cancel = useCallback(() => cancelGuestSpeech(), []);
-  const speak = useCallback(
-    (line: string, onEnd?: () => void) => {
-      if (!muted && supported)
-        return speakGuestLine(line, undefined, {
-          ...(onEnd ? { onEnd } : {}),
-          voiceId: voiceIdRef.current,
+  const stopRemoteAudio = useCallback(() => {
+    const active = remoteAudioRef.current;
+    remoteAudioRef.current = null;
+    if (!active) return;
+    active.audio.onended = null;
+    active.audio.onerror = null;
+    active.audio.pause();
+    URL.revokeObjectURL(active.url);
+  }, []);
+  const cancel = useCallback(() => {
+    requestIdRef.current += 1;
+    stopRemoteAudio();
+    cancelGuestSpeech();
+  }, [stopRemoteAudio]);
+
+  const startSpeech = useCallback(
+    (line: string, selectedVoiceId: string, onEnd?: () => void, role: GuestVoiceRole = "guest") => {
+      const text = line.trim();
+      if (!text) return false;
+      cancel();
+      const requestId = requestIdRef.current;
+      let finished = false;
+      const finish = () => {
+        if (finished || requestId !== requestIdRef.current) return;
+        finished = true;
+        stopRemoteAudio();
+        onEnd?.();
+      };
+      const browserFallback = () => {
+        if (finished || requestId !== requestIdRef.current) return;
+        stopRemoteAudio();
+        const started = speakGuestLine(text, undefined, {
+          onEnd: finish,
+          voiceId: selectedVoiceId === ELEVENLABS_VOICE_ID ? "" : selectedVoiceId,
         });
+        if (!started) finish();
+      };
+
+      if (selectedVoiceId !== ELEVENLABS_VOICE_ID) {
+        browserFallback();
+        return true;
+      }
+
+      void synthesizeGuestVoice({ data: { role, text } })
+        .then((result) => {
+          if (finished || requestId !== requestIdRef.current) return;
+          if (!result.available || typeof Audio === "undefined") {
+            browserFallback();
+            return;
+          }
+          const binary = atob(result.audioBase64);
+          const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+          const url = URL.createObjectURL(new Blob([bytes], { type: result.mimeType }));
+          const audio = new Audio(url);
+          if (role === "mom_impostor") audio.playbackRate = 0.96;
+          audio.onended = finish;
+          audio.onerror = browserFallback;
+          remoteAudioRef.current = { audio, url };
+          void audio.play().catch(browserFallback);
+        })
+        .catch(browserFallback);
+      return true;
+    },
+    [cancel, stopRemoteAudio],
+  );
+
+  const speak = useCallback(
+    (line: string, onEnd?: () => void, role: GuestVoiceRole = "guest") => {
+      if (!muted && supported) return startSpeech(line, voiceIdRef.current, onEnd, role);
       return false;
     },
-    [muted, supported],
+    [muted, startSpeech, supported],
   );
   const setMuted = useCallback(
     (nextMuted: boolean) => {
@@ -90,14 +155,14 @@ export function GuestVoiceProvider({ children }: { children: ReactNode }) {
       cancel();
       voiceIdRef.current = nextVoiceId;
       setVoiceIdState(nextVoiceId);
-      speakGuestLine(GUEST_VOICE_PREVIEW_LINE, undefined, { voiceId: nextVoiceId });
+      startSpeech(GUEST_VOICE_PREVIEW_LINE, nextVoiceId);
       try {
         localStorage.setItem(GUEST_VOICE_ID_KEY, nextVoiceId);
       } catch {
         // The setting simply lasts for this session when storage is unavailable.
       }
     },
-    [cancel],
+    [cancel, startSpeech],
   );
 
   useEffect(() => {
@@ -134,6 +199,7 @@ export function useGuestVoice(
   active = true,
   delayMs = 0,
   onFinished?: () => void,
+  role: GuestVoiceRole = "guest",
 ) {
   const { cancel, ready, speak } = useGuestVoiceContext();
   const onFinishedRef = useRef(onFinished);
@@ -146,14 +212,14 @@ export function useGuestVoice(
     }
 
     const timer = window.setTimeout(() => {
-      const started = speak(line, () => onFinishedRef.current?.());
+      const started = speak(line, () => onFinishedRef.current?.(), role);
       if (!started) onFinishedRef.current?.();
     }, delayMs);
     return () => {
       window.clearTimeout(timer);
       cancel();
     };
-  }, [active, cancel, delayMs, line, ready, speak]);
+  }, [active, cancel, delayMs, line, ready, role, speak]);
 }
 
 export function GuestVoiceControl() {
@@ -171,11 +237,18 @@ export function GuestVoiceControl() {
           <span className="sr-only">Guest voice</span>
           <select
             aria-label="Guest voice"
-            value={voices.some((voice) => voice.id === voiceId) ? voiceId : ""}
+            value={
+              voiceId === ELEVENLABS_VOICE_ID || voices.some((voice) => voice.id === voiceId)
+                ? voiceId
+                : ELEVENLABS_VOICE_ID
+            }
             disabled={muted}
             onChange={(event) => setVoiceId(event.target.value)}
             className="max-w-36 bg-transparent text-xs text-neutral-100 outline-none disabled:opacity-50"
           >
+            <option value={ELEVENLABS_VOICE_ID} className="bg-neutral-950">
+              ElevenLabs voice
+            </option>
             <option value="" className="bg-neutral-950">
               Automatic voice
             </option>
