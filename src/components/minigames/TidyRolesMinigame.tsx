@@ -128,6 +128,10 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
   const lastBlackoutRef = useRef(0);
   const lastLightOnRef = useRef(0);
   const lastDropRef = useRef(0);
+  const rapidDropsRef = useRef<number[]>([]);
+  const catapultSpentRef = useRef(
+    typeof sessionStorage !== "undefined" && sessionStorage.getItem("guest-toy-catapult") === "spent",
+  );
   const lastProgressRef = useRef(0);
   const dragRef = useRef<Drag | null>(null);
   dragRef.current = drag;
@@ -378,9 +382,27 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
     Math.abs(x - box.x) <= box.w / 2 + HIT_MARGIN && Math.abs(y - box.y) <= box.h / 2 + HIT_MARGIN;
 
   const place = (id: string) => {
+    const now = Date.now();
+    rapidDropsRef.current = [...rapidDropsRef.current.filter((t) => now - t < 2500), now];
+    if (!catapultSpentRef.current && placed.length > 0 && rapidDropsRef.current.length >= 2) {
+      // Once per run: The Guest visibly throws the hurriedly boxed toys back on the floor.
+      catapultSpentRef.current = true;
+      try { sessionStorage.setItem("guest-toy-catapult", "spent"); } catch { /* optional */ }
+      sfx.possessed();
+      camShake(2);
+      setPlaced([]);
+      setPos({});
+      setCover(null);
+      setPoss(null);
+      setHide(null);
+      setLights({ main: true, lamp: false });
+      setSelected(null);
+      say("Not so fast! The toys fly out of the box.", 4200);
+      return;
+    }
     sfx.snap();
-    lastDropRef.current = Date.now();
-    lastProgressRef.current = Date.now();
+    lastDropRef.current = now;
+    lastProgressRef.current = now;
     setPlaced((p) => (p.includes(id) ? p : [...p, id]));
     setSelected(null);
     if (cover?.toyId === id) setCover(null);
