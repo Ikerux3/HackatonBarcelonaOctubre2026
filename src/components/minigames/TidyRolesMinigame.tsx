@@ -6,6 +6,7 @@ import { observe } from "@/game/observer";
 import { zoneCovers, type Point, type SceneObject, type TidyOptions } from "@/game/levels/types";
 import type { MinigameProps } from "./types";
 import { SceneBackdrop } from "./SceneBackdrop";
+import { ToySprite } from "./ToySprite";
 
 const HIT_MARGIN = 5;
 
@@ -577,10 +578,10 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
                   : "left .45s ease, top .45s ease, transform .35s ease, opacity .45s ease",
             }}
           >
-            <span className="pointer-events-none text-2xl leading-none" aria-hidden>
-              {ASSETS[sprite].emoji}
+            <span className="pointer-events-none absolute inset-x-0 top-0 bottom-3 flex items-center justify-center" aria-hidden>
+              <ToySprite asset={sprite} possessed={isPoss} />
             </span>
-            <span className="pointer-events-none mt-0.5 text-[9px] font-bold text-white drop-shadow">
+            <span className="pointer-events-none absolute bottom-0.5 text-[9px] font-bold text-white drop-shadow">
               {ASSETS[sprite].label}
             </span>
           </button>
@@ -709,8 +710,8 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
                 style={{ left: `${sp.x + 8}%`, top: `${sp.y + 4}%`, transform: "translate(-50%,-50%)" }}
               >
                 <span className="absolute left-1/2 top-full h-2 w-10 -translate-x-1/2 rounded-full bg-black/50 blur-[2px]" />
-                <span className="block rotate-[28deg] text-xl opacity-90">
-                  {toy ? ASSETS[spriteOf(toy, idx)].emoji : "❓"}
+                <span className="block h-8 w-8 rotate-[28deg] text-xl opacity-90">
+                  {toy ? <ToySprite asset={spriteOf(toy, idx)} /> : "❓"}
                 </span>
               </div>
             );
