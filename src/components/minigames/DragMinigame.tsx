@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { sfx } from "@/game/audio";
+import { useCorduraLight } from "@/game/cordura";
 import { resolveInterventions } from "@/game/interventions";
 import { observe } from "@/game/observer";
 import { ASSETS, COLOR_HEX } from "@/game/levels/assets";
@@ -37,6 +38,7 @@ export function DragMinigame({ level, memory, dark, onComplete }: MinigameProps)
   const [wobble, setWobble] = useState<string | null>(null);
   const [falseHint, setFalseHint] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  useCorduraLight(done ? null : dark ? "dark" : "lit");
   const fired = useRef(false);
 
   const iv = useMemo(() => resolveInterventions(level, memory, dark), [level, memory, dark]);

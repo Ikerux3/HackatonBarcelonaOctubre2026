@@ -15,6 +15,7 @@ import {
   type TargetZone,
 } from "@/game/levels/types";
 import { useCameraShake } from "@/game/cameraShake";
+import { useCorduraLight, useCorduraScare } from "@/game/cordura";
 import { observe } from "@/game/observer";
 import type { MinigameProps } from "./types";
 
@@ -160,6 +161,12 @@ export function TableForThreeMinigame({
   const correct = countCorrect(ctx, placed);
   const dark = scene === "dining" && (!light || forcedDark);
   const asking = food.status === "asking";
+  // Cordura pauses for the food question, the how-to card and the monster's own scenes
+  // (full scare, the swap blackout, the third place): only the player's own darkness counts
+  useCorduraLight(
+    asking || showHowTo || scare || forcedDark || phase === "final" ? null : dark ? "dark" : "lit",
+  );
+  const corduraScare = useCorduraScare();
 
   // ── danger in the dark: eyes → warning → full scare (resets only this phase) ──
   useEffect(() => {
@@ -190,6 +197,7 @@ export function TableForThreeMinigame({
         raiseTension(2);
         camShake(3);
         observe.fullScare();
+        corduraScare();
         setTimeout(() => {
           setScare(false);
           setDanger(0);

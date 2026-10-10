@@ -1,8 +1,10 @@
+import { CorduraContext, corduraEnding, finalCordura } from "@/game/cordura";
 import { useGameController } from "@/game/GameController";
 import { colorLabel, guestNotes, toyLabel, type GuestSlot } from "@/game/GameState";
 import { applyGuestAction, guestOverlay } from "@/game/guestEffects";
 import { forgetGuestMemory, observe, rememberRun } from "@/game/observer";
 import { AIDebugBadge } from "./AIDebugBadge";
+import { CorduraMeter } from "./CorduraMeter";
 import { GameShell } from "./GameShell";
 import { CorruptionLayer } from "./CorruptionLayer";
 import { GuestOverlay } from "./GuestOverlay";
@@ -58,7 +60,10 @@ function GameScreenInner() {
     requestGuest,
     ensureGuest,
     rememberFood,
+    cordura,
   } = useGameController();
+  // the ending only ever reads the value frozen when the last minigame ended
+  const corduraEnd = finalCordura(state.cordura);
   // saved demo story (validated, per-slot fallback to built-in); read after hydration
   const [story, setStory] = useState<StoryLevels>(STORY_LEVELS);
   useEffect(() => {
@@ -185,6 +190,7 @@ function GameScreenInner() {
         colorText={colorLabel(state)}
         toyText={toyLabel(state)}
         noticed={guestNotes(state)}
+        cordura={corduraEnd}
         onReplay={replay}
       />
     );
@@ -214,6 +220,7 @@ function GameScreenInner() {
         memory={state.memory}
         toyText={toyLabel(state)}
         colorText={colorLabel(state)}
+        ending={corduraEnding(corduraEnd)}
         onSkip={advance}
       />
     );
@@ -250,14 +257,17 @@ function GameScreenInner() {
         data-corruption={corruption}
         className={`game-scene-fit g-stage-in relative ${isBlackout ? "game-flicker" : ""}`}
       >
-        <MinigameHost
-          key={level.id}
-          level={level}
-          memory={state.memory}
-          dark={dark}
-          {...(isTask ? { onComplete: completeTask, onSkip: completeTask } : {})}
-          onRememberFood={rememberFood}
-        />
+        <CorduraMeter value={state.cordura.value} />
+        <CorduraContext.Provider value={cordura}>
+          <MinigameHost
+            key={level.id}
+            level={level}
+            memory={state.memory}
+            dark={dark}
+            {...(isTask ? { onComplete: completeTask, onSkip: completeTask } : {})}
+            onRememberFood={rememberFood}
+          />
+        </CorduraContext.Provider>
 
         <CorruptionLayer level={corruption} />
 

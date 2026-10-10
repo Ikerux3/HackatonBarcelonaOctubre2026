@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import type { CorduraEnding } from "@/game/cordura";
 import type { GameMemory, GameStage } from "@/game/GameState";
 import { ASSETS, COLORS, COLOR_HEX, TOY_ASSET } from "@/game/levels/assets";
 import { SceneBackdrop } from "@/components/minigames/SceneBackdrop";
@@ -13,6 +14,8 @@ interface Props {
   /** cleaned labels only (displayAnswer or category) — never raw player text */
   toyText: string;
   colorText: string;
+  /** from the Cordura frozen when the last minigame ended (D34); mom comes home in both */
+  ending: CorduraEnding;
   /** tap on the final detail skips to the ending screen */
   onSkip: () => void;
 }
@@ -39,16 +42,17 @@ function useTyped(text: string, msPerChar: number, delay = 0) {
 }
 
 /** Final blackout whisper → mom really comes home → one detail is wrong. */
-export function EndingSequence({ stage, name, memory, toyText, colorText, onSkip }: Props) {
+export function EndingSequence({ stage, name, memory, toyText, colorText, ending, onSkip }: Props) {
   const momColor = COLOR_HEX[memory.motherColor ?? "pink"];
   if (stage === "goodnight_whisper") return <Whisper name={name} />;
-  if (stage === "mom_returns") return <MomHome name={name} momColor={momColor} />;
+  if (stage === "mom_returns") return <MomHome name={name} momColor={momColor} ending={ending} />;
   return (
     <Detail
       memory={memory}
       momColor={momColor}
       toyText={toyText}
       colorText={colorText}
+      ending={ending}
       onSkip={onSkip}
     />
   );
@@ -72,7 +76,15 @@ function Whisper({ name }: { name: string }) {
   );
 }
 
-function MomHome({ name, momColor }: { name: string; momColor: string }) {
+function MomHome({
+  name,
+  momColor,
+  ending,
+}: {
+  name: string;
+  momColor: string;
+  ending: CorduraEnding;
+}) {
   return (
     <div className="g-title-room g-stage-in relative flex h-full flex-col items-center justify-center overflow-hidden px-6 text-center">
       <SceneBackdrop theme="living_room" dark={false} />
@@ -85,7 +97,9 @@ function MomHome({ name, momColor }: { name: string; momColor: string }) {
         <div className="game-door-open absolute inset-0 origin-left rounded-t-md border-4 border-amber-900 bg-amber-700" />
       </div>
       <p className="g-paper-card game-monster-line relative z-10 mt-[-30vh] max-w-xs px-5 py-3 font-display text-2xl italic text-[#3a2010]">
-        “I'm home, {name}! Did you tidy up?”
+        {ending === "crying"
+          ? `“${name}? Oh, sweetie, you're crying… I'm here now. I'm here.”`
+          : `“I'm home, ${name}! Did you tidy up?”`}
       </p>
     </div>
   );
@@ -94,25 +108,29 @@ function MomHome({ name, momColor }: { name: string; momColor: string }) {
 /**
  * Team's ending (10 oct): mom really is back, with the child in a lit room; through
  * the doorway, another room stays dark — The Guest is still there, with your toy.
+ * D34: with Cordura 65+ the child is crying and very scared; below, a little scared.
  */
 function Detail({
   memory,
   momColor,
   toyText,
   colorText,
+  ending,
   onSkip,
 }: {
   memory: GameMemory;
   momColor: string;
   toyText: string;
   colorText: string;
+  ending: CorduraEnding;
   onSkip: () => void;
 }) {
+  const crying = ending === "crying";
   const toy = ASSETS[TOY_ASSET[memory.favoriteToy ?? "other"]];
   const stolen = memory.favoriteColor;
   // fixed template, no AI call: instant, and only ever shows cleaned labels
   const goodbye = useTyped(
-    `I'll keep ${toyText} safe for you. And ${colorText}… that's mine now.`,
+    `${crying ? "Shh… don't cry. " : ""}I'll keep ${toyText} safe for you. And ${colorText}… that's mine now.`,
     45,
     1800,
   );
@@ -121,7 +139,7 @@ function Detail({
       type="button"
       onClick={onSkip}
       className="g-stage-in relative flex h-full w-full overflow-hidden bg-black"
-      aria-label={`Mom and you are safe in a warm, lit room. In the dark room next door, something still holds ${toyText}. Tap to continue.`}
+      aria-label={`${crying ? "Mom holds you while you cry, safe in a warm, lit room." : "Mom and you are safe in a warm, lit room."} In the dark room next door, something still holds ${toyText}. Tap to continue.`}
     >
       {/* the lit room: mom and the child, together */}
       <div className="g-title-room relative h-full w-[62%] overflow-hidden" aria-hidden>
@@ -147,7 +165,7 @@ function Detail({
         <div className="absolute inset-x-0 bottom-0 h-[34%] bg-orange-200" />
         <div className="absolute bottom-[20%] left-1/2 flex -translate-x-1/2 items-end gap-1">
           <MomFigure color={momColor} className="h-44" />
-          <ChildFigure className="h-24" />
+          <ChildFigure className="h-24" crying={crying} />
         </div>
       </div>
       {/* the wall, with an open doorway */}

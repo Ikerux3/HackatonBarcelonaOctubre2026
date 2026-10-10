@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useReducer, useRef } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 
 import { interpretAnswerSafe } from "@/ai/aiAdapter";
 import type { FoodCategory, GuestRequest, NormalizedColor, QuestionType } from "@/ai/contracts";
 import { decideGuest } from "@/ai/guestAdapter";
 import { ruleGuestDecision } from "@/ai/guestFacts";
+import type { CorduraLight, CorduraReporter } from "./cordura";
 import {
   gameReducer,
   guestNotes,
   initialGameState,
+  TASK_STAGES,
   type GameStage,
   type GameState,
   type GuestSlot,
@@ -46,6 +48,11 @@ export const DEFAULT_MOTHER_COLORS: NormalizedColor[] = [
 
 /** how long a blackout lingers before the question appears */
 export const BLACKOUT_MS = 3200;
+
+/** how often the Cordura bar takes the time spent in the light or the dark */
+const CORDURA_TICK_MS = 500;
+/** a throttled background tab must not dump minutes of darkness at once */
+const CORDURA_MAX_TICK_MS = 1000;
 
 /** auto-advance timings for the timed stages (ms) */
 const TIMED_STAGES: Partial<Record<GameStage, number>> = {
@@ -95,6 +102,30 @@ export function useGameController() {
       dispatch({ type: "TASK_DONE" });
     }, 900);
   }, []);
+
+  // ── Barra de Cordura: the active minigame reports the light, time is counted here ──
+  const lightRef = useRef<CorduraLight | null>(null);
+  const cordura = useMemo<CorduraReporter>(
+    () => ({
+      light: (l) => {
+        lightRef.current = l;
+      },
+      fullScare: () => dispatch({ type: "FULL_SCARE" }),
+    }),
+    [],
+  );
+  useEffect(() => {
+    if (!TASK_STAGES.includes(state.stage)) return;
+    let last = Date.now();
+    const iv = setInterval(() => {
+      const now = Date.now();
+      const ms = Math.min(now - last, CORDURA_MAX_TICK_MS);
+      last = now;
+      const light = lightRef.current;
+      if (light) dispatch({ type: "CORDURA_TICK", light, ms });
+    }, CORDURA_TICK_MS);
+    return () => clearInterval(iv);
+  }, [state.stage]);
 
   // Timed stages (blackouts, ending sequence) advance on their own.
   useEffect(() => {
@@ -165,5 +196,6 @@ export function useGameController() {
     requestGuest,
     ensureGuest,
     rememberFood,
+    cordura,
   };
 }

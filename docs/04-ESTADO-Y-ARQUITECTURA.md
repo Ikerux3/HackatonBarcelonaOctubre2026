@@ -1,6 +1,6 @@
 # 04 — ESTADO Y ARQUITECTURA | MOMMY WILL BE BACK
 
-Actualizado: **10 oct 2026, 04:45** · Autor: Unai + Claude Code · `main` @ `a93df9f` (renovación visual de Lovable/Iker + sprites de juguetes de Codex + aclaraciones del equipo del 10 oct) · QA de regresión en producción: `docs/07`
+Actualizado: **10 oct 2026, 05:30** · Autor: Unai + Claude Code · base `main` @ `a93df9f` (renovación visual de Lovable/Iker + sprites de juguetes de Codex + aclaraciones del equipo del 10 oct) · QA de regresión en producción: `docs/07` · **Barra de Cordura + dos finales** en la rama `claude/keen-lamport-y3wb6h` (sin fusionar)
 
 > Documento de orden: qué hay hecho, cómo está construido y qué falta. Distingue **VERIFICADO** (probado con evidencia), **HECHO** (en el código, sin prueba completa) y **PENDIENTE**.
 
@@ -36,7 +36,9 @@ Un niño se queda solo en casa mientras mamá va a por la cena. Hace tareas (rec
    - Al terminar, coloca solo un **tercer servicio gigante**: *"How nice. Now we're all here."*
 6. **Apagón** → pregunta tu **juguete favorito de pequeño**.
 7. **Tarea 3 — Dormir con linterna**: buscar pijama, cepillo y **tu juguete**, que huye la primera vez.
-8. **Final** (decisión del equipo, 10 oct): susurro de tu nombre a oscuras → mamá vuelve de verdad (con su vestido) → **mamá y el niño en una habitación iluminada; en la de al lado, a oscuras, los ojos de El Invitado con tu juguete** → despedida del Invitado → **"What The Guest noticed about you"**. No hay final malo.
+8. **Final** (decisión del equipo, 10 oct): susurro de tu nombre a oscuras → mamá vuelve de verdad (con su vestido) → **mamá y el niño en una habitación iluminada; en la de al lado, a oscuras, los ojos de El Invitado con tu juguete** → despedida del Invitado → **"What The Guest noticed about you"**. **Dos finales según la Cordura** (D34): de 0 a 64 mamá te encuentra algo asustado; de 65 a 100, llorando (lágrimas, otra frase de mamá y del Invitado). Mamá vuelve en los dos.
+
+**Barra de Cordura** (D28/D33/D34; `src/game/cordura.ts`): de 0 a 100, cuanto más alta peor está el niño. Se ve arriba durante las tareas. **+1 cada 2 s a oscuras**, **+10 por susto completo**, **−1 cada 3 s con la luz encendida** (velocidad propuesta por MJ, **pendiente de que Iker la apruebe**; se cambia en una línea). Solo cuenta dentro de los minijuegos: se para en las preguntas (también la de la comida), los apagones entre tareas, la tarjeta de instrucciones y las escenas del monstruo (susto, intercambio, tercer servicio). Las fracciones de segundo se acumulan. Al **salir del último minijuego** se congela, y el final usa ese valor (no el máximo alcanzado); el apagón final y la vuelta de mamá no la cambian. Mientras no exista el minijuego del baño, el último es el de dormir con linterna, que cuenta **siempre como oscuridad** (la luz del cuarto está apagada; la linterna no cuenta como luz).
 
 **Temblor de cámara** (regla del equipo): cada minijuego tiene su propia tensión, que sube con apagones, sustos y movimientos del monstruo; las sacudidas son cortas (≤0,7 s), con pausa mínima de 1,2 s entre ellas, y al pasar al siguiente minijuego todo vuelve a cero. Respeta "reducir movimiento" del sistema.
 
@@ -87,8 +89,9 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 | `src/styles/game-art.css` + `CorruptionLayer.tsx` | **Capa visual** (Lovable/Iker): tipografías, salas tipo diorama, marcos de madera, grano, tinta/corrupción por tarea (0–3), estilo del Invitado. Solo presentación: nunca guarda estado del juego |
 | `public/assets/toys/` + `ToySprite.tsx` | Sprites reales de juguetes (Codex), con variante "poseído" para algunos |
 | `src/game/cameraShake.ts` | Temblor de cámara por minijuego (tensión progresiva, ráfagas cortas con pausa, vuelve a cero) |
+| `src/game/cordura.ts` + `CorduraMeter.tsx` | **Barra de Cordura**: reglas y velocidades (`CORDURA_RULES`), congelación y final. Cada minijuego avisa si estás con luz o a oscuras (`useCorduraLight`); el tiempo se cuenta en `GameController` |
 | `src/components/game/Figures.tsx` | Siluetas provisionales de mamá (con el color de su vestido) y del niño |
-| `src/test/` | Tests automáticos (25) |
+| `src/test/` | Tests automáticos (33) |
 
 ## 7. Cómo se ha construido (para los 20 puntos de "How you built it")
 
@@ -111,7 +114,8 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 - Minijuego 02: aviso "no lo has encontrado todo", señuelo gigante, 6 piezas a la bandeja, marcas a oscuras (⭐/👗 con colores), pieza en hueco de otro tipo rechazada, susto completo a los 9 s con reinicio de fase, checkpoint a 3 correctas → pregunta de comida ("pizza con piña" → 🍕 + tinta), intercambio de dos piezas antes de la comprobación final, tercer servicio y frase final, la historia continúa.
 - IA real en producción (color, juguete y decisiones del Invitado), latencias < 1,5 s.
 - Versión móvil: sin scroll ni barra lateral, el campo de respuesta queda sobre el teclado, sin zoom.
-- Niveles modulares + 25 tests automáticos + TypeScript sin errores.
+- Niveles modulares + 33 tests automáticos + TypeScript sin errores.
+- **Barra de Cordura + dos finales (local, Chromium 375×667, IA mock, rama `claude/keen-lamport-y3wb6h`)**: apagón del juguete poseído 6 s → +3; luz encendida 6 s → −2; la pregunta del color no la mueve; comedor a oscuras con susto a los 9 s → 0 → 14 (+4 de oscuridad +10 del susto); final con 1 → "a little scared"; final con 71 → mamá "you're crying…", niño con lágrimas, "Shh… don't cry" y "Mom found you crying". Sin errores en consola; la escena cabe sin scroll. Tests: 64/65, 70 → 40, congelado tras el último minijuego, pausa en preguntas y apagones, tope 100.
 
 - **Producción (10 oct 02:50, `?debug=1`)**: decisión del Invitado `live` 787 ms; color `live` 857 ms; **comida `live` 1107 ms** ("los macarrones con queso de mi abuela" → 🍝, frase del modelo sobre la abuela).
 - **Regresión tras la renovación visual (10 oct ~04:15, `a93df9f`, producción, `?debug=1`)**: dos partidas con IA real y respuestas distintas (`fallback: false` en interpretación y decisiones del Invitado, 820–1617 ms; mesa, juguete, final y notas distintos; el Invitado recuerda la partida anterior) y una sin conexión que llega al final con el respaldo. Detalle y handoff: `docs/07`.
@@ -125,13 +129,13 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 - Susto completo → reinicia **solo la fase actual**, conserva todo lo anterior; un susto no pasa al siguiente minijuego; errores pequeños no penalizan.
 - Temblor progresivo, limitado y con pausas por minijuego; vuelve a cero en el siguiente.
 - Vestido de mamá: sorteado una vez al pulsar Play (`GameMemory.motherColor`); mismo color en la intro (figura provisional), su vajilla, sus marcas, su silla (a oscuras) y el final. No se vuelve a sortear.
-- No hay final malo (**superado por D34 en Drive: dos finales, pendiente de implementar**). Final: mamá y el niño en la habitación iluminada, El Invitado insinuado en la de al lado a oscuras.
+- ~~No hay final malo~~ → **superado por D34: dos finales según la Cordura, implementados** (rama `claude/keen-lamport-y3wb6h`). En los dos: mamá y el niño en la habitación iluminada, El Invitado insinuado en la de al lado a oscuras.
 - Sin cambios en los contratos de IA.
 
 **PENDIENTE DE COORDINAR (Iker)**
 - Encajar el reinicio por fase y el desenlace con las decisiones generales anteriores (D14).
 - La silla de mamá se ilumina con su color **solo a oscuras** (con luz, colorearla revelaría qué sitio es de quién y el puzle de la oscuridad dejaría de tener sentido). Si se quiere siempre coloreada, es un cambio de una línea.
-- **Decisiones nuevas de Iker en Drive (D32–D35), aún no implementadas**: cinco minijuegos (baño/pijama el último; los intermedios MG03/MG04 los propone MJ y los aprueba Iker); barra de **Cordura** 0–100 (+10 por susto completo, +1 cada 2 s a oscuras, baja con la luz encendida: velocidad pendiente, MJ propone −1 cada 3 s); **dos finales** según la Cordura al salir del baño (0–64 algo asustado, 65–100 llorando; mamá vuelve en los dos). El código actual tiene 3 tareas y un solo final.
+- **Decisiones nuevas de Iker en Drive (D32–D35)**: barra de **Cordura** y **dos finales** → **implementados** (ver §3). Pendiente de Iker: aprobar la velocidad de bajada con luz (−1 cada 3 s, propuesta de MJ); confirmar que la linterna del dormitorio cuenta como oscuridad; el nombre "Cordura" en un juego en inglés. **Cinco minijuegos** (baño/pijama el último; MG03/MG04 los propone MJ y los aprueba Iker): **sin implementar**, el código sigue con 3 tareas.
 
 **PENDIENTE (por prioridad)**
 1. Confirmar que lo publicado en Lovable es `main` @ `a93df9f` (el merge de `unai/tension-ending` ya está en `main`).
@@ -145,6 +149,6 @@ Llamadas a un modelo de lenguaje real (**Gemini 3.1 Flash Lite** vía Lovable AI
 ## 9. Handoff
 
 - **Responsable**: Unai + Claude Code
-- **Estado**: `main` @ `a93df9f` probado en producción tras la renovación visual: IA real y respaldo sin bloqueo (`docs/07`).
-- **Rama / commit**: `main` @ `a93df9f`
-- **Siguiente paso**: Iker confirma la versión publicada; QA en móvil real; barra de Cordura + dos finales (D33/D34) en rama propia; integrar arte cuando esté.
+- **Estado**: `main` @ `a93df9f` probado en producción tras la renovación visual: IA real y respaldo sin bloqueo (`docs/07`). Barra de Cordura + dos finales hechos y probados en local, **sin fusionar ni publicar**.
+- **Rama / commit**: `claude/keen-lamport-y3wb6h` (sobre `main` @ `a93df9f`)
+- **Siguiente paso**: revisión y merge a `main` + Publish (Iker); Iker aprueba la velocidad con luz; QA en móvil real; integrar arte cuando esté; minijuegos 3 y 4 cuando MJ los proponga.

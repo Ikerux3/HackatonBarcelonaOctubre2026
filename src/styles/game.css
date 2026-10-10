@@ -342,13 +342,15 @@ html.game-shell-root input {
 .game-shell *::-webkit-scrollbar {
   display: none;
 }
-/* the 2:3 scene is as wide as fits the visible height (header row + paddings ≈ 88px) */
+/* the 2:3 scene is as wide as fits the visible height
+   (Cordura bar + header row + paddings ≈ 112px) */
 .game-scene-fit {
   width: min(
     100%,
     28rem,
     calc(
-      (var(--app-h, 100dvh) - 88px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * 2 / 3
+      (var(--app-h, 100dvh) - 112px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * 2 /
+        3
     )
   );
 }
