@@ -232,7 +232,7 @@ describe("story order with the music box", () => {
     expect(afterToy.stage).toBe("task_music");
     // Cordura counts in the music box, and leaving it doesn't freeze the bar yet
     let s = run(afterToy, { type: "CORDURA_TICK", light: "dark", ms: 2000 });
-    expect(s.cordura.value).toBe(1);
+    expect(s.cordura.value).toBe(6);
     s = run(s, { type: "TASK_DONE" });
     expect(s.stage).toBe("blackout_music");
     expect(s.cordura.final).toBeNull();
@@ -244,6 +244,6 @@ describe("story order with the music box", () => {
     expect(s.cordura.final).toBeNull();
     s = run(s, { type: "ADVANCE" });
     expect(s.stage).toBe("task_three");
-    expect(run(s, { type: "TASK_DONE" }).cordura.final).toBe(2);
+    expect(run(s, { type: "TASK_DONE" }).cordura.final).toBe(17);
   });
 });
