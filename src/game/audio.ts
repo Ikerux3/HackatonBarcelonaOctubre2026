@@ -259,6 +259,11 @@ export const sfx = {
     tone(140, 0.25, "sine", 0.07, 90);
   },
   hum: () => tone(55, 2.4, "sine", 0.05),
+  /** Two anxious beats; optional sound, never blocks subtitles. */
+  heartbeat: () => {
+    tone(58, 0.18, "sine", 0.075, 45);
+    setTimeout(() => tone(50, 0.15, "sine", 0.055, 40), 230);
+  },
   /** foreshadowing: a short, slightly wrong music-box phrase */
   odd: () => {
     [880, 830, 622, 587].forEach((f, i) =>
