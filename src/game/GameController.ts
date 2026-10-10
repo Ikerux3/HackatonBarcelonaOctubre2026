@@ -60,7 +60,8 @@ const CORDURA_MAX_TICK_MS = 1000;
 /** auto-advance timings for the timed stages (ms) */
 const TIMED_STAGES: Partial<Record<GameStage, number>> = {
   intro_leave: 8200, // typing + door; tap also continues
-  goodnight_whisper: 5200,
+  blackout_three: 6000, // final suspense replaces (not adds to) the old blackout
+  goodnight_whisper: 2800,
   mom_returns: 4800,
   unsettling_detail: 6500, // goodbye line types out; tap also continues
 };
@@ -135,7 +136,9 @@ export function useGameController() {
   useEffect(() => {
     if (events100 === 0) return;
     observe.fullScare();
-    event100Handlers.current.forEach((reset) => reset());
+    // MJ v3.1: remount the whole ACTIVE minigame; earlier scenes and answers persist.
+    lightRef.current = null;
+    dispatch({ type: "CORDURA_RESET_100" });
   }, [events100]);
   useEffect(() => {
     if (!TASK_STAGES.includes(state.stage)) return;
