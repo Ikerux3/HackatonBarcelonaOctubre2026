@@ -338,6 +338,10 @@ export function TableForThreeMinigame({
     sfx.blackout();
     setSelected(null);
     setForcedDark(true);
+    if (intruderSeen < 3) {
+      setIntruders((old) => [...old, intruderSeen]);
+      setIntruderSeen((old) => old + 1);
+    }
     say("Three seconds in the dark. Remember the marks.", 3200);
     wrongBlackoutRef.current = setTimeout(() => {
       setForcedDark(false);
@@ -573,7 +577,7 @@ export function TableForThreeMinigame({
           const kind = slotKind(ctx, t.id);
           const owner = slotOwner(ctx, t.id);
           const pieceId = placed[t.id];
-          const showMarks = !light && !forcedDark;
+          const showMarks = !light || forcedDark;
           return (
             <button
               key={t.id}
@@ -710,8 +714,7 @@ export function TableForThreeMinigame({
       {dark && <div className="pointer-events-none absolute inset-0 z-30 bg-black/90" />}
       {/* in the dark the chairs glow in their owner's color too (mom = her dress color) */}
       {scene === "dining" &&
-        !light &&
-        !forcedDark &&
+        (!light || forcedDark) &&
         (["left", "right"] as const).map((side) => {
           const owner: TableOwner = side === childSide ? "child" : "mom";
           return (
