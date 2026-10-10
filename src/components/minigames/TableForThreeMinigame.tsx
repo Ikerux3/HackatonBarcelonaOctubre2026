@@ -116,6 +116,13 @@ export function TableForThreeMinigame({
   const [danger, setDanger] = useState(0); // 0 calm · 1 eyes · 2 warning shake
   const [scare, setScare] = useState(false);
   const [forcedDark, setForcedDark] = useState(false);
+  const [intruderSeen, setIntruderSeen] = useState(0);
+  const [intruders, setIntruders] = useState<number[]>([]);
+  const lastPlacementRef = useRef(0);
+  const wrongBlackoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (wrongBlackoutRef.current) clearTimeout(wrongBlackoutRef.current);
+  }, []);
   const [food, setFood] = useState<{
     status: "none" | "asking" | "shown";
     busy: boolean;
@@ -166,7 +173,7 @@ export function TableForThreeMinigame({
   // Cordura pauses for the food question, the how-to card and the monster's own scenes
   // (full scare, the swap blackout, the third place): only the player's own darkness counts
   useCorduraLight(
-    asking || showHowTo || scare || forcedDark || phase === "final" ? null : dark ? "dark" : "lit",
+    asking || showHowTo || scare || phase === "final" ? null : dark ? "dark" : "lit",
   );
   const corduraScare = useCorduraScare();
   // D44: the bar hit 100 → same reset as this minigame's own scare (only this phase); the
@@ -283,7 +290,7 @@ export function TableForThreeMinigame({
       doSwap();
       return;
     }
-    if (allRight && (!table.food.enabled || food.status === "shown")) {
+    if (allRight && intruders.length === 0 && (!table.food.enabled || food.status === "shown")) {
       finished.current = true;
       setPhase("final");
       setLight(true);
@@ -299,7 +306,7 @@ export function TableForThreeMinigame({
       say(table.lines.wrong);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [placed, phase, correct, swapped, food.status, asking]);
+  }, [placed, phase, correct, swapped, food.status, asking, intruders.length]);
 
   // ── actions ──
   const goDining = () => {
@@ -326,6 +333,17 @@ export function TableForThreeMinigame({
     sfx.snap();
     setCollected((c) => [...c, id]);
   };
+  const triggerWrongBlackout = () => {
+    if (wrongBlackoutRef.current) return;
+    sfx.blackout();
+    setSelected(null);
+    setForcedDark(true);
+    say("Three seconds in the dark. Remember the marks.", 3200);
+    wrongBlackoutRef.current = setTimeout(() => {
+      setForcedDark(false);
+      wrongBlackoutRef.current = null;
+    }, 3000);
+  };
   const tapSlot = (slotId: string) => {
     if (dark || asking || phase === "final" || swapping.current) return;
     if (!selected) {
@@ -336,7 +354,14 @@ export function TableForThreeMinigame({
       }
       return;
     }
-    if (!fits(ctx, selected, slotId)) return reject(selected);
+    if (!isCorrect(ctx, slotId, selected)) {
+      reject(selected);
+      triggerWrongBlackout();
+      return;
+    }
+    const now = Date.now();
+    if (now - lastPlacementRef.current < 1200) sfx.knock();
+    lastPlacementRef.current = now;
     sfx.snap();
     setPlaced((p) => ({ ...p, [slotId]: selected }));
     setSelected(null);
@@ -419,7 +444,7 @@ export function TableForThreeMinigame({
       className={`g-stage relative w-full touch-none select-none overflow-hidden rounded-2xl border border-neutral-800 ${shakeClass}`}
       style={{ aspectRatio: "2 / 3" }}
     >
-      {scene === "kitchen" ? <KitchenBackdrop /> : <DiningBackdrop final={phase === "final"} />}
+      {scene === "kitchen" ? <KitchenBackdrop /> : <DiningBackdrop final={phase === "final"} childColor={COLOR_HEX[childColor]} momColor={COLOR_HEX[momColor]} childSide={childSide} />}
 
       {/* hint */}
       {hint && (
@@ -600,6 +625,18 @@ export function TableForThreeMinigame({
           );
         })}
 
+      {/* Monster: at most one new corrupt place item on each intentional blackout. */}
+      {scene === "dining" && intruders.map((id) => (
+        <button key={id} type="button"
+          disabled={!light || forcedDark || asking}
+          onClick={() => { sfx.snap(); setIntruders((v) => v.filter((x) => x !== id)); }}
+          aria-label={"Remove corrupt " + (["plate", "fork", "glass"][id] ?? "item")}
+          className="absolute z-[42] flex h-12 w-12 items-center justify-center rounded-xl border-2 border-red-400 bg-black/80 text-3xl disabled:opacity-60"
+          style={{ top: (33 + id * 10) + "%", left: "48%" }}>
+          {["🍽️", "🍴", "🥛"][id]}
+        </button>
+      ))}
+
       {/* the favorite food, then the monster's ink */}
       {scene === "dining" && food.status === "shown" && food.emoji && (
         <span
@@ -645,7 +682,14 @@ export function TableForThreeMinigame({
               if (asking || forcedDark || scare || phase === "final" || showHowTo) return;
               sfx.lightSwitch();
               setSelected(null);
-              if (light) setTriedDark(true);
+              if (light) {
+                setTriedDark(true);
+                if (intruderSeen < 3) {
+                  setIntruders((old) => [...old, intruderSeen]);
+                  setIntruderSeen((old) => old + 1);
+                  sfx.knock();
+                }
+              }
               setLight((v) => !v);
             }}
             aria-label={light ? "Turn the light off" : "Turn the light on"}
@@ -788,7 +832,9 @@ function KitchenBackdrop() {
   );
 }
 
-function DiningBackdrop({ final }: { final: boolean }) {
+function DiningBackdrop({
+  final, childColor, momColor, childSide,
+}: { final: boolean; childColor: string; momColor: string; childSide: TableSide }) {
   return (
     <div className="pointer-events-none absolute inset-0" aria-hidden>
       <div className="absolute inset-x-0 top-0 h-[62%] bg-amber-100" />
@@ -798,8 +844,8 @@ function DiningBackdrop({ final }: { final: boolean }) {
         <div className="game-lamp-glow h-5 w-14 rounded-t-full bg-yellow-300" />
       </div>
       {/* chairs: two, and a third when it's done */}
-      <div className="absolute left-[19%] top-[67%] h-[10%] w-[20%] rounded-b-lg rounded-t-md bg-amber-900" />
-      <div className="absolute right-[19%] top-[67%] h-[10%] w-[20%] rounded-b-lg rounded-t-md bg-amber-900" />
+      <div className="absolute left-[19%] top-[67%] h-[10%] w-[20%] rounded-b-lg rounded-t-md border-2 border-amber-900" style={{ backgroundColor: childSide === "left" ? childColor : momColor }} />
+      <div className="absolute right-[19%] top-[67%] h-[10%] w-[20%] rounded-b-lg rounded-t-md border-2 border-amber-900" style={{ backgroundColor: childSide === "right" ? childColor : momColor }} />
       {final && (
         <div className="absolute left-1/2 top-[14%] h-[14%] w-[30%] -translate-x-1/2 rounded-t-lg bg-neutral-900 animate-in fade-in duration-1000" />
       )}
