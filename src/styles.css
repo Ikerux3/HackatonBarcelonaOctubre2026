@@ -2,6 +2,7 @@
 @source "../src";
 @import "tw-animate-css";
 @import "./styles/game.css";
+@import "./styles/game-art.css";
 
 @custom-variant dark (&:is(.dark *));
 

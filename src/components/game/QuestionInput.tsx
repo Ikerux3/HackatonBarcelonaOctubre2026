@@ -41,7 +41,7 @@ export function QuestionInput({
         <button
           type="button"
           onClick={onContinue}
-          className="min-h-12 w-full rounded-xl border border-neutral-600 bg-neutral-900 px-6 py-3 text-base font-semibold text-neutral-100 active:scale-95"
+          className="g-btn g-btn-ink w-full px-6 py-3 text-lg"
         >
           Keep going…
         </button>
@@ -57,7 +57,7 @@ export function QuestionInput({
         handleSubmit();
       }}
     >
-      <label htmlFor="monster-answer" className="text-center font-serif text-xl text-neutral-100">
+      <label htmlFor="monster-answer" className="g-ink-text text-center text-2xl">
         {question}
       </label>
       <input
@@ -73,13 +73,13 @@ export function QuestionInput({
         autoCapitalize="none"
         spellCheck={false}
         placeholder="Answer it…"
-        className="min-h-12 w-full rounded-xl border border-neutral-600 bg-neutral-950 px-4 py-3 text-base text-neutral-100 placeholder:text-neutral-500 focus:border-neutral-300 focus:outline-none"
+        className="g-input min-h-12 w-full px-4 py-3 text-center"
       />
-      {error && <p className="text-center text-sm text-red-400">{error}</p>}
+      {error && <p className="g-guest-line text-center text-base">{error}</p>}
       <button
         type="submit"
         disabled={busy}
-        className="min-h-12 w-full rounded-xl bg-neutral-100 px-6 py-3 text-base font-bold text-neutral-950 active:scale-95 disabled:opacity-50"
+        className="g-btn g-btn-paper w-full px-6 py-3 text-lg"
       >
         {busy ? "It is listening…" : "Answer"}
       </button>
