@@ -21,8 +21,8 @@ export function QuestionInput({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // keep the field visible above the mobile keyboard
-    inputRef.current?.focus({ preventScroll: false });
+    // the game shell follows the visible area, so focusing never needs to scroll
+    inputRef.current?.focus({ preventScroll: true });
   }, []);
 
   const handleSubmit = () => {
@@ -68,12 +68,10 @@ export function QuestionInput({
         disabled={busy}
         maxLength={60}
         enterKeyHint="send"
-        onFocus={(e) => {
-          // iOS/Android: wait for the keyboard, then keep the field above it
-          const el = e.currentTarget;
-          setTimeout(() => el.scrollIntoView({ block: "center", behavior: "smooth" }), 320);
-        }}
         autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="none"
+        spellCheck={false}
         placeholder="Answer it…"
         className="min-h-12 w-full rounded-xl border border-neutral-600 bg-neutral-950 px-4 py-3 text-base text-neutral-100 placeholder:text-neutral-500 focus:border-neutral-300 focus:outline-none"
       />

@@ -34,16 +34,16 @@ export function IntroName({ stage, name, onName, onDone }: Props) {
   const askName = stage === "intro_name" && first.finished;
 
   useEffect(() => {
-    if (askName) inputRef.current?.focus();
+    if (askName) inputRef.current?.focus({ preventScroll: true });
   }, [askName]);
 
   return (
     <div
-      className="game-room-cozy flex min-h-dvh flex-col items-center justify-center gap-6 px-6 pb-[40dvh] pt-10 text-center"
+      className="game-room-cozy flex h-full flex-col items-center justify-center gap-4 px-6 py-6 text-center"
       onClick={() => stage === "intro_leave" && second.finished && onDone()}
     >
       <p className="text-xs uppercase tracking-[0.3em] text-amber-900/70">Mom</p>
-      <p className="min-h-[7.5rem] max-w-xs font-serif text-xl italic leading-relaxed text-amber-950">
+      <p className="min-h-[5.5rem] max-w-xs font-serif text-xl italic leading-relaxed text-amber-950">
         “{first.shown}
         {stage === "intro_leave" ? second.shown : ""}
         <span className="animate-pulse">▍</span>”
@@ -67,13 +67,11 @@ export function IntroName({ stage, name, onName, onDone }: Props) {
             onChange={(e) => setValue(e.target.value)}
             maxLength={16}
             autoComplete="off"
+            autoCorrect="off"
             autoCapitalize="words"
+            spellCheck={false}
             enterKeyHint="done"
             placeholder="Your name"
-            onFocus={(e) => {
-              const el = e.currentTarget;
-              setTimeout(() => el.scrollIntoView({ block: "center", behavior: "smooth" }), 320);
-            }}
             className="min-h-12 w-full rounded-xl border-2 border-amber-800 bg-amber-50 px-4 py-3 text-center text-base text-amber-950 placeholder:text-amber-900/40 focus:outline-none"
           />
           <button

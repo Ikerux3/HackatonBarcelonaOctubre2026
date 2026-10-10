@@ -1,251 +1,59 @@
-import type { LevelConfig, SceneObject } from "./types";
+import type { LevelConfig } from "./types";
+import { validateLevel } from "./validate";
+import manifest from "./data/story.json";
 
-export const TIDY_TOYS_DRAG: LevelConfig = {
-  id: "tidy_toys_drag",
-  title: "Tidy up the toys (simple drag)",
-  type: "drag_to_target",
-  instructions: "Drag every toy into the toy box",
-  theme: "living_room",
-  objects: [
-    {
-      id: "ball",
-      label: "Ball",
-      asset: "ball",
-      color: "red",
-      x: 18,
-      y: 58,
-      size: 18,
-      targetId: "toy_box",
-    },
-    {
-      id: "blocks",
-      label: "Blocks",
-      asset: "blocks",
-      color: "blue",
-      x: 48,
-      y: 66,
-      size: 18,
-      targetId: "toy_box",
-    },
-    {
-      id: "doll",
-      label: "Doll",
-      asset: "doll",
-      color: "yellow",
-      x: 20,
-      y: 82,
-      size: 18,
-      targetId: "toy_box",
-    },
-    {
-      id: "dino",
-      label: "Dino",
-      asset: "dino",
-      color: "green",
-      x: 50,
-      y: 86,
-      size: 18,
-      targetId: "toy_box",
-    },
-  ],
-  targets: [{ id: "toy_box", label: "Toys", shape: "box", x: 80, y: 78, w: 32, h: 20 }],
-  success: { kind: "all_placed" },
-  monster: { trigger: "on_complete", intervention: "none" },
-  personalization: { source: "none", transform: "none" },
-};
+// Levels are plain JSON files in ./data — one file per level, named after its id.
+// Add a level: export it from /editor (or copy an existing file), drop it in ./data.
+// Change what plays: edit ./data/story.json. No code changes needed; `bun run test`
+// validates every file. A broken file never crashes the game: its slot shows a
+// "This level is broken — Skip" card instead.
 
-const slot = (id: string, color: SceneObject["color"], x: number, y: number): SceneObject => ({
-  id,
-  label: "Toy",
-  asset: "ball",
-  color,
-  x,
-  y,
-  size: 17,
-  targetId: "toy_box",
-});
+const files = import.meta.glob<{ default: unknown }>("./data/*.json", { eager: true });
 
-export const TIDY_TOYS: LevelConfig = {
-  id: "tidy_toys",
-  title: "Tidy up the toys",
-  type: "tidy_roles",
-  instructions: "Put every toy in the toy box",
-  theme: "living_room",
-  objects: [
-    slot("toy_1", "red", 16, 60),
-    slot("toy_2", "blue", 44, 64),
-    slot("toy_3", "yellow", 16, 84),
-    slot("toy_4", "green", 44, 86),
-    slot("toy_5", "purple", 70, 56),
-  ],
-  targets: [{ id: "toy_box", label: "Toys", shape: "box", x: 80, y: 80, w: 30, h: 18 }],
-  success: { kind: "all_placed" },
-  monster: { trigger: "on_complete", intervention: "none" },
-  personalization: { source: "none", transform: "none" },
-  tidy: {
-    seed: null,
-    pool: ["ball", "blocks", "doll", "dino", "teddy", "car", "robot", "book"],
-    steps: [
-      { role: "plain", hint: "Drag the toys into the box" },
-      { role: "cushion", hint: "Something slipped under the cushion…" },
-      { role: "drawer", hint: "Did the drawer just close?" },
-      { role: "possessed", hint: "Turn on a light. Make it stay still." },
-      { role: "hide_seek", hint: "Where did the last one go?" },
-    ],
-    cushion: { x: 50, y: 44 },
-    drawer: { x: 18, y: 40 },
-    possessed: {
-      slots: [
-        { x: 8, y: 56 },
-        { x: 14, y: 80 },
-        { x: 56, y: 44 },
-        { x: 86, y: 58 },
-      ],
-      mainSwitch: { x: 93, y: 26 },
-      mainZones: [{ x: 58, y: 60, r: 32 }],
-      lamp: { x: 30, y: 92 },
-      lampZones: [{ x: 16, y: 66, r: 28 }],
-      maxBlackouts: 3,
-      safeWindowMs: 9000,
-      moveMs: 1400,
-      hintAfterMs: 20000,
-      possessLine: "That one still wants to play.",
-      freezeLine: "Ah… you know how to make it stay still.",
-    },
-    hideSeek: {
-      spots: [
-        { label: "Behind the sofa", kind: "sofa", x: 50, y: 50 },
-        { label: "Shelf drawer", kind: "drawer", x: 84, y: 40 },
-        { label: "Behind the curtain", kind: "curtain", x: 16, y: 18 },
-      ],
-      hintAfterMs: 15000,
-      hintLine: "I think you're looking in the wrong place.",
-      wrongLine: "Not there…",
-    },
-    completeLine: "You put them all away. Now it's my turn to ask.",
-  },
-};
+const LEVELS = new Map<string, LevelConfig>();
+/** file → validation errors, for tests and the console */
+export const LEVEL_FILE_ERRORS: Record<string, string[]> = {};
 
-export const SET_TABLE: LevelConfig = {
-  id: "set_table",
-  title: "Set the table",
-  type: "place_items",
-  instructions: "Put each thing in its spot on the table",
-  theme: "dining_room",
-  objects: [
-    {
-      id: "plate",
-      label: "Plate",
-      asset: "plate",
-      color: "yellow",
-      x: 16,
-      y: 84,
-      size: 18,
-      targetId: "spot_plate",
-    },
-    {
-      id: "glass",
-      label: "Glass",
-      asset: "glass",
-      color: "red",
-      x: 39,
-      y: 84,
-      size: 18,
-      targetId: "spot_glass",
-    },
-    {
-      id: "fork",
-      label: "Fork",
-      asset: "fork",
-      color: "blue",
-      x: 62,
-      y: 84,
-      size: 18,
-      targetId: "spot_fork",
-    },
-    {
-      id: "napkin",
-      label: "Napkin",
-      asset: "napkin",
-      color: "green",
-      x: 85,
-      y: 84,
-      size: 18,
-      targetId: "spot_napkin",
-    },
-  ],
-  targets: [
-    { id: "spot_fork", label: "Fork", shape: "rect", x: 24, y: 42, w: 16, h: 20 },
-    { id: "spot_plate", label: "Plate", shape: "circle", x: 50, y: 42, w: 26, h: 20 },
-    { id: "spot_glass", label: "Glass", shape: "circle", x: 76, y: 32, w: 18, h: 14 },
-    { id: "spot_napkin", label: "Napkin", shape: "rect", x: 76, y: 52, w: 18, h: 14 },
-  ],
-  success: { kind: "all_placed" },
-  monster: { trigger: "after_half", intervention: "disturb_item" },
-  personalization: { source: "favorite_color", transform: "color_removed" },
-};
+for (const [path, mod] of Object.entries(files)) {
+  if (path.endsWith("/story.json")) continue;
+  const check = validateLevel(mod.default);
+  if (!check.ok) {
+    LEVEL_FILE_ERRORS[path] = check.errors;
+    console.error(`[levels] ${path} is invalid:`, check.errors);
+    continue;
+  }
+  if (LEVELS.has(check.level.id)) {
+    LEVEL_FILE_ERRORS[path] = [`duplicate level id "${check.level.id}"`];
+    console.error(`[levels] ${path}: duplicate level id "${check.level.id}"`);
+    continue;
+  }
+  LEVELS.set(check.level.id, check.level);
+}
 
-export const BEDTIME: LevelConfig = {
-  id: "bedtime",
-  title: "Bedtime",
-  type: "flashlight_find",
-  instructions: "Drag the flashlight. Tap what you find.",
-  theme: "bedroom",
-  objects: [
-    {
-      id: "pajamas",
-      label: "Pajamas",
-      asset: "pajamas",
-      color: "pink",
-      x: 20,
-      y: 30,
-      size: 16,
-      targetId: "",
-    },
-    {
-      id: "toothbrush",
-      label: "Toothbrush",
-      asset: "toothbrush",
-      color: "blue",
-      x: 80,
-      y: 74,
-      size: 16,
-      targetId: "",
-    },
-    {
-      id: "toy",
-      label: "Your toy",
-      asset: "teddy",
-      color: "orange",
-      x: 72,
-      y: 28,
-      size: 18,
-      targetId: "",
-    },
-  ],
-  targets: [],
-  success: { kind: "all_placed" },
-  monster: { trigger: "on_complete", intervention: "none" },
-  personalization: { source: "favorite_toy", transform: "toy_shadow" },
-  flashlight: {
-    radius: 24,
-    evasive: {
-      objectId: "toy",
-      positions: [
-        { x: 22, y: 82 },
-        { x: 50, y: 56 },
-        { x: 82, y: 50 },
-      ],
-      whisper: "Not there. It doesn't want to sleep with you anymore…",
-    },
-  },
-};
+/** Missing/invalid level: fails validation on purpose, so MinigameHost offers "Skip". */
+function missing(id: string): LevelConfig {
+  return { id, title: `Missing level "${id}"` } as unknown as LevelConfig;
+}
+export const levelById = (id: string): LevelConfig => LEVELS.get(id) ?? missing(id);
 
-export const BUILT_IN_LEVELS: LevelConfig[] = [TIDY_TOYS, SET_TABLE, BEDTIME, TIDY_TOYS_DRAG];
+// Templates the editor and tests rely on (keep these files; copy them to make new levels).
+export const TIDY_TOYS = levelById("tidy_toys");
+export const SET_TABLE = levelById("set_table");
+export const BEDTIME = levelById("bedtime");
+export const TIDY_TOYS_DRAG = levelById("tidy_toys_drag");
 
-/** Which level plays at each task stage of the main story. */
+/** Editor list: manifest order first (keeps saved "builtin-N" keys stable), then any new files. */
+export const BUILT_IN_LEVELS: LevelConfig[] = [
+  ...manifest.editorOrder.filter((id) => LEVELS.has(id)).map(levelById),
+  ...[...LEVELS.keys()]
+    .filter((id) => !manifest.editorOrder.includes(id))
+    .sort()
+    .map(levelById),
+];
+
+/** Which level plays at each task stage of the main story (./data/story.json). */
 export const STORY_LEVELS = {
-  task_one: TIDY_TOYS,
-  task_two: SET_TABLE,
-  task_three: BEDTIME,
+  task_one: levelById(manifest.story.task_one),
+  task_two: levelById(manifest.story.task_two),
+  task_three: levelById(manifest.story.task_three),
 } as const;

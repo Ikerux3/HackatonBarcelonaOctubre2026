@@ -1,0 +1,98 @@
+{
+  "id": "set_table",
+  "title": "Set the table",
+  "type": "place_items",
+  "instructions": "Put each thing in its spot on the table",
+  "theme": "dining_room",
+  "objects": [
+    {
+      "id": "plate",
+      "label": "Plate",
+      "asset": "plate",
+      "color": "yellow",
+      "x": 16,
+      "y": 84,
+      "size": 18,
+      "targetId": "spot_plate"
+    },
+    {
+      "id": "glass",
+      "label": "Glass",
+      "asset": "glass",
+      "color": "red",
+      "x": 39,
+      "y": 84,
+      "size": 18,
+      "targetId": "spot_glass"
+    },
+    {
+      "id": "fork",
+      "label": "Fork",
+      "asset": "fork",
+      "color": "blue",
+      "x": 62,
+      "y": 84,
+      "size": 18,
+      "targetId": "spot_fork"
+    },
+    {
+      "id": "napkin",
+      "label": "Napkin",
+      "asset": "napkin",
+      "color": "green",
+      "x": 85,
+      "y": 84,
+      "size": 18,
+      "targetId": "spot_napkin"
+    }
+  ],
+  "targets": [
+    {
+      "id": "spot_fork",
+      "label": "Fork",
+      "shape": "rect",
+      "x": 24,
+      "y": 42,
+      "w": 16,
+      "h": 20
+    },
+    {
+      "id": "spot_plate",
+      "label": "Plate",
+      "shape": "circle",
+      "x": 50,
+      "y": 42,
+      "w": 26,
+      "h": 20
+    },
+    {
+      "id": "spot_glass",
+      "label": "Glass",
+      "shape": "circle",
+      "x": 76,
+      "y": 32,
+      "w": 18,
+      "h": 14
+    },
+    {
+      "id": "spot_napkin",
+      "label": "Napkin",
+      "shape": "rect",
+      "x": 76,
+      "y": 52,
+      "w": 18,
+      "h": 14
+    }
+  ],
+  "success": {
+    "kind": "all_placed"
+  },
+  "monster": {
+    "trigger": "after_half",
+    "intervention": "disturb_item"
+  },
+  "personalization": {
+    "source": "favorite_color",
+    "transform": "color_removed"
+  }
+}

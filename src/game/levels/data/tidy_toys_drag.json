@@ -1,0 +1,71 @@
+{
+  "id": "tidy_toys_drag",
+  "title": "Tidy up the toys (simple drag)",
+  "type": "drag_to_target",
+  "instructions": "Drag every toy into the toy box",
+  "theme": "living_room",
+  "objects": [
+    {
+      "id": "ball",
+      "label": "Ball",
+      "asset": "ball",
+      "color": "red",
+      "x": 18,
+      "y": 58,
+      "size": 18,
+      "targetId": "toy_box"
+    },
+    {
+      "id": "blocks",
+      "label": "Blocks",
+      "asset": "blocks",
+      "color": "blue",
+      "x": 48,
+      "y": 66,
+      "size": 18,
+      "targetId": "toy_box"
+    },
+    {
+      "id": "doll",
+      "label": "Doll",
+      "asset": "doll",
+      "color": "yellow",
+      "x": 20,
+      "y": 82,
+      "size": 18,
+      "targetId": "toy_box"
+    },
+    {
+      "id": "dino",
+      "label": "Dino",
+      "asset": "dino",
+      "color": "green",
+      "x": 50,
+      "y": 86,
+      "size": 18,
+      "targetId": "toy_box"
+    }
+  ],
+  "targets": [
+    {
+      "id": "toy_box",
+      "label": "Toys",
+      "shape": "box",
+      "x": 80,
+      "y": 78,
+      "w": 32,
+      "h": 20
+    }
+  ],
+  "success": {
+    "kind": "all_placed"
+  },
+  "monster": {
+    "trigger": "on_complete",
+    "intervention": "none"
+  },
+  "personalization": {
+    "source": "none",
+    "transform": "none"
+  }
+}

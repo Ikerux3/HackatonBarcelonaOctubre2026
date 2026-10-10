@@ -9,6 +9,7 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Minigame levels are plain JSON (`src/game/levels/`), validated at runtime and rendered via `MINIGAME_REGISTRY` in `src/components/minigames/MinigameHost.tsx` — keeps level authoring code-free and lets the editor import untrusted files safely.
+- Minigame levels are plain JSON files, one per level, in `src/game/levels/data/` (story order in `data/story.json`), loaded by `defaultLevels.ts`, validated at runtime and rendered via `MINIGAME_REGISTRY` in `src/components/minigames/MinigameHost.tsx` — keeps level authoring code-free and lets the editor import untrusted files safely. Don't hardcode levels in TypeScript; `src/test/levels.test.ts` guards the files. Guide: `docs/05-COMO-EDITAR-NIVELES.md`.
+- The game route runs inside `GameShell` (fixed box sized to the visible viewport): no page scroll, no `min-h-dvh`/bottom-padding tricks for the keyboard — use `h-full` and let the shell shrink.
 - Monster personalization goes through the local mapping in `src/game/interventions.ts`; the shared AI contract (`src/ai/contracts.ts`) is not changed without the AI developer's agreement.
 - `/editor` is a developer-only tool (localStorage drafts, no auth) and must never be linked from the player flow.

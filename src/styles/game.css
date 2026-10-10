@@ -130,14 +130,30 @@
 .game-reveal-color {
   font-weight: 700;
 }
-.game-color-red { color: #e06a6a; }
-.game-color-blue { color: #7b9be0; }
-.game-color-yellow { color: #e0c96a; }
-.game-color-green { color: #7cc489; }
-.game-color-purple { color: #b48ad6; }
-.game-color-pink { color: #e08ab8; }
-.game-color-orange { color: #e09a5e; }
-.game-color-other { color: #9a9a9a; }
+.game-color-red {
+  color: #e06a6a;
+}
+.game-color-blue {
+  color: #7b9be0;
+}
+.game-color-yellow {
+  color: #e0c96a;
+}
+.game-color-green {
+  color: #7cc489;
+}
+.game-color-purple {
+  color: #b48ad6;
+}
+.game-color-pink {
+  color: #e08ab8;
+}
+.game-color-orange {
+  color: #e09a5e;
+}
+.game-color-other {
+  color: #9a9a9a;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .game-bob,
@@ -154,69 +170,214 @@
 
 /* --- Iteration 2: minigame feedback --- */
 @keyframes game-shake {
-  0%, 100% { translate: 0 0; }
-  25% { translate: -6px 0; }
-  75% { translate: 6px 0; }
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  25% {
+    translate: -6px 0;
+  }
+  75% {
+    translate: 6px 0;
+  }
 }
-.game-shake { animation: game-shake 0.4s ease; }
+.game-shake {
+  animation: game-shake 0.4s ease;
+}
 
 @keyframes game-wobble {
-  0%, 100% { rotate: 0deg; }
-  20% { rotate: -14deg; }
-  40% { rotate: 10deg; }
-  60% { rotate: -8deg; }
-  80% { rotate: 4deg; }
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  20% {
+    rotate: -14deg;
+  }
+  40% {
+    rotate: 10deg;
+  }
+  60% {
+    rotate: -8deg;
+  }
+  80% {
+    rotate: 4deg;
+  }
 }
-.game-wobble { animation: game-wobble 1.3s ease; }
+.game-wobble {
+  animation: game-wobble 1.3s ease;
+}
 
 @keyframes game-pop {
-  0% { scale: 1; }
-  50% { scale: 1.08; box-shadow: 0 0 24px 6px rgba(255, 230, 150, 0.55); }
-  100% { scale: 1; }
+  0% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.08;
+    box-shadow: 0 0 24px 6px rgba(255, 230, 150, 0.55);
+  }
+  100% {
+    scale: 1;
+  }
 }
-.game-pop { animation: game-pop 0.4s ease; }
+.game-pop {
+  animation: game-pop 0.4s ease;
+}
 
-.game-box-open { translate: 0 -4px; box-shadow: 0 0 18px 4px rgba(255, 220, 140, 0.35); }
+.game-box-open {
+  translate: 0 -4px;
+  box-shadow: 0 0 18px 4px rgba(255, 220, 140, 0.35);
+}
 
 @keyframes game-false-hint {
-  0%, 100% { box-shadow: none; }
-  50% { box-shadow: 0 0 22px 8px rgba(200, 40, 40, 0.55); }
+  0%,
+  100% {
+    box-shadow: none;
+  }
+  50% {
+    box-shadow: 0 0 22px 8px rgba(200, 40, 40, 0.55);
+  }
 }
-.game-false-hint { animation: game-false-hint 0.9s ease 2; }
+.game-false-hint {
+  animation: game-false-hint 0.9s ease 2;
+}
 
 @keyframes game-echo {
-  0%, 100% { opacity: 0.15; }
-  50% { opacity: 0.55; }
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.55;
+  }
 }
-.game-echo { filter: brightness(0); animation: game-echo 4s ease-in-out infinite; }
+.game-echo {
+  filter: brightness(0);
+  animation: game-echo 4s ease-in-out infinite;
+}
 
 @keyframes game-light-disturb {
-  0%, 70%, 100% { opacity: 0; }
-  78% { opacity: 0.45; }
-  86% { opacity: 0.1; }
-  92% { opacity: 0.35; }
+  0%,
+  70%,
+  100% {
+    opacity: 0;
+  }
+  78% {
+    opacity: 0.45;
+  }
+  86% {
+    opacity: 0.1;
+  }
+  92% {
+    opacity: 0.35;
+  }
 }
-.game-light-disturb { background: #000; animation: game-light-disturb 6s linear infinite; }
+.game-light-disturb {
+  background: #000;
+  animation: game-light-disturb 6s linear infinite;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .game-shake, .game-wobble, .game-pop, .game-false-hint, .game-echo, .game-light-disturb { animation: none; }
+  .game-shake,
+  .game-wobble,
+  .game-pop,
+  .game-false-hint,
+  .game-echo,
+  .game-light-disturb {
+    animation: none;
+  }
 }
 
 @keyframes game-door-open {
-  from { transform: perspective(600px) rotateY(0deg); }
-  to { transform: perspective(600px) rotateY(-70deg); }
+  from {
+    transform: perspective(600px) rotateY(0deg);
+  }
+  to {
+    transform: perspective(600px) rotateY(-70deg);
+  }
 }
-.game-door-open { animation: game-door-open 1.6s ease-out 0.3s both; }
-@media (prefers-reduced-motion: reduce) { .game-door-open { animation: none; } }
+.game-door-open {
+  animation: game-door-open 1.6s ease-out 0.3s both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-door-open {
+    animation: none;
+  }
+}
+
+/* ── phone app shell (only while the game route is mounted, see GameShell.tsx) ── */
+html.game-shell-root,
+html.game-shell-root body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none; /* no pull-to-refresh, no rubber band */
+  background: #0a0a0a;
+}
+html.game-shell-root body {
+  position: fixed;
+  inset: 0;
+  touch-action: manipulation; /* no double-tap zoom */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none; /* no long-press menu on emojis */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-text-size-adjust: 100%;
+}
+html.game-shell-root input {
+  -webkit-user-select: text;
+  user-select: text;
+}
+.game-shell {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--app-top, 0px);
+  height: var(--app-h, 100dvh);
+  overflow: hidden;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
+.game-shell * {
+  scrollbar-width: none;
+}
+.game-shell *::-webkit-scrollbar {
+  display: none;
+}
+/* the 2:3 scene is as wide as fits the visible height (header row + paddings ≈ 88px) */
+.game-scene-fit {
+  width: min(
+    100%,
+    28rem,
+    calc(
+      (var(--app-h, 100dvh) - 88px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * 2 / 3
+    )
+  );
+}
 
 /* The Guest crossing the room once, left to right, slightly blurred */
 @keyframes game-shadow-pass {
-  0% { left: -25%; opacity: 0; }
-  15% { opacity: 1; }
-  85% { opacity: 1; }
-  100% { left: 105%; opacity: 0; }
+  0% {
+    left: -25%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    left: 105%;
+    opacity: 0;
+  }
 }
-.game-shadow-pass { filter: blur(1.5px); animation: game-shadow-pass 2.8s ease-in-out both; }
+.game-shadow-pass {
+  filter: blur(1.5px);
+  animation: game-shadow-pass 2.8s ease-in-out both;
+}
 @media (prefers-reduced-motion: reduce) {
-  .game-shadow-pass { animation: none; left: 70%; opacity: 0.6; }
+  .game-shadow-pass {
+    animation: none;
+    left: 70%;
+    opacity: 0.6;
+  }
 }

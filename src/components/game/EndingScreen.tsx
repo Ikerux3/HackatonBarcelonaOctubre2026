@@ -17,7 +17,7 @@ export function EndingScreen({
   onReplay,
 }: EndingScreenProps) {
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-neutral-950 px-6 text-center">
+    <div className="flex h-full flex-col items-center justify-center gap-5 overflow-y-auto bg-neutral-950 px-6 py-6 text-center">
       <div className="game-glitch font-serif text-3xl font-bold text-neutral-100">
         MOMMY WILL BE BACK
       </div>

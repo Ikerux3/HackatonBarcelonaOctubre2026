@@ -3,6 +3,7 @@ import { colorLabel, guestNotes, toyLabel, type GuestSlot } from "@/game/GameSta
 import { applyGuestAction, guestOverlay } from "@/game/guestEffects";
 import { forgetGuestMemory, observe, rememberRun } from "@/game/observer";
 import { AIDebugBadge } from "./AIDebugBadge";
+import { GameShell } from "./GameShell";
 import { GuestOverlay } from "./GuestOverlay";
 import { useEffect, useRef, useState } from "react";
 
@@ -31,10 +32,10 @@ const QUESTIONS = {
 
 export function GameScreen() {
   return (
-    <>
+    <GameShell>
       <GameScreenInner />
       <AIDebugBadge />
-    </>
+    </GameShell>
   );
 }
 
@@ -65,7 +66,8 @@ function GameScreenInner() {
     const st = state.stage;
     const s = storyRef.current;
     if (st === "task_one" || st === "task_two" || st === "task_three") observe.taskStart();
-    if (st === "blackout_one" || st === "blackout_two" || st === "blackout_three") observe.taskEnd();
+    if (st === "blackout_one" || st === "blackout_two" || st === "blackout_three")
+      observe.taskEnd();
     // ask the model while the lights are out and the player answers the question
     if (st === "blackout_one") requestGuest("task_two", s.task_two);
     if (st === "blackout_two") requestGuest("task_three", s.task_three);
@@ -87,8 +89,7 @@ function GameScreenInner() {
       return;
     }
     if (st === "task_one" && startedAt.current === null) startedAt.current = Date.now();
-    if (st === "ending" && startedAt.current !== null)
-      setLastedMs(Date.now() - startedAt.current);
+    if (st === "ending" && startedAt.current !== null) setLastedMs(Date.now() - startedAt.current);
 
     if (st === "intro_name" || st === "intro_leave" || st === "task_one") {
       stopDrone();
@@ -105,10 +106,13 @@ function GameScreenInner() {
     if (st === "question_one" || st === "question_two" || st === "goodnight_whisper")
       haptic([30, 80, 30]);
   }, [state.stage]);
-  useEffect(() => () => {
-    stopMusicBox(true);
-    stopDrone();
-  }, []);
+  useEffect(
+    () => () => {
+      stopMusicBox(true);
+      stopDrone();
+    },
+    [],
+  );
 
   if (state.stage === "intro") {
     return (
@@ -118,7 +122,8 @@ function GameScreenInner() {
           initAudio();
           startMusicBox();
         }}
-        className="game-room-cozy flex min-h-dvh flex-col items-center justify-center gap-6 px-6 text-center">
+        className="game-room-cozy flex h-full flex-col items-center justify-center gap-6 px-6 text-center"
+      >
         <h1 className="font-serif text-4xl font-bold tracking-tight text-amber-950">
           MOMMY
           <br />
@@ -198,13 +203,11 @@ function GameScreenInner() {
 
   return (
     <div
-      className={`flex min-h-dvh flex-col items-center gap-3 px-3 py-3 transition-colors duration-1000 ${
-        isQuestion ? "pb-[55dvh]" : ""
-      } ${
+      className={`relative flex h-full flex-col items-center justify-center px-3 py-3 transition-colors duration-1000 ${
         dark ? "bg-neutral-950" : "game-room-cozy"
       }`}
     >
-      <div className={`relative w-full max-w-md ${isBlackout ? "game-flicker" : ""}`}>
+      <div className={`game-scene-fit relative ${isBlackout ? "game-flicker" : ""}`}>
         <MinigameHost
           key={level.id}
           level={level}
@@ -218,20 +221,26 @@ function GameScreenInner() {
         )}
 
         {isBlackout && (
-          <MonsterOverlay
-            line={
-              stage === "blackout_one"
-                ? story.task_one.type === "tidy_roles"
-                  ? story.task_one.tidy.completeLine || "The lights went out…"
-                  : "The lights went out…"
-                : stage === "blackout_two"
-                  ? "It's back…"
-                  : "Lights out. Good night…"
-            }
-          />
+          <div className="absolute inset-0 z-[55]">
+            <MonsterOverlay
+              line={
+                stage === "blackout_one"
+                  ? story.task_one.type === "tidy_roles"
+                    ? story.task_one.tidy.completeLine || "The lights went out…"
+                    : "The lights went out…"
+                  : stage === "blackout_two"
+                    ? "It's back…"
+                    : "Lights out. Good night…"
+              }
+            />
+          </div>
         )}
+      </div>
 
-        {isQuestion && (
+      {/* full-screen, not inside the scene: when the keyboard opens the shell
+          shrinks to the visible area and the input stays right above it */}
+      {isQuestion && (
+        <div className="absolute inset-0 z-[70]">
           <MonsterOverlay line={state.monsterLine}>
             <QuestionInput
               question={
@@ -248,8 +257,8 @@ function GameScreenInner() {
               onContinue={advance}
             />
           </MonsterOverlay>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

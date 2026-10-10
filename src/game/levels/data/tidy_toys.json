@@ -1,0 +1,189 @@
+{
+  "id": "tidy_toys",
+  "title": "Tidy up the toys",
+  "type": "tidy_roles",
+  "instructions": "Put every toy in the toy box",
+  "theme": "living_room",
+  "objects": [
+    {
+      "id": "toy_1",
+      "label": "Toy",
+      "asset": "ball",
+      "color": "red",
+      "x": 16,
+      "y": 60,
+      "size": 17,
+      "targetId": "toy_box"
+    },
+    {
+      "id": "toy_2",
+      "label": "Toy",
+      "asset": "ball",
+      "color": "blue",
+      "x": 44,
+      "y": 64,
+      "size": 17,
+      "targetId": "toy_box"
+    },
+    {
+      "id": "toy_3",
+      "label": "Toy",
+      "asset": "ball",
+      "color": "yellow",
+      "x": 16,
+      "y": 84,
+      "size": 17,
+      "targetId": "toy_box"
+    },
+    {
+      "id": "toy_4",
+      "label": "Toy",
+      "asset": "ball",
+      "color": "green",
+      "x": 44,
+      "y": 86,
+      "size": 17,
+      "targetId": "toy_box"
+    },
+    {
+      "id": "toy_5",
+      "label": "Toy",
+      "asset": "ball",
+      "color": "purple",
+      "x": 70,
+      "y": 56,
+      "size": 17,
+      "targetId": "toy_box"
+    }
+  ],
+  "targets": [
+    {
+      "id": "toy_box",
+      "label": "Toys",
+      "shape": "box",
+      "x": 80,
+      "y": 80,
+      "w": 30,
+      "h": 18
+    }
+  ],
+  "success": {
+    "kind": "all_placed"
+  },
+  "monster": {
+    "trigger": "on_complete",
+    "intervention": "none"
+  },
+  "personalization": {
+    "source": "none",
+    "transform": "none"
+  },
+  "tidy": {
+    "seed": null,
+    "pool": ["ball", "blocks", "doll", "dino", "teddy", "car", "robot", "book"],
+    "steps": [
+      {
+        "role": "plain",
+        "hint": "Drag the toys into the box"
+      },
+      {
+        "role": "cushion",
+        "hint": "Something slipped under the cushion…"
+      },
+      {
+        "role": "drawer",
+        "hint": "Did the drawer just close?"
+      },
+      {
+        "role": "possessed",
+        "hint": "Turn on a light. Make it stay still."
+      },
+      {
+        "role": "hide_seek",
+        "hint": "Where did the last one go?"
+      }
+    ],
+    "cushion": {
+      "x": 50,
+      "y": 44
+    },
+    "drawer": {
+      "x": 18,
+      "y": 40
+    },
+    "possessed": {
+      "slots": [
+        {
+          "x": 8,
+          "y": 56
+        },
+        {
+          "x": 14,
+          "y": 80
+        },
+        {
+          "x": 56,
+          "y": 44
+        },
+        {
+          "x": 86,
+          "y": 58
+        }
+      ],
+      "mainSwitch": {
+        "x": 93,
+        "y": 26
+      },
+      "mainZones": [
+        {
+          "x": 58,
+          "y": 60,
+          "r": 32
+        }
+      ],
+      "lamp": {
+        "x": 30,
+        "y": 92
+      },
+      "lampZones": [
+        {
+          "x": 16,
+          "y": 66,
+          "r": 28
+        }
+      ],
+      "maxBlackouts": 3,
+      "safeWindowMs": 9000,
+      "moveMs": 1400,
+      "hintAfterMs": 20000,
+      "possessLine": "That one still wants to play.",
+      "freezeLine": "Ah… you know how to make it stay still."
+    },
+    "hideSeek": {
+      "spots": [
+        {
+          "label": "Behind the sofa",
+          "kind": "sofa",
+          "x": 50,
+          "y": 50
+        },
+        {
+          "label": "Shelf drawer",
+          "kind": "drawer",
+          "x": 84,
+          "y": 40
+        },
+        {
+          "label": "Behind the curtain",
+          "kind": "curtain",
+          "x": 16,
+          "y": 18
+        }
+      ],
+      "hintAfterMs": 15000,
+      "hintLine": "I think you're looking in the wrong place.",
+      "wrongLine": "Not there…"
+    },
+    "completeLine": "You put them all away. Now it's my turn to ask."
+  }
+}

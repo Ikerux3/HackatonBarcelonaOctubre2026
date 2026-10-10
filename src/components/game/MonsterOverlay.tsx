@@ -7,9 +7,10 @@ interface MonsterOverlayProps {
 export function MonsterOverlay({ line, children }: MonsterOverlayProps) {
   return (
     <div className="absolute inset-0 z-20 flex flex-col items-center justify-end bg-black/85 pb-6">
+      {/* shrinks first when space is short (keyboard open, small phones) */}
       <svg
         viewBox="0 0 200 260"
-        className="game-monster mb-2 h-56 w-44"
+        className="game-monster mb-2 h-56 max-h-[38%] min-h-0 w-44 shrink"
         aria-label="A dark silhouette watches you"
         role="img"
       >

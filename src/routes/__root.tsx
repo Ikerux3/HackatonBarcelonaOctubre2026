@@ -77,7 +77,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      {
+        name: "viewport",
+        // phone game: no pinch/auto zoom, draw under notches, Android resizes for the keyboard
+        content:
+          "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, interactive-widget=resizes-content",
+      },
+      { name: "theme-color", content: "#0a0a0a" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "Mommy Will Be Back" },
       { title: "Mommy Will Be Back" },
       { name: "description", content: "A short psychological horror puzzle game." },
       { property: "og:title", content: "Mommy Will Be Back" },

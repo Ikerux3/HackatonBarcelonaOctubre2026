@@ -47,7 +47,7 @@ export function EndingSequence({ stage, name, memory, toyText, colorText, onSkip
 function Whisper({ name }: { name: string }) {
   const line = useTyped(`Good night, ${name}.`, 140, 600);
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-black px-6 text-center">
+    <div className="flex h-full items-center justify-center bg-black px-6 text-center">
       <p className="font-serif text-2xl italic tracking-wide text-neutral-400" aria-live="polite">
         {line}
       </p>
@@ -57,7 +57,7 @@ function Whisper({ name }: { name: string }) {
 
 function MomHome({ name }: { name: string }) {
   return (
-    <div className="game-room-cozy relative flex min-h-dvh flex-col items-center justify-center overflow-hidden px-6 text-center">
+    <div className="game-room-cozy relative flex h-full flex-col items-center justify-center overflow-hidden px-6 text-center">
       <SceneBackdrop theme="living_room" dark={false} />
       {/* front door swinging open */}
       <div
@@ -96,7 +96,7 @@ function Detail({
     <button
       type="button"
       onClick={onSkip}
-      className="game-room-cozy relative flex min-h-dvh w-full items-end justify-center overflow-hidden"
+      className="game-room-cozy relative flex h-full w-full items-end justify-center overflow-hidden"
       aria-label={`The room is cozy again, but ${toyText} sits on the dinner table, and ${colorText} is gone from the room. Tap to continue.`}
     >
       <SceneBackdrop theme="dining_room" dark={false} />
