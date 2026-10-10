@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
-
 import type { GameMemory, GameStage } from "@/game/GameState";
 import { ASSETS, COLORS, COLOR_HEX, TOY_ASSET } from "@/game/levels/assets";
 import { SceneBackdrop } from "@/components/minigames/SceneBackdrop";
 import { ChildFigure, MomFigure } from "./Figures";
+import { useGuestVoice } from "./GuestVoice";
 
 interface Props {
   stage: Extract<GameStage, "goodnight_whisper" | "mom_returns" | "unsettling_detail">;
@@ -15,27 +14,6 @@ interface Props {
   colorText: string;
   /** tap on the final detail skips to the ending screen */
   onSkip: () => void;
-}
-
-function useTyped(text: string, msPerChar: number, delay = 0) {
-  const [n, setN] = useState(0);
-  useEffect(() => {
-    setN(0);
-    let i = 0;
-    let iv: ReturnType<typeof setInterval> | undefined;
-    const start = setTimeout(() => {
-      iv = setInterval(() => {
-        i += 1;
-        setN(i);
-        if (i >= text.length && iv) clearInterval(iv);
-      }, msPerChar);
-    }, delay);
-    return () => {
-      clearTimeout(start);
-      if (iv) clearInterval(iv);
-    };
-  }, [text, msPerChar, delay]);
-  return text.slice(0, n);
 }
 
 /** Final blackout whisper → mom really comes home → one detail is wrong. */
@@ -55,11 +33,16 @@ export function EndingSequence({ stage, name, memory, toyText, colorText, onSkip
 }
 
 function Whisper({ name }: { name: string }) {
-  const line = useTyped(`Good night, ${name}.`, 140, 600);
+  const line = `Good night, ${name}.`;
+  useGuestVoice(line, true, 600);
   return (
     <div className="g-ink-veil relative flex h-full items-center justify-center overflow-hidden bg-black px-6 text-center">
       <div className="g-grain-dark" />
-      <svg className="absolute left-1/2 top-[30%] h-5 w-16 -translate-x-1/2" viewBox="0 0 40 14" aria-hidden>
+      <svg
+        className="absolute left-1/2 top-[30%] h-5 w-16 -translate-x-1/2"
+        viewBox="0 0 40 14"
+        aria-hidden
+      >
         <g className="g-eyes-far">
           <ellipse cx="12" cy="7" rx="3" ry="1.6" className="g-eye" />
           <ellipse cx="28" cy="7" rx="3" ry="1.6" className="g-eye" />
@@ -111,11 +94,8 @@ function Detail({
   const toy = ASSETS[TOY_ASSET[memory.favoriteToy ?? "other"]];
   const stolen = memory.favoriteColor;
   // fixed template, no AI call: instant, and only ever shows cleaned labels
-  const goodbye = useTyped(
-    `I'll keep ${toyText} safe for you. And ${colorText}… that's mine now.`,
-    45,
-    1800,
-  );
+  const goodbye = `I'll keep ${toyText} safe for you. And ${colorText}… that's mine now.`;
+  useGuestVoice(goodbye, true, 1200);
   return (
     <button
       type="button"
@@ -165,14 +145,12 @@ function Detail({
         </span>
       </div>
       {/* The Guest's goodbye, built only from cleaned labels */}
-      {goodbye && (
-        <p
-          aria-hidden
-          className="g-guest-note g-guest-line game-monster-line absolute inset-x-4 bottom-[6%] mx-auto max-w-sm px-4 py-2.5 text-center text-lg"
-        >
-          {goodbye}
-        </p>
-      )}
+      <p
+        aria-live="polite"
+        className="g-guest-note g-guest-line game-monster-line absolute inset-x-4 bottom-[6%] mx-auto max-w-sm px-4 py-2.5 text-center text-lg"
+      >
+        {goodbye}
+      </p>
     </button>
   );
 }

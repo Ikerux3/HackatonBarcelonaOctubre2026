@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import type { GuestDecision } from "@/ai/contracts";
 import { sfx } from "@/game/audio";
+import { useGuestVoice } from "./GuestVoice";
 
 interface Props {
   decision: GuestDecision;
@@ -17,12 +18,10 @@ interface Props {
 export function GuestOverlay({ decision, shadow, flicker }: Props) {
   const [showLine, setShowLine] = useState(false);
   const [passing, setPassing] = useState(false);
+  useGuestVoice(decision.line, showLine);
 
   useEffect(() => {
-    const timers = [
-      setTimeout(() => setShowLine(true), 1200),
-      setTimeout(() => setShowLine(false), 7200),
-    ];
+    const timers = [setTimeout(() => setShowLine(true), 1200)];
     if (shadow)
       timers.push(
         setTimeout(() => {
@@ -35,7 +34,7 @@ export function GuestOverlay({ decision, shadow, flicker }: Props) {
   }, [shadow]);
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-[60] overflow-hidden" aria-hidden>
+    <div className="pointer-events-none absolute inset-0 z-[60] overflow-hidden">
       {flicker && <div className="game-light-disturb absolute inset-0" />}
       {/* ink creeping in from the edges while The Guest is present */}
       <div className="g-corruption-edge g-stage-in" style={{ opacity: 0.55 }} />
@@ -56,7 +55,10 @@ export function GuestOverlay({ decision, shadow, flicker }: Props) {
         </svg>
       )}
       {showLine && (
-        <p className="g-guest-note g-guest-line game-monster-line absolute inset-x-3 bottom-12 px-4 py-2.5 text-center text-lg leading-snug">
+        <p
+          className="g-guest-note g-guest-line game-monster-line absolute inset-x-3 bottom-12 px-4 py-2.5 text-center text-lg leading-snug"
+          aria-live="polite"
+        >
           “{decision.line}”
         </p>
       )}
