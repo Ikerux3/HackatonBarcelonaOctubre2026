@@ -1,3 +1,5 @@
+import { CORDURA_RULES, corduraEnding } from "@/game/cordura";
+
 interface EndingScreenProps {
   /** in-memory run duration, ms */
   lastedMs: number;
@@ -6,10 +8,19 @@ interface EndingScreenProps {
   toyText: string;
   /** what The Guest's model concluded about this player, one note per decision */
   noticed: string[];
+  /** Cordura frozen when the last minigame ended — the value that chose the ending */
+  cordura: number;
   onReplay: () => void;
 }
 
-export function EndingScreen({ lastedMs, colorText, toyText, noticed, onReplay }: EndingScreenProps) {
+export function EndingScreen({
+  lastedMs,
+  colorText,
+  toyText,
+  noticed,
+  cordura,
+  onReplay,
+}: EndingScreenProps) {
   return (
     <div className="g-ending-room g-stage-in relative flex h-full flex-col items-center justify-center gap-5 overflow-y-auto px-6 py-6 text-center">
       <div className="g-grain-dark" />
@@ -19,6 +30,16 @@ export function EndingScreen({ lastedMs, colorText, toyText, noticed, onReplay }
       </h1>
       <p className="g-guest-line relative -mt-3 text-base">
         The Guest remembers: {colorText} · {toyText}
+      </p>
+      <p className="relative -mt-2 font-display text-base italic text-[#d8c6b0]">
+        Cordura{" "}
+        <span className="font-display-sc not-italic text-[#f4e6c8]">
+          {cordura}/{CORDURA_RULES.max}
+        </span>{" "}
+        ·{" "}
+        {corduraEnding(cordura) === "crying"
+          ? "Mom found you crying."
+          : "Mom found you a little scared."}
       </p>
       {noticed.length > 0 && (
         <div className="g-guest-note relative max-w-xs px-5 py-4">
