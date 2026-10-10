@@ -135,8 +135,9 @@ describe("mom's room minigame (UI)", () => {
 
     // the card only reads with the light on: photo → little box → clock
     tap("A card on the vanity");
-    const order = screen.getByRole("list", { name: "The order" });
-    expect(order.textContent).toMatch(/Mom's photo.*Little box.*Clock/);
+    // The vanity card is now a relational clue, never a direct answer list.
+    expect(screen.getByText(/belongs between/)).toBeTruthy();
+    expect(screen.getByText(/What symbols did you see on them in the dark/)).toBeTruthy();
     tap("Put it back");
 
     // light off: the marks show; the card and the panel can't be used
