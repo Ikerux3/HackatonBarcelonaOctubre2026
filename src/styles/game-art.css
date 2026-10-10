@@ -436,10 +436,7 @@
     0 0 0 3px rgba(242, 181, 74, 0.35);
 }
 .g-paper-card {
-  background:
-    var(--g-grain),
-    linear-gradient(180deg, #fbf1db 0%, #f0dcb4 100%);
-  background-blend-mode: multiply;
+  background: linear-gradient(180deg, #fbf1db 0%, #f0dcb4 100%);
   border-radius: 0.5rem 0.8rem 0.6rem 0.9rem;
   box-shadow:
     0 1px 0 #fff8e6 inset,

@@ -43,7 +43,7 @@ export function IntroName({ stage, name, onName, onDone }: Props) {
       onClick={() => stage === "intro_leave" && second.finished && onDone()}
     >
       <div className="g-grain" />
-      <p className="font-display-sc relative text-sm tracking-[0.3em] text-[#f6dcae]">Mom</p>
+      <p className="font-display-sc relative text-sm tracking-[0.3em] text-[#5a2d12]">Mom</p>
       <p className="g-paper-card relative min-h-[5.5rem] max-w-xs px-5 py-4 font-display text-xl italic leading-relaxed text-[#3a2010]">
         “{first.shown}
         {stage === "intro_leave" ? second.shown : ""}
@@ -58,7 +58,7 @@ export function IntroName({ stage, name, onName, onDone }: Props) {
             onName(sanitizeName(value));
           }}
         >
-          <label htmlFor="player-name" className="font-display text-xl italic text-[#fbeed2]">
+          <label htmlFor="player-name" className="font-display text-xl italic text-[#3a1a08]">
             What's your name?
           </label>
           <input
