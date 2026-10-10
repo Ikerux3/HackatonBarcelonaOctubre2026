@@ -93,7 +93,7 @@ Demo phone: open `/editor` on it → Import profile → ▶ Play full story (or 
 ## Iteration 6 — Phone demo polish (no game-logic / editor changes)
 
 - **Haptics** (`haptic()` in `src/game/audio.ts`, guarded `navigator.vibrate`, no-op if unsupported — iPhone Safari has no Vibration API): blackout (inside `sfx.blackout`), wrong drop (inside `sfx.wrong`), monster appearance (question stages + mother's voice, from `GameScreen`).
-- **Audio** (WebAudio only, no files): music-box loop (`startMusicBox`) starts on the first touch of the title screen and plays through task one; it detunes a bit more every bar and stays detuned for the rest of the run. Dark stages (everything after task one) play a low filtered drone (`startDrone`). Both stop on the ending; contexts are resumed on each call for iOS.
+- **Audio** (WebAudio only, no files): music-box loop (`startMusicBox`) starts on the first touch of the title screen and follows the same 0–3 corruption arc as the visuals: C major → C/A-minor pivot → A minor → A harmonic minor. Mode changes wait for the next full phrase; corruption also adds controlled detune. Dark stages layer a low filtered drone (`startDrone`) under the music box. Both stop on the ending; contexts are resumed on each call for iOS.
 - **Title**: hint "Do your chores before mommy gets back" under Play.
 - **Run timer**: in-memory (`useRef` in `GameScreen`), from Play to the ending; ending shows "You lasted m:ss alone".
 - **Mobile**: Restart button is now ≥48px; answer field uses 16px text (no iOS zoom), `enterKeyHint="send"`, scrolls itself into view on focus, and the page gets extra bottom space during questions so the keyboard can't cover it.
