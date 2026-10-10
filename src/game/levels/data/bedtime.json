@@ -2,7 +2,7 @@
   "id": "bedtime",
   "title": "Bedtime",
   "type": "flashlight_find",
-  "instructions": "Drag the flashlight. Tap what you find.",
+  "instructions": "Find three pajama pieces in your favorite color, then put the other clothes in the basket.",
   "theme": "bedroom",
   "objects": [
     {
