@@ -425,3 +425,18 @@ html.game-shell-root input {
     opacity: 0.6;
   }
 }
+
+/* MG05: tiny shake of the final blackout; never causes a flash or moves hotspots. */
+@keyframes game-final-heartbeat-shake {
+  0%, 17%, 25%, 60%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(1px, 0); }
+  23% { transform: translate(-1px, 1px); }
+  63% { transform: translate(1px, -1px); }
+  66% { transform: translate(-1px, 0); }
+}
+.game-final-heartbeat-shake {
+  animation: game-final-heartbeat-shake 1.1s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-final-heartbeat-shake { animation: none; }
+}
