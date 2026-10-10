@@ -44,12 +44,15 @@ export function IntroName({ stage, motherColor, name, onName, onDone }: Props) {
 
   return (
     <div
-      className="game-room-cozy flex h-full flex-col items-center justify-center gap-4 px-6 py-6 text-center"
+      className="g-title-room relative flex h-full flex-col items-center justify-center gap-4 overflow-hidden px-6 py-6 text-center"
       onClick={() => stage === "intro_leave" && second.finished && onDone()}
     >
-      {motherColor && <MomFigure color={COLOR_HEX[motherColor]} className="h-24" />}
-      <p className="text-xs uppercase tracking-[0.3em] text-amber-900/70">Mom</p>
-      <p className="min-h-[5.5rem] max-w-xs font-serif text-xl italic leading-relaxed text-amber-950">
+      <div className="g-grain" />
+      {motherColor && (
+        <MomFigure color={COLOR_HEX[motherColor]} className="relative h-24" />
+      )}
+      <p className="font-display-sc relative text-sm tracking-[0.3em] text-[#5a2d12]">Mom</p>
+      <p className="g-paper-card relative min-h-[5.5rem] max-w-xs px-5 py-4 font-display text-xl italic leading-relaxed text-[#3a2010]">
         “{first.shown}
         {stage === "intro_leave" ? second.shown : ""}
         <span className="animate-pulse">▍</span>”
@@ -57,13 +60,13 @@ export function IntroName({ stage, motherColor, name, onName, onDone }: Props) {
 
       {askName && (
         <form
-          className="flex w-full max-w-xs flex-col gap-3"
+          className="g-stage-in relative flex w-full max-w-xs flex-col gap-3"
           onSubmit={(e) => {
             e.preventDefault();
             onName(sanitizeName(value));
           }}
         >
-          <label htmlFor="player-name" className="font-serif text-lg text-amber-950">
+          <label htmlFor="player-name" className="font-display text-xl italic text-[#3a1a08]">
             What's your name?
           </label>
           <input
@@ -78,11 +81,11 @@ export function IntroName({ stage, motherColor, name, onName, onDone }: Props) {
             spellCheck={false}
             enterKeyHint="done"
             placeholder="Your name"
-            className="min-h-12 w-full rounded-xl border-2 border-amber-800 bg-amber-50 px-4 py-3 text-center text-base text-amber-950 placeholder:text-amber-900/40 focus:outline-none"
+            className="g-input g-input-paper min-h-12 w-full px-4 py-3 text-center"
           />
           <button
             type="submit"
-            className="min-h-12 rounded-xl bg-amber-900 px-6 py-3 text-base font-bold text-amber-50 active:scale-95"
+            className="g-btn g-btn-warm px-6 py-3 text-lg"
           >
             That's me
           </button>
@@ -90,7 +93,7 @@ export function IntroName({ stage, motherColor, name, onName, onDone }: Props) {
       )}
 
       {stage === "intro_leave" && second.finished && (
-        <p className="text-sm text-amber-900/70">…the front door closes.</p>
+        <p className="relative font-display text-base italic text-[#f6dcae]">…the front door closes.</p>
       )}
     </div>
   );

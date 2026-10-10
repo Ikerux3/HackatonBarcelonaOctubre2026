@@ -158,7 +158,7 @@ export function DragMinigame({ level, memory, dark, onComplete }: MinigameProps)
   return (
     <div
       ref={sceneRef}
-      className={`relative w-full touch-none select-none overflow-hidden rounded-2xl border ${
+      className={`g-stage relative w-full touch-none select-none overflow-hidden rounded-2xl border ${
         dark ? "border-neutral-800 game-room-dark" : "border-amber-200 game-room-cozy"
       }`}
       style={{ aspectRatio: "2 / 3" }}
@@ -197,7 +197,7 @@ export function DragMinigame({ level, memory, dark, onComplete }: MinigameProps)
             }}
             className={`absolute z-10 flex items-end justify-center transition-all duration-300 ${
               isBox
-                ? `rounded-b-xl border-4 pb-1 ${dark ? "border-neutral-600 bg-neutral-800" : "border-amber-700 bg-amber-500"} ${open ? "game-box-open" : ""}`
+                ? `rounded-b-xl border-4 pb-1 ${dark ? "border-neutral-700 bg-gradient-to-b from-neutral-700 to-neutral-900 shadow-[inset_0_6px_10px_rgba(0,0,0,0.6)]" : "border-[#5a3416] bg-gradient-to-b from-[#c98a45] to-[#8a5426] shadow-[inset_0_6px_10px_rgba(0,0,0,0.35),0_10px_14px_-6px_rgba(0,0,0,0.6)]"} ${open ? "game-box-open" : ""}`
                 : `border-2 border-dashed ${t.shape === "circle" ? "rounded-full" : "rounded-lg"} ${
                     dark ? "border-neutral-500 bg-black/30" : "border-amber-100 bg-amber-900/25"
                   }`

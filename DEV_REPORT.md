@@ -202,3 +202,19 @@ Implements MJ's spec "MINIJUEGO 02 — LA MESA PARA TRES v1.0" (01 — GAME DESI
 - **Table onboarding**: optional `table.hints.howTo` (≤4 steps) → "Setting the table" card the first time in the dining room; the light switch pulses until the player has tried the dark once; tray badge shows "Found n/6" (kitchen) / "On the table n/6" (dining); clearer hint texts in `table_for_three.json`.
 
 **Verified** (local, mock, 375×667): intro shows mom in the drawn color (#d9b84a) and her pieces use exactly that color; howTo card + switch pulse (stops after first dark); dark: chairs glow child blue / mom yellow; shake bursts: tidy blackout level 2, table eyes level 1 at 3.9 s (0.3 s) and warning level 2 at 6.8 s (0.5 s) — table starts again at level 1; full run to the two-room ending (screenshot) and ending screen. tsc + vitest (21 tests, incl. `team-rules.test.ts`) + eslint pass.
+
+## Iteration 16 — visual overhaul (Lovable / Iker, presentation only; merged with iteration 15)
+
+No game rules, AI, minigame logic, hotspots or editor behavior changed.
+
+- **Art layer** `src/styles/game-art.css` (`g-*` classes): palette vars, paper/film grain, wallpaper/wainscot/floor/rug surfaces, light pools, vignettes, authored buttons (`g-btn-warm/ink/paper`), tags, inputs, paper cards, Guest ink styles, stage transitions, toy depth/selected feedback (CSS only, any minigame).
+- **Fonts**: IM Fell English (+SC) for titles/dialogue, Crimson Pro as the serif body (`--font-display`, `--font-display-sc`, `--font-serif`).
+- **Rooms** `SceneBackdrop`: layered diorama (wall → wainscot → floor → furniture → light → grain/vignette), same furniture footprints; dark = same room moonlit + heavy vignette. Scene frames get a wooden stage border.
+- **Corruption** `CorruptionLayer` (0–3, fixed positions, edges only): task 1 = 0, task 2 = 1, task 3 = 2, final blackout = 3. Darkens edges, adds breathing ink stains, drips, eyes; `[data-corruption]` drains the room's color (backdrop only, toys stay readable).
+- **The Guest**: ink veil, wobbling silhouette with a third eye, smears, far eyes, glitchy "rewrite" entrance; handwritten-on-black lines (`g-guest-note`) for whispers; ink creeping from edges while it acts on a task.
+- **Lighting**: warm beam + grain on the flashlight; existing possessed light zones unchanged.
+- **UI**: new title screen (house with lit window and eyes in the other, Mom's note, Play), name screen, question input, task header, ending sequence and ending screen restyled.
+
+Rough / next: furniture inside minigames (tidy box, table-for-three) still partly flat; emoji toys can't be restyled beyond shadow; no per-scene hand-painted backgrounds (an image pass would lift it most); corruption doesn't yet react to individual Guest decisions; test on real iPhone/Android for performance of blur/blend layers.
+
+**Merge note** (Unai + Claude Code): iteration 15 merged on top of this art pass. Kept the art classes everywhere; conflicts resolved as: title Play button = `g-btn g-btn-warm` + draws mom's dress color (`start(motherPalette(story))`); name screen = grain + mom silhouette + paper card; table/flashlight stages = `g-stage` + camera shake (the old `game-shake` is gone); ending detail = two-room scene with `g-title-room` for the lit room + `g-stage-in`.

@@ -134,7 +134,7 @@ export function FlashlightMinigame({ level, memory, onComplete }: MinigameProps)
       onPointerMove={onMove}
       onPointerUp={onUp}
       onPointerCancel={() => (down.current = null)}
-      className={`game-room-dark relative w-full cursor-none touch-none select-none overflow-hidden rounded-2xl border border-neutral-800 ${shakeClass}`}
+      className={`g-stage g-stage-dark game-room-dark relative w-full cursor-none touch-none select-none overflow-hidden rounded-2xl border border-neutral-800 ${shakeClass}`}
       style={{ aspectRatio: "2 / 3" }}
       role="application"
       aria-label="Dark bedroom. Drag to move the flashlight, tap lit objects to collect them."
@@ -174,6 +174,15 @@ export function FlashlightMinigame({ level, memory, onComplete }: MinigameProps)
         style={{ background: mask }}
         aria-hidden
       />
+      {/* warm, slightly yellow beam with a soft hot center */}
+      <div
+        className="pointer-events-none absolute inset-0 z-20 mix-blend-soft-light"
+        style={{
+          background: `radial-gradient(ellipse ${rx * 0.9}% ${ry * 0.9}% at ${light.x}% ${light.y}%, rgba(255,214,140,0.55) 0%, rgba(255,190,110,0.2) 45%, transparent 75%)`,
+        }}
+        aria-hidden
+      />
+      <div className="g-grain-dark z-20" aria-hidden />
       <div
         className="pointer-events-none absolute z-20 rounded-full border border-amber-100/20"
         style={{

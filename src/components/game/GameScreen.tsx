@@ -4,6 +4,7 @@ import { applyGuestAction, guestOverlay } from "@/game/guestEffects";
 import { forgetGuestMemory, observe, rememberRun } from "@/game/observer";
 import { AIDebugBadge } from "./AIDebugBadge";
 import { GameShell } from "./GameShell";
+import { CorruptionLayer } from "./CorruptionLayer";
 import { GuestOverlay } from "./GuestOverlay";
 import { useEffect, useRef, useState } from "react";
 
@@ -129,25 +130,50 @@ function GameScreenInner() {
           initAudio();
           startMusicBox();
         }}
-        className="game-room-cozy flex h-full flex-col items-center justify-center gap-6 px-6 text-center"
+        className="g-title-room relative flex h-full flex-col items-center justify-center gap-5 overflow-hidden px-6 text-center"
       >
-        <h1 className="font-serif text-4xl font-bold tracking-tight text-amber-950">
-          MOMMY
+        <div className="g-grain" />
+        {/* the house at night: one lit window, and someone in the other */}
+        <div className="g-push-in relative mb-1 h-28 w-40" aria-hidden>
+          <div
+            className="absolute inset-x-2 top-0 h-12 bg-[#2a1408]"
+            style={{ clipPath: "polygon(50% 0,100% 100%,0 100%)" }}
+          />
+          <div className="absolute inset-x-5 bottom-0 top-11 rounded-b-sm bg-[#3a1d0c] shadow-[0_10px_30px_rgba(0,0,0,0.6)]">
+            <div className="g-house-window absolute left-[16%] top-[18%] h-7 w-7 rounded-sm" />
+            <div className="absolute right-[16%] top-[18%] h-7 w-7 overflow-hidden rounded-sm bg-[#0c0705]">
+              <svg viewBox="0 0 28 28" className="h-full w-full">
+                <ellipse cx="10" cy="13" rx="1.6" ry="1" className="g-eye g-eye-red" />
+                <ellipse cx="17" cy="13" rx="1.6" ry="1" className="g-eye g-eye-red" />
+              </svg>
+            </div>
+            <div className="absolute bottom-0 left-1/2 h-9 w-6 -translate-x-1/2 rounded-t-sm bg-[#1a0c05]" />
+          </div>
+        </div>
+        <h1 className="g-title-glyph relative text-5xl leading-[0.95]">
+          Mommy
           <br />
-          WILL BE BACK
+          <span className="text-3xl">will be</span>
+          <br />
+          Back
         </h1>
-        <p className="max-w-xs font-serif text-base italic text-amber-900">
-          “Sweetie, I'm just running to the store for dinner. Be a good kid: tidy your toys, set the
-          table, and get ready for bed. I'll be back before you know it.”
-        </p>
+        <div className="g-paper-card relative max-w-xs px-5 py-4">
+          <p className="font-display text-lg italic leading-snug text-[#3a2010]">
+            “Sweetie, I'm just running to the store for dinner. Be a good kid: tidy your toys, set
+            the table, and get ready for bed. I'll be back before you know it.”
+          </p>
+          <p className="mt-2 text-right font-display text-sm italic text-[#7a4a26]">— Mom ♥</p>
+        </div>
         <button
           type="button"
           onClick={() => start(motherPalette(story))}
-          className="min-h-14 rounded-2xl bg-amber-900 px-10 py-4 text-lg font-bold text-amber-50 shadow-lg active:scale-95"
+          className="g-btn g-btn-warm relative px-12 py-4 text-2xl"
         >
           Play
         </button>
-        <p className="-mt-3 text-sm text-amber-900/80">Do your chores before mommy gets back</p>
+        <p className="relative -mt-2 font-display text-base italic text-[#f6dcae]">
+          Do your chores before mommy gets back
+        </p>
       </div>
     );
   }
@@ -208,14 +234,22 @@ function GameScreenInner() {
   const baseLevel = story[slot];
   const level = plan ? applyGuestAction(baseLevel, plan.action) : baseLevel;
   const isQuestion = state.stage === "question_one" || state.stage === "question_two";
+  // visual-only decay: grows with each task, peaks at the final blackout
+  const corruption = (
+    stage === "blackout_three" ? 3 : slot === "task_one" ? 0 : slot === "task_two" ? 1 : 2
+  ) as 0 | 1 | 2 | 3;
 
   return (
     <div
       className={`relative flex h-full flex-col items-center justify-center px-3 py-3 transition-colors duration-1000 ${
-        dark ? "bg-neutral-950" : "game-room-cozy"
+        dark ? "g-ending-room" : "g-title-room"
       }`}
     >
-      <div className={`game-scene-fit relative ${isBlackout ? "game-flicker" : ""}`}>
+      <div
+        key={slot}
+        data-corruption={corruption}
+        className={`game-scene-fit g-stage-in relative ${isBlackout ? "game-flicker" : ""}`}
+      >
         <MinigameHost
           key={level.id}
           level={level}
@@ -224,6 +258,8 @@ function GameScreenInner() {
           {...(isTask ? { onComplete: completeTask, onSkip: completeTask } : {})}
           onRememberFood={rememberFood}
         />
+
+        <CorruptionLayer level={corruption} />
 
         {isTask && plan && (
           <GuestOverlay key={slot} decision={plan} {...guestOverlay(level, plan.action)} />

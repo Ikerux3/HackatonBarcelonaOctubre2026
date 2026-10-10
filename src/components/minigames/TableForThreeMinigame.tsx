@@ -395,7 +395,7 @@ export function TableForThreeMinigame({
 
   return (
     <div
-      className={`relative w-full touch-none select-none overflow-hidden rounded-2xl border border-neutral-800 ${shakeClass}`}
+      className={`g-stage relative w-full touch-none select-none overflow-hidden rounded-2xl border border-neutral-800 ${shakeClass}`}
       style={{ aspectRatio: "2 / 3" }}
     >
       {scene === "kitchen" ? <KitchenBackdrop /> : <DiningBackdrop final={phase === "final"} />}
