@@ -200,6 +200,14 @@ function GameScreenInner() {
     [],
   );
 
+  // Heartbeat only in the six-second scripted finale; no gameplay darkness tick.
+  useEffect(() => {
+    if (state.stage !== "blackout_three") return;
+    sfx.heartbeat();
+    const t = setInterval(() => sfx.heartbeat(), 950);
+    return () => clearInterval(t);
+  }, [state.stage]);
+
   // D44 "evento 100": the bar hit the top — full scare over the scene while the active
   // minigame resets its current phase underneath (GameController calls its handler)
   const [scare100, setScare100] = useState(false);
@@ -308,6 +316,7 @@ function GameScreenInner() {
         toyText={toyLabel(state)}
         colorText={colorLabel(state)}
         ending={corduraEnding(corduraEnd)}
+        finalValue={corduraEnd}
         onSkip={advance}
       />
     );
@@ -344,7 +353,7 @@ function GameScreenInner() {
         <CorduraMeter value={state.cordura.value} />
         <CorduraContext.Provider value={cordura}>
           <MinigameHost
-            key={level.id}
+            key={`${level.id}-${state.resetSerial}`}
             level={level}
             memory={state.memory}
             dark={dark}
@@ -377,7 +386,13 @@ function GameScreenInner() {
           />
         )}
 
-        {isBlackout && (
+        {stage === "blackout_three" && (
+          <div className="absolute inset-0 z-[55] flex items-center justify-center bg-black px-6 text-center" aria-label="Six seconds of darkness with a frightened heartbeat">
+            <span className="font-serif text-xl tracking-[.25em] text-red-200 motion-safe:animate-pulse" aria-live="polite">THUMP ... THUMP ...</span>
+          </div>
+        )}
+
+        {isBlackout && stage !== "blackout_three" && (
           <div className="absolute inset-0 z-[55]">
             <MonsterOverlay
               minimumMs={BLACKOUT_MS}
