@@ -13,3 +13,4 @@
 - The game route runs inside `GameShell` (fixed box sized to the visible viewport): no page scroll, no `min-h-dvh`/bottom-padding tricks for the keyboard — use `h-full` and let the shell shrink.
 - Monster personalization goes through the local mapping in `src/game/interventions.ts`; the shared AI contract (`src/ai/contracts.ts`) is not changed without the AI developer's agreement.
 - `/editor` is a developer-only tool (localStorage drafts, no auth) and must never be linked from the player flow.
+- Visual styling for the game lives in `src/styles/game-art.css` (`g-*` classes) plus `CorruptionLayer`; it is presentation-only and must never carry game state — keeps art iterations from breaking gameplay.
