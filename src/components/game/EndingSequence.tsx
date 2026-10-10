@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { sfx } from "@/game/audio";
 import type { CorduraEnding } from "@/game/cordura";
 import type { GameMemory, GameStage } from "@/game/GameState";
 import { ASSETS, COLORS, COLOR_HEX, TOY_ASSET } from "@/game/levels/assets";
@@ -40,6 +42,7 @@ export function EndingSequence({ stage, name, memory, toyText, colorText, ending
 function Whisper({ name, intense }: { name: string; intense: boolean }) {
   const line = `Good night, ${name}.`;
   useGuestVoice(line, true, 600);
+  useEffect(() => { if (intense) sfx.possessed(); }, [intense]);
   return (
     <div className="g-ink-veil relative flex h-full items-center justify-center overflow-hidden bg-black px-6 text-center">
       <div className="g-grain-dark" />
