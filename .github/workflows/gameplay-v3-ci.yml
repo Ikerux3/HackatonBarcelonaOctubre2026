@@ -1,0 +1,29 @@
+name: Gameplay v3.1 checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test-build:
+    name: Typecheck, tests, touched-file lint and production build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install locked dependencies
+        run: bun install --frozen-lockfile
+      - name: TypeScript
+        run: bunx tsc --noEmit
+      - name: Unit tests
+        run: bun run test
+      - name: ESLint touched gameplay
+        run: bunx eslint src/game/cordura.ts src/game/GameState.ts src/game/GameController.ts src/game/audio.ts src/components/game/GameScreen.tsx src/components/game/EndingSequence.tsx src/components/minigames/PajamaMinigame.tsx src/components/minigames/MinigameHost.tsx src/components/minigames/TidyRolesMinigame.tsx src/components/minigames/TableForThreeMinigame.tsx src/components/minigames/MusicBoxMinigame.tsx src/components/minigames/MomRoomMinigame.tsx src/test/cordura.test.tsx
+      - name: Production build
+        run: bun run build
