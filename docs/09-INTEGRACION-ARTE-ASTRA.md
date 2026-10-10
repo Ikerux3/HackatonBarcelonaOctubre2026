@@ -2,6 +2,7 @@
 
 Responsable: Codex, tarea de Iker. Rama: `feature/integrate-astra-art`.
 Base inicial verificada: `36ebd05d5ed1791668c291a40387b9f1ad509928`.
+Avance del equipo incorporado en esta rama: `09e4c30` (ElevenLabs). Commits iniciales de integración: `8ec2c8d` (arte) y `0b10c1e` (incorporar main a esta rama, sin merge inverso).
 Pack local: `THE-MENDED-HOUSE-integration-v1.zip`, Astra v1. No arte generado adicional.
 
 ## Estado y alcance
@@ -28,6 +29,7 @@ Sin cambios propios en `src/ai/*`, contratos, niveles JSON, catálogo, ToySprite
 ## PROBADO
 
 - `pnpm test`: 36/36, 10 archivos; `pnpm exec tsc --noEmit`: correcto; `pnpm build`: correcto sobre la base inicial.
+- Con `09e4c30` incorporado: 37/37, 10 archivos; TypeScript y build correctos.
 - Navegador local, viewport 375×812, `?ai=mock&forget=1`. Partida hasta pantalla final: salón 5/5, comedor 6/6 con checkpoint de comida, intercambio de vasos corregido y tercer puesto; dormitorio 3/3 con huida del juguete.
 - Arrastre nativo del navegador y selección/clic del juguete + caja; cojín y cajón; luz desbloquea poseído y permite recogerlo; escondite encontrado. Segunda selección aleatoria con otro poseído y juguete tras cortina, 5/5 sobre la versión final.
 - Cocina: los cinco contenedores se abren, recogidos seis objetos; navegación a comedor. Pistas de dueño y silla en oscuridad, vuelta a luz y corrección de piezas.
@@ -37,6 +39,8 @@ Sin cambios propios en `src/ai/*`, contratos, niveles JSON, catálogo, ToySprite
 - Capturas locales fuera del repo en `../astra-art-evidence/`: salón, cocina, comedor oscuro/final, dormitorio con haz e intro.
 
 Un fallo transitorio de codificación durante edición dejó temporalmente TidyRoles sin export y Vite mostró errores de recarga. Se recuperó el archivo y se reaplicó únicamente el diff visual; TypeScript, build y pruebas finales pasan. Pestaña nueva con componente corregido usada para repetir los cinco roles. No ocultar estos mensajes de la sesión de desarrollo como si fueran errores de producción.
+
+Al incorporar el avance de voz de main, HMR mezcló dos instancias del contexto y mostró `Guest voice must be used inside GameShell`. Se reinició el servidor y abrió una pestaña nueva. Partida completa repetida sobre `0b10c1e`: salón 5/5, cocina 6/6, comedor 6/6 con checkpoint e intercambio corregido, dormitorio 3/3 y final (2:55, incluye pausas de QA). Consola limpia, voz silenciada. No hubo que editar la implementación de voz. Editor recargado y Playtest activo de nuevo. Captura `14-mother-returns.jpg` contiene el detalle final con madre/niño/Guest; se pudo verificar visualmente el regreso anterior también. DOM final sin imágenes rotas y 375×812 sin overflow.
 
 ## Parcial / pendiente
 
