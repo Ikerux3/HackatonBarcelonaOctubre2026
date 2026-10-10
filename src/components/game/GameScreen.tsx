@@ -223,12 +223,9 @@ function GameScreenInner() {
   const baseLevel = story[slot];
   const level = plan ? applyGuestAction(baseLevel, plan.action) : baseLevel;
   const isQuestion = state.stage === "question_one" || state.stage === "question_two";
-  // visual-only decay: grows with each task, one step more when The Guest acted
-  const corruption = Math.min(
-    3,
-    (slot === "task_one" ? 0 : slot === "task_two" ? 1 : 2) +
-      (plan ? 1 : 0) * (slot === "task_one" ? 0 : 1) * (slot === "task_three" ? 1 : 0) +
-      (stage === "blackout_three" ? 1 : 0),
+  // visual-only decay: grows with each task, peaks at the final blackout
+  const corruption = (
+    stage === "blackout_three" ? 3 : slot === "task_one" ? 0 : slot === "task_two" ? 1 : 2
   ) as 0 | 1 | 2 | 3;
 
   return (
