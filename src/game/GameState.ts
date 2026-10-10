@@ -1,7 +1,8 @@
 import type { FoodCategory, GuestDecision, NormalizedColor, ToyCategory } from "@/ai/contracts";
 import {
   corduraStartingAt,
-  freezeCordura,
+  freezeFinalCordura,
+  resetCorduraAtCheckpoint,
   initialCordura,
   scareCordura,
   tickCordura,
@@ -55,6 +56,8 @@ export interface GameState {
   guest: Partial<Record<GuestSlot, GuestDecision>>;
   /** Barra de Cordura: moves only inside minigames, frozen when the last one ends */
   cordura: Cordura;
+  /** A new value remounts only the current minigame, not the whole adventure. */
+  resetSerial: number;
 }
 
 /** Stages where a minigame is being played (the only ones where Cordura moves). */
@@ -86,6 +89,7 @@ export const initialGameState: GameState = {
   aiBusy: false,
   guest: {},
   cordura: initialCordura,
+  resetSerial: 0,
 };
 
 export type GameAction =
@@ -108,6 +112,7 @@ export type GameAction =
   /** time spent in the light or the dark of the current minigame */
   | { type: "CORDURA_TICK"; light: CorduraLight; ms: number }
   | { type: "FULL_SCARE" }
+  | { type: "CORDURA_RESET_100" }
   | { type: "REPLAY" };
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
@@ -136,7 +141,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const stage = next[state.stage];
       if (!stage) return state;
       return state.stage === LAST_TASK
-        ? { ...state, stage, cordura: freezeCordura(state.cordura) }
+        ? { ...state, stage, cordura: freezeFinalCordura(state.cordura) }
         : { ...state, stage };
     }
 
@@ -201,6 +206,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case "CORDURA_TICK":
       return TASK_STAGES.includes(state.stage)
         ? { ...state, cordura: tickCordura(state.cordura, action.light, action.ms) }
+        : state;
+
+    case "CORDURA_RESET_100":
+      return TASK_STAGES.includes(state.stage)
+        ? { ...state, cordura: resetCorduraAtCheckpoint(state.cordura), resetSerial: state.resetSerial + 1 }
         : state;
 
     case "FULL_SCARE":
