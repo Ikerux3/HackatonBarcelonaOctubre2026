@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { sfx } from "@/game/audio";
 import { resolveInterventions } from "@/game/interventions";
 import { useCameraShake } from "@/game/cameraShake";
+import { useCorduraLight } from "@/game/cordura";
 import { observe } from "@/game/observer";
 import { ASSETS, COLOR_HEX } from "@/game/levels/assets";
 import type { Point, SceneObject } from "@/game/levels/types";
@@ -40,6 +41,8 @@ export function FlashlightMinigame({ level, memory, onComplete }: MinigameProps)
   const [miss, setMiss] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const down = useRef<{ light: Point; at: Point; id: number } | null>(null);
+  // the room light is off the whole time: the flashlight doesn't count as light on
+  useCorduraLight(done ? null : "dark");
 
   const required =
     level.success.kind === "all_placed"

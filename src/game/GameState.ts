@@ -1,4 +1,12 @@
 import type { FoodCategory, GuestDecision, NormalizedColor, ToyCategory } from "@/ai/contracts";
+import {
+  freezeCordura,
+  initialCordura,
+  scareCordura,
+  tickCordura,
+  type Cordura,
+  type CorduraLight,
+} from "./cordura";
 
 // Explicit game stages — one active stage at a time, no loose boolean flags.
 export type GameStage =
@@ -40,7 +48,14 @@ export interface GameState {
   aiBusy: boolean;
   /** what The Guest decided to do in each later task (first decision wins) */
   guest: Partial<Record<GuestSlot, GuestDecision>>;
+  /** Barra de Cordura: moves only inside minigames, frozen when the last one ends */
+  cordura: Cordura;
 }
+
+/** Stages where a minigame is being played (the only ones where Cordura moves). */
+export const TASK_STAGES: readonly GameStage[] = ["task_one", "task_two", "task_three"];
+/** Leaving this task freezes Cordura for the ending (the bathroom/pajama one in the 5-level plan). */
+const LAST_TASK: GameStage = "task_three";
 
 /** Tasks The Guest plans for, during the blackout before them. */
 export type GuestSlot = "task_two" | "task_three";
@@ -53,6 +68,7 @@ export const initialGameState: GameState = {
   displayToy: null,
   aiBusy: false,
   guest: {},
+  cordura: initialCordura,
 };
 
 export type GameAction =
@@ -71,6 +87,9 @@ export type GameAction =
   | { type: "GUEST_DECISION"; slot: GuestSlot; decision: GuestDecision }
   /** a minigame learned something (e.g. the favorite food asked mid-task) */
   | { type: "REMEMBER"; favoriteFood: FoodCategory }
+  /** time spent in the light or the dark of the current minigame */
+  | { type: "CORDURA_TICK"; light: CorduraLight; ms: number }
+  | { type: "FULL_SCARE" }
   | { type: "REPLAY" };
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
@@ -94,7 +113,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         task_three: "blackout_three",
       };
       const stage = next[state.stage];
-      return stage ? { ...state, stage } : state;
+      if (!stage) return state;
+      return state.stage === LAST_TASK
+        ? { ...state, stage, cordura: freezeCordura(state.cordura) }
+        : { ...state, stage };
     }
 
     case "ADVANCE": {
@@ -150,6 +172,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "REMEMBER":
       return { ...state, memory: { ...state.memory, favoriteFood: action.favoriteFood } };
+
+    case "CORDURA_TICK":
+      return TASK_STAGES.includes(state.stage)
+        ? { ...state, cordura: tickCordura(state.cordura, action.light, action.ms) }
+        : state;
+
+    case "FULL_SCARE":
+      return TASK_STAGES.includes(state.stage)
+        ? { ...state, cordura: scareCordura(state.cordura) }
+        : state;
 
     case "REPLAY":
       return initialGameState;
