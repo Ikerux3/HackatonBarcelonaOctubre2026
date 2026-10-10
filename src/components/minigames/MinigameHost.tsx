@@ -7,6 +7,7 @@ import { DragMinigame } from "./DragMinigame";
 import { FlashlightMinigame } from "./FlashlightMinigame";
 import { MomRoomMinigame } from "./MomRoomMinigame";
 import { MusicBoxMinigame } from "./MusicBoxMinigame";
+import { PajamaMinigame } from "./PajamaMinigame";
 import { TableForThreeMinigame } from "./TableForThreeMinigame";
 import { TidyRolesMinigame } from "./TidyRolesMinigame";
 import type { MinigameProps } from "./types";
@@ -61,7 +62,7 @@ export function MinigameHost({
     );
   }
 
-  const Game = MINIGAME_REGISTRY[check.level.type];
+  const Game = check.level.id === "bedtime" ? PajamaMinigame : MINIGAME_REGISTRY[check.level.type];
   return (
     <div className="flex w-full flex-col gap-2">
       <div className="flex items-center justify-between gap-2">
