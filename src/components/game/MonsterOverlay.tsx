@@ -1,3 +1,5 @@
+import { useGuestVoice } from "./GuestVoice";
+
 interface MonsterOverlayProps {
   line?: string | null;
   children?: React.ReactNode;
@@ -9,12 +11,18 @@ interface MonsterOverlayProps {
  * should have. Different visual language from the cozy room on purpose.
  */
 export function MonsterOverlay({ line, children }: MonsterOverlayProps) {
+  useGuestVoice(line);
+
   return (
     <div className="g-ink-veil g-blackout-in absolute inset-0 z-20 flex flex-col items-center justify-end overflow-hidden pb-6">
       <div className="g-grain-dark" />
       {/* smears crossing the dark */}
       <span className="g-smear left-[-10%] top-[18%] w-[70%]" aria-hidden />
-      <span className="g-smear right-[-15%] top-[32%] w-[60%]" style={{ animationDelay: "1.7s" }} aria-hidden />
+      <span
+        className="g-smear right-[-15%] top-[32%] w-[60%]"
+        style={{ animationDelay: "1.7s" }}
+        aria-hidden
+      />
       {/* far eyes that come and go */}
       <svg className="absolute left-[8%] top-[10%] h-5 w-12" viewBox="0 0 40 14" aria-hidden>
         <g className="g-eyes-far">
@@ -51,16 +59,39 @@ export function MonsterOverlay({ line, children }: MonsterOverlayProps) {
             fill="#060403"
           />
           <ellipse cx="84" cy="70" rx="7" ry="4.5" className="g-eye" />
-          <ellipse cx="116" cy="70" rx="7" ry="4.5" className="g-eye" style={{ animationDelay: "0.12s" }} />
+          <ellipse
+            cx="116"
+            cy="70"
+            rx="7"
+            ry="4.5"
+            className="g-eye"
+            style={{ animationDelay: "0.12s" }}
+          />
           {/* a third eye that shouldn't be there */}
-          <ellipse cx="100" cy="52" rx="3.2" ry="2" className="g-eye g-eye-red" style={{ animationDelay: "2s" }} />
+          <ellipse
+            cx="100"
+            cy="52"
+            rx="3.2"
+            ry="2"
+            className="g-eye g-eye-red"
+            style={{ animationDelay: "2s" }}
+          />
           {/* faint smile */}
-          <path d="M86 92 Q100 100 114 92" stroke="#2a1a14" strokeWidth="1.6" fill="none" opacity="0.7" />
+          <path
+            d="M86 92 Q100 100 114 92"
+            stroke="#2a1a14"
+            strokeWidth="1.6"
+            fill="none"
+            opacity="0.7"
+          />
         </g>
       </svg>
 
       {line && (
-        <p className="g-guest-line game-monster-line relative mx-5 max-w-sm text-center text-xl leading-snug">
+        <p
+          className="g-guest-line game-monster-line relative mx-5 max-w-sm text-center text-xl leading-snug"
+          aria-live="polite"
+        >
           “{line}”
         </p>
       )}
