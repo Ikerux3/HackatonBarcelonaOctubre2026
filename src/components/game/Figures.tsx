@@ -50,7 +50,11 @@ export function ChildFigure({
   crying?: boolean;
 }) {
   return (
-    <span role="img" aria-label={crying ? "The child, crying" : "The child"} className={`inline-block ${className}`}>
+    <span
+      role="img"
+      aria-label={crying ? "The child, crying" : "The child"}
+      className={`inline-block ${className}`}
+    >
       <ArtImage
         src={`/assets/intro-ending/sprites/child-${crying ? "crying" : "worried"}.webp`}
         className="h-full w-auto object-contain"
