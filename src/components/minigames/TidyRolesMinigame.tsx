@@ -356,6 +356,10 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
 
   const tapSpot = (i: number) => {
     if (!hide || hide.revealed || !H) return;
+    if (lights.main || lights.lamp) {
+      say("Turn off the lights to find the last toy.", 2400);
+      return;
+    }
     observe.hideSpot(H.spots[i]?.label ?? "", i === hide.spot);
     if (i === hide.spot) {
       sfx.snap();
@@ -741,6 +745,16 @@ export function TidyRolesMinigame({ level, dark, onComplete }: MinigameProps) {
             );
           });
         })()}
+
+      {/* The last toy is ONLY discoverable in darkness; the switch remains accessible. */}
+      {hideActive && P && (
+        <button type="button" aria-label={lights.main ? "Turn room light off" : "Turn room light on"}
+          aria-pressed={lights.main} onClick={() => toggleLight("main")}
+          className="absolute z-[45] flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl border-2 border-amber-200 bg-amber-300/90 text-2xl"
+          style={{ left: P.mainSwitch.x + "%", top: P.mainSwitch.y + "%" }}>
+          💡
+        </button>
+      )}
 
       {/* hide and seek: clue + tappable spots */}
       {hideActive && H && !hide!.revealed && (
